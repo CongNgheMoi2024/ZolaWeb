@@ -51,7 +51,6 @@ export default NuxtAuthHandler({
     session: ({ session, token }) => {
       ;(session as any).jwt = token.jwt
       ;(session as any).id = token.id
-      ;(session as any).expires = new Date(token.exp * 1000).toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' })
       return Promise.resolve(session)
     },
   },

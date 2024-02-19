@@ -18,7 +18,7 @@
 
 <style lang="scss">
 .left-part {
-  width: 320px;
+  width: 280px;
   border-right: 1px solid rgb(var(--v-theme-borderColor));
   min-height: 500px;
   transition: 0.1s ease-in;

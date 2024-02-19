@@ -3,15 +3,35 @@ import { ref, computed } from 'vue'
 import { useChatStore } from '@/stores/apps/chat'
 
 const msg = ref('')
-const store = useChatStore()
+const { data } = useAuth()
+const nuxtApp = useNuxtApp()
+const stompClient = nuxtApp.$stompClient
+const emit = defineEmits(['chat-send-msg'])
 
+const props = defineProps({
+  recipientId: {
+    type: String,
+    default: '',
+  },
+})
+
+const auth = data.value
 function addItemAndClear(item: string) {
-  console.log(item)
   if (item.length === 0) {
     return
   }
-  store.sendMsg(store.chatContent, msg.value)
-  msg.value = ''
+  if (stompClient) {
+    const messageContent = {
+      senderId: auth?.id,
+      recipientId: props.recipientId,
+      content: item,
+      timestamp: new Date(),
+    }
+
+    stompClient.send('/app/chat', {}, JSON.stringify(messageContent))
+    emit('chat-send-msg', messageContent)
+    msg.value = ''
+  }
 }
 </script>
 

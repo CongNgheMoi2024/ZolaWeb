@@ -8,8 +8,6 @@ import TextInput from '@/components/forms/form-validation/TextInput.vue'
 
 const router = useRouter()
 const checkbox = ref(false)
-const valid = ref(false)
-const show1 = ref(false)
 const { signIn, data } = useAuth()
 const toast = useToast()
 const { t } = useI18n()
@@ -17,11 +15,11 @@ const loading = ref(false)
 
 const { values, handleSubmit } = useForm({
   validationSchema: Yup.object().shape({
-    email: Yup.string().email().required(),
+    phone: Yup.string().required(),
     password: Yup.string().min(6).required(),
   }),
   initialValues: {
-    email: '',
+    phone: '',
     password: '',
   },
 })
@@ -29,7 +27,7 @@ const { values, handleSubmit } = useForm({
 const login = () => {
   loading.value = true
   signIn('credentials', {
-    email: values.email,
+    phone: values.phone,
     password: values.password,
     redirect: false,
     callbackUrl: '/api/v1/auth/login',
@@ -41,7 +39,6 @@ const login = () => {
       router.push({ path: '/' })
     }
   })
-  console.log('auth')
 }
 </script>
 
@@ -69,7 +66,7 @@ const login = () => {
   </div>
   <v-form v-slot="{ errors, isSubmitting }" class="mt-5" @submit="login">
     <v-label class="text-subtitle-1 font-weight-medium pb-2 text-lightText">Username</v-label>
-    <text-input name="email" success-message="Got it, we won't spam you!" type="email" />
+    <text-input name="phone" success-message="Got it, we won't spam you!" />
     <v-label class="text-subtitle-1 font-weight-medium pb-2 text-lightText">Password</v-label>
     <text-input name="password" success-message="Nice and secure!" type="password" />
     <div class="d-flex flex-wrap align-center my-3 ml-n2">

@@ -12,6 +12,13 @@ export default defineNuxtPlugin(() => {
   })
 
   client.interceptors.request.use((config) => {
+    const { data } = useAuth()
+    const token = data.value?.jwt
+    if (token) {
+      // @ts-ignore
+      config.headers.Authorization = `Bearer ${token}`
+    }
+
     config.paramsSerializer = (params) => stringify(params, { encode: false, arrayFormat: 'comma' })
 
     return config
@@ -21,7 +28,16 @@ export default defineNuxtPlugin(() => {
     (response) => {
       return response
     },
-    (error) => {}
+    (error) => {
+      const { signOut } = useAuth()
+
+      const code = error.response?.status
+      if (code === 401) {
+        signOut({ callbackUrl: '/auth/login' })
+      }
+
+      throw error
+    }
   )
 
   return {

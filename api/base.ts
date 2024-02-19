@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosInstance } from 'axios'
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios'
 import { ToastInterface, useToast } from 'vue-toastification'
 import { BaseResponse, ErrorResponse } from '@/types/ResponseTypes'
 
@@ -11,7 +11,7 @@ export class BaseApi {
     this.toast = useToast()
   }
 
-  public async get(endpoint: string, config?: any): Promise<any> {
+  public async get(endpoint: string, config?: AxiosRequestConfig): Promise<any> {
     try {
       return (await this.axios.get(endpoint, config)).data
     } catch (error) {
@@ -19,9 +19,17 @@ export class BaseApi {
     }
   }
 
-  public async post(endpoint: string, data?: any): Promise<any> {
+  public async post(endpoint: string, data?: any, config?: AxiosRequestConfig): Promise<any> {
     try {
-      return (await this.axios.post(endpoint, data)).data
+      return (await this.axios.post(endpoint, data, config)).data
+    } catch (error) {
+      await this.toastError(error)
+    }
+  }
+
+  public async postDownload(endpoint: string, data?: any, config?: AxiosRequestConfig): Promise<any> {
+    try {
+      return await this.axios.post(endpoint, data, config)
     } catch (error) {
       await this.toastError(error)
     }
@@ -37,7 +45,7 @@ export class BaseApi {
 
   public async delete(endpoint: string, data?: any): Promise<any> {
     try {
-      return (await this.axios.delete(endpoint, data)).data
+      return (await this.axios.delete(endpoint, { data })).data
     } catch (error) {
       await this.toastError(error)
     }

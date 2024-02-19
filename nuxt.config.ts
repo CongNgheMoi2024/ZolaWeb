@@ -20,17 +20,18 @@ export default defineNuxtConfig({
     //   extractCSS: false,
     transpile: ['vuetify'],
   },
-  modules: ['@pinia/nuxt', '@nuxt/devtools', '@nuxtjs/tailwindcss', '@sidebase/nuxt-auth'],
+  modules: ['@pinia/nuxt', '@nuxt/devtools', '@nuxtjs/tailwindcss', '@sidebase/nuxt-auth', '@vee-validate/nuxt'],
   plugins: [
     '@/plugins/axios',
     '@/plugins/api',
-    '@/plugins/vue-final-modal',
     '@/plugins/vue-query',
     '@/plugins/vue-money',
+    '@/plugins/vue-final-modal',
+    '@/plugins/sockjs-client',
   ],
   auth: {
     origin: process.env.ORIGIN,
-    enableGlobalAppMiddleware: false,
+    enableGlobalAppMiddleware: true,
     enableSessionRefreshPeriodically: false,
     enableSessionRefreshOnWindowFocus: true,
   },
@@ -43,6 +44,7 @@ export default defineNuxtConfig({
     serveStatic: true,
   },
   devServerHandlers: [],
+  // @ts-ignore
   vuetify: {
     /* vuetify options */
     vuetifyOptions: {
@@ -53,6 +55,17 @@ export default defineNuxtConfig({
       styles: {
         configFile: '~/assets/scss/_variables.scss',
       },
+    },
+  },
+  veeValidate: {
+    // disable or enable auto imports
+    autoImports: true,
+    // Use different names for components
+    componentNames: {
+      Form: 'VeeForm',
+      Field: 'VeeField',
+      FieldArray: 'VeeFieldArray',
+      ErrorMessage: 'VeeErrorMessage',
     },
   },
 })
