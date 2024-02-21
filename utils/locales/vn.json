@@ -2,10 +2,28 @@
   "common": {
     "action": {
       "save": "Lưu",
-      "cancel": "Hủy"
+      "cancel": "Hủy",
+      "search": "Tìm kiếm"
+    },
+    "status": {
+      "active": "Hoạt động",
+      "inactive": "Không hoạt động",
+      "pending": "Đang chờ",
+      "success": "Thành công",
+      "error": "Lỗi"
     }
   },
   "chats": {
-    "addFriend": "Thêm bạn"
+    "addFriend": "Thêm bạn",
+    "makeFriend": "Kết bạn",
+    "model": {
+      "phone": "Số điện thoại"
+    },
+    "action": {
+      "send": "Gửi",
+      "cancel": "Hủy",
+      "create": "Tạo",
+      "search": "Tìm kiếm"
+    }
   }
 }

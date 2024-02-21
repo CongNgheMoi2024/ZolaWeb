@@ -57,7 +57,7 @@ export class BaseApi {
         const axiosError = error as AxiosError<BaseResponse<ErrorResponse>>
 
         if (axiosError.response?.data.error) {
-          this.toast.error(axiosError.response.data.error.message)
+          this.toast.error(axiosError.response.data.error)
 
           if (axiosError.response.data.error.fields) {
             throw axiosError.response.data.error.fields
