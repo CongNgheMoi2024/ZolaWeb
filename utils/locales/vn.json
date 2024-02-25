@@ -3,7 +3,8 @@
     "action": {
       "save": "Lưu",
       "cancel": "Hủy",
-      "search": "Tìm kiếm"
+      "search": "Tìm kiếm",
+      "close": "Đóng"
     },
     "status": {
       "active": "Hoạt động",

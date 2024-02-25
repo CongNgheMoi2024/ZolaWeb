@@ -7,9 +7,9 @@ import ChatInfo from './ChatInfo.vue'
 import { useChatStore } from '@/stores/apps/chat'
 
 const props = defineProps({
-  recipientId: {
-    type: String,
-    default: '',
+  userRecipient: {
+    type: Object,
+    default: () => ({}),
   },
   messageReceived: {
     type: [Object, String],
@@ -17,11 +17,14 @@ const props = defineProps({
   },
 })
 
+console.log('props.userRecipient', props.userRecipient)
+
 const { $api } = useNuxtApp()
 const { data } = useAuth()
 
 const auth = data.value
 const messageReceived = computed(() => props.messageReceived)
+const userRecipient = computed(() => props.userRecipient)
 // const { lgAndUp } = useDisplay()
 //
 // const store = useChatStore()
@@ -52,66 +55,61 @@ const scrollToBottom = () => {
 }
 
 const fetchChatDetail = async () => {
-  await $api.chats.chat(auth?.id, props.recipientId).then((res) => {
+  console.log('props.userRecipient', props.userRecipient)
+  await $api.chats.chat(auth?.id, props.userRecipient.id).then((res) => {
     chatDetail.value = res.data
   })
+  scrollToBottom()
 }
 
 const addChatSendMsg = (msg) => {
   chatDetail.value.push(msg)
+  emit('chat-send-msg', msg)
 }
 
 watch(
-  () => props.recipientId,
+  () => userRecipient,
   () => {
     fetchChatDetail()
-  }
+  },
+  { deep: true }
 )
 
 watch(
   () => messageReceived.value,
   () => {
     chatDetail.value.push(messageReceived.value)
+    scrollToBottom()
   }
 )
 
-// Cuộn xuống mỗi khi chatDetail thay đổi
-watch(chatDetail, scrollToBottom, { deep: true })
-
-onMounted(() => {
-  fetchChatDetail()
-  scrollToBottom()
-})
+const formatStatusUser = (status) => {
+  if (status === false) {
+    return 'error'
+  } else if (status === true) {
+    return 'success'
+  } else {
+    return 'containerBg'
+  }
+}
 </script>
 <template>
   <div v-if="chatDetail">
     <div>
-      <div class="d-flex align-center gap-3 pa-4">
+      <div v-if="Object.keys(userRecipient).length > 0" class="d-flex align-center gap-3 pa-4">
         <!---Topbar Row-->
         <div class="d-flex gap-2 align-center">
           <!---User Avatar-->
-          <!--          <v-avatar>-->
-          <!--            <img alt="pro" :src="chatDetail.thumb" width="50" />-->
-          <!--          </v-avatar>-->
+          <v-avatar>
+            <img alt="pro" :src="'https://randomuser.me/api/portraits/women/8.jpg'" width="50" />
+          </v-avatar>
 
-          <!--          <v-badge-->
-          <!--            class="badg-dotDetail"-->
-          <!--            :color="-->
-          <!--              chatDetail.status === 'away'-->
-          <!--                ? 'warning'-->
-          <!--                : chatDetail.status === 'busy'-->
-          <!--                ? 'error'-->
-          <!--                : chatDetail.status === 'online'-->
-          <!--                ? 'success'-->
-          <!--                : 'containerBg'-->
-          <!--            "-->
-          <!--            dot-->
-          <!--          />-->
+          <v-badge class="badg-dotDetail" :color="formatStatusUser(userRecipient.onlineStatus)" dot />
           <!---Name & Last seen-->
-          <!--          <div>-->
-          <!--            <h5 class="text-h5 mb-n1">{{ chatDetail.name }}</h5>-->
-          <!--            <small class="textPrimary">{{ chatDetail.status }}</small>-->
-          <!--          </div>-->
+          <div>
+            <h5 class="text-h5 mb-n1">{{ userRecipient.name }}</h5>
+            <small class="textPrimary">{{ userRecipient.status }}</small>
+          </div>
         </div>
         <!---Topbar Icons-->
         <!--        <div class="ml-auto d-flex">-->
@@ -187,12 +185,12 @@ onMounted(() => {
     </div>
     <v-divider />
     <!---Chat send-->
-    <chat-send-msg :recipient-id="recipientId" @chat-send-msg="addChatSendMsg" />
+    <chat-send-msg :recipient-id="userRecipient.id" @chat-send-msg="addChatSendMsg" />
   </div>
 </template>
 <style lang="scss">
 .rightpartHeight {
-  height: 87vh;
+  height: 82vh;
 }
 .badg-dotDetail {
   left: -9px;

@@ -16,4 +16,8 @@ export class UserAPI extends BaseApi {
   addFriend(id: string, friendId: string): Promise<any> {
     return this.post(`/users/${id}/add-friend/${friendId}`)
   }
+
+  getFriendByName(id: string, name: string): Promise<any> {
+    return this.get(`/users/${id}/friends/${name}`)
+  }
 }

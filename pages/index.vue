@@ -8,7 +8,7 @@ const { $api } = useNuxtApp()
 const nuxtApp = useNuxtApp()
 const { data } = useAuth()
 const stompClient = nuxtApp.$stompClient
-const recipientId = ref('')
+const userRecipient = ref({})
 const messageReceived = ref('')
 const selectedItem = ref('message')
 
@@ -32,8 +32,8 @@ onMounted(() => {
   connect()
 })
 
-const fetchChatByUserId = (id) => {
-  recipientId.value = id
+const fetchChatByUserId = (user) => {
+  userRecipient.value = user
 }
 </script>
 
@@ -72,7 +72,7 @@ const fetchChatByUserId = (id) => {
         <chat-listing @chat-detail="fetchChatByUserId" />
       </template>
       <template #rightpart>
-        <chat-detail :message-received="messageReceived" :recipient-id="recipientId" />
+        <chat-detail :message-received="messageReceived" :user-recipient="userRecipient" />
       </template>
     </app-base-card>
     <div v-else>empty</div>
