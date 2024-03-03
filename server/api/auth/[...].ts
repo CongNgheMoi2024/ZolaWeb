@@ -25,7 +25,7 @@ export default NuxtAuthHandler({
           if (res.data?.user) {
             return {
               ...res.data?.user,
-              access_token: res.data?.token,
+              access_token: res.data?.access_token,
             }
           }
 
