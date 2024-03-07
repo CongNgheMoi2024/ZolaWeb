@@ -28,7 +28,7 @@
     "import/named": "off",
     "key-spacing": ["error"],
     "object-curly-spacing": ["error", "always"],
-    "prettier/prettier": ["error"],
+    "prettier/prettier": ["error", { "endOfLine": "off" }],
     "quotes": ["error", "single"],
     "semi": [2, "never"],
     "vue/attributes-order": [
