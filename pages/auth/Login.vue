@@ -10,7 +10,7 @@ definePageMeta({
 <template>
   <div class="pa-3">
     <v-row class="h-100vh mh-100 auth">
-      <v-col class="d-lg-flex align-center justify-center authentication position-relative" cols="12" lg="7" xl="8">
+      <v-col class="d-lg-flex align-center justify-center authentication position-relative" cols="12" lg="6" xl="4">
         <div class="">
           <img
             alt="login-background"
@@ -20,13 +20,13 @@ definePageMeta({
           />
         </div>
       </v-col>
-      <v-col class="d-flex align-center justify-center bg-surface" cols="12" lg="5" xl="4">
-        <div class="mt-xl-0 mt-5 mw-100">
-          <h2 class="text-h3 font-weight-bold mb-2">Welcome to AdminPro</h2>
-          <div class="text-subtitle-1 mb-6">Your Admin Dashboard</div>
+      <v-col class="d-flex align-center justify-center bg-surface" cols="12" lg="6" xl="4">
+        <div class="mt-xl-0 mt-5 mw-100" style="width: 50%">
+          <h2 class="text-h3 font-weight-bold mb-2">Welcome to Zola</h2>
+          <div class="text-subtitle-1 mb-6">Your Dashboard</div>
           <AuthLoginForm />
           <h6 class="text-h6 d-flex align-center mt-6 font-weight-medium">
-            New to AdminPro?
+            New to account?
             <v-btn
               class="pl-0 text-primary text-body-1 opacity-1 pl-2 font-weight-medium"
               height="auto"

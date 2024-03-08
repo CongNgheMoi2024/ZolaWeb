@@ -15,8 +15,18 @@ const loading = ref(false)
 
 const { values, handleSubmit } = useForm({
   validationSchema: Yup.object().shape({
-    phone: Yup.string().required(),
-    password: Yup.string().min(6).required(),
+    phone: Yup.string()
+      .required('Please enter your phone number')
+      .matches(/^[0-9]+$/, 'Please enter a valid phone number')
+      .min(10, 'Phone number must be exactly 10 characters')
+      .max(10, 'Phone number must be exactly 10 characters'),
+    password: Yup.string()
+      .required('Please enter your password')
+      .min(6, 'Password must be at least 6 characters long')
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+|~\-={}[\]:;"'<>,.?/]).*$/,
+        'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+      ),
   }),
   initialValues: {
     phone: '',
@@ -43,42 +53,13 @@ const login = () => {
 </script>
 
 <template>
-  <v-row class="d-flex mb-3">
-    <v-col class="pr-2" cols="6" sm="6">
-      <v-btn block class="border text-subtitle-1" size="large" variant="outlined">
-        <img alt="google" class="mr-2" height="16" src="/images/svgs/google-icon.svg" />
-        <span class="d-sm-flex d-none mr-1">Sign in with</span>
-        Google
-      </v-btn>
-    </v-col>
-    <v-col class="pl-2" cols="6" sm="6">
-      <v-btn block class="border text-subtitle-1" size="large" variant="outlined">
-        <img alt="facebook" class="mr-1" height="25" src="/images/svgs/facebook-icon.svg" width="25" />
-        <span class="d-sm-flex d-none mr-1">Sign in with</span>
-        FB
-      </v-btn>
-    </v-col>
-  </v-row>
-  <div class="d-flex align-center text-center mb-6">
-    <div class="text-h6 w-100 px-5 font-weight-regular auth-divider position-relative">
-      <span class="bg-surface px-5 py-3 position-relative">or sign in with</span>
-    </div>
-  </div>
+  <div class="d-flex align-center text-center mb-6"></div>
   <v-form v-slot="{ errors, isSubmitting }" class="mt-5" @submit="login">
-    <v-label class="text-subtitle-1 font-weight-medium pb-2 text-lightText">Username</v-label>
+    <v-label class="text-subtitle-1 font-weight-medium pb-2 text-lightText">Phone number</v-label>
     <text-input name="phone" success-message="Got it, we won't spam you!" />
     <v-label class="text-subtitle-1 font-weight-medium pb-2 text-lightText">Password</v-label>
     <text-input name="password" success-message="Nice and secure!" type="password" />
     <div class="d-flex flex-wrap align-center my-3 ml-n2">
-      <v-checkbox
-        v-model="checkbox"
-        color="primary"
-        hide-details
-        required
-        :rules="[(v:any) => !!v || 'You must agree to continue!']"
-      >
-        <template #label>Remeber this Device</template>
-      </v-checkbox>
       <div class="ml-sm-auto">
         <NuxtLink class="text-primary text-decoration-none text-body-1 opacity-1 font-weight-medium" to="">
           Forgot Password ?
