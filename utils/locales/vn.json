@@ -48,7 +48,9 @@
       "phone": "Số điện thoại không hợp lệ",
       "password": "Mật khẩu không hợp lệ",
       "minPassword": "Mật khẩu phải có ít nhất 6 ký tự",
-      "regexPassword": "Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ cái, số và ký tự đặc biệt"
+      "regexPassword": "Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ cái, số và ký tự đặc biệt",
+      "requiredPhone": "Vui lòng nhập số điện thoại",
+      "requiredPassword": "Vui lòng nhập mật khẩu"
     },
     "message": {
       "loginSuccess": "Đăng nhập thành công",

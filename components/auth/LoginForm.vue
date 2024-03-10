@@ -14,19 +14,19 @@ const loading = ref(false)
 const schema = yup.object({
   phone: yup
     .string()
-    .required()
+    .required(t('login.validation.requiredPhone'))
     .label(t('chats.model.phone'))
     .matches(/^[0-9]+$/, t('login.validation.phone'))
     .min(8, t('login.validation.minPhone'))
     .max(20, t('login.validation.maxPhone')),
   password: yup
     .string()
-    .required()
+    .required(t('login.validation.requiredPassword'))
     .label(t('chats.model.password'))
     .matches(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/, t('login.validation.regexPassword')),
 })
 
-const { defineComponentBinds, handleSubmit, setErrors, setFieldValue } = useForm({
+const { defineComponentBinds, handleSubmit, setErrors } = useForm({
   validationSchema: schema,
   initialValues: {
     phone: '',
@@ -66,7 +66,7 @@ const login = handleSubmit((values) => {
 
 <template>
   <div class="d-flex align-center text-center mb-6" />
-  <v-form v-slot="{ errors, isSubmitting }" class="mt-5" @submit="login">
+  <v-form class="mt-5" @submit="login">
     <v-label class="text-subtitle-1 font-weight-medium pb-2 text-lightText">{{ t('login.model.phone') }}</v-label>
     <text-input v-model="form.phone" name="phone" type="text" />
     <v-label class="text-subtitle-1 font-weight-medium pb-2 text-lightText">{{ t('login.model.password') }}</v-label>
@@ -78,11 +78,8 @@ const login = handleSubmit((values) => {
         </NuxtLink>
       </div>
     </div>
-    <v-btn block color="primary" :disabled="!form.password" flat :loading="loading" size="large" type="submit">
+    <v-btn block color="primary" flat :loading="loading" size="large" type="submit">
       {{ t('login.action.login') }}
     </v-btn>
-    <div v-if="errors.apiError" class="mt-2">
-      <v-alert color="error">{{ errors.apiError }}</v-alert>
-    </div>
   </v-form>
 </template>
