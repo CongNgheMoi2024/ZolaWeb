@@ -76,7 +76,11 @@ const searchFriend = debounce((value) => {
     $api.users
       .getFriendByName(auth.id, value)
       .then((res) => {
-        userFriends.value = res.data
+        if (res.data === null) {
+          userFriends.value = []
+        } else {
+          userFriends.value = res.data
+        }
       })
       .finally(() => {
         loadingSearchFriend.value = false
@@ -131,7 +135,18 @@ const searchFriend = debounce((value) => {
             </template>
             <template v-else>
               <v-list-item>
-                <v-list-item-title class="text-center text-subtitle-1">Vui lòng nhập tên để tìm</v-list-item-title>
+                <v-list-item-title
+                  v-if="searchValue === '' && userFriends.length === 0"
+                  class="text-center text-subtitle-1"
+                >
+                  {{ t('chats.message.findFriendByName') }}
+                </v-list-item-title>
+                <v-list-item-title
+                  v-if="searchValue !== '' && userFriends.length === 0"
+                  class="text-center text-subtitle-1"
+                >
+                  {{ t('chats.message.friendNotFound') }}
+                </v-list-item-title>
               </v-list-item>
             </template>
           </v-list>

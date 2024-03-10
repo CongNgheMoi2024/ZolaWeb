@@ -25,6 +25,40 @@
       "cancel": "Hủy",
       "create": "Tạo",
       "search": "Tìm kiếm"
+    },
+    "message": {
+      "addFriendSuccess": "Gửi lời mời kết bạn thành công",
+      "addFriendFailed": "Gửi lời mời kết bạn thất bại",
+      "makeFriendSuccess": "Kết bạn thành công",
+      "makeFriendFailed": "Kết bạn thất bại",
+      "findFriendByName": "Vui lòng nhập tên bạn bè",
+      "friendNotFound": "Không tìm thấy bạn bè"
+    }
+  },
+  "login": {
+    "model": {
+      "phone": "Số điện thoại",
+      "password": "Mật khẩu",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "forgotPassword": "Quên mật khẩu"
+    },
+    "validation": {
+      "minPhone": "Số điện thoại phải có ít nhất 8 ký tự",
+      "maxPhone": "Số điện thoại phải có ít nhất 20 ký tự",
+      "phone": "Số điện thoại không hợp lệ",
+      "password": "Mật khẩu không hợp lệ",
+      "minPassword": "Mật khẩu phải có ít nhất 6 ký tự",
+      "regexPassword": "Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ cái, số và ký tự đặc biệt"
+    },
+    "message": {
+      "loginSuccess": "Đăng nhập thành công",
+      "loginFailed": "Đăng nhập thất bại",
+      "registerSuccess": "Đăng ký thành công",
+      "registerFailed": "Đăng ký thất bại"
+    },
+    "action": {
+      "login": "Đăng nhập",
+      "forgotPassword": "Quên mật khẩu"
     }
   }
 }
