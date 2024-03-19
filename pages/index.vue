@@ -11,6 +11,13 @@ const stompClient = nuxtApp.$stompClient
 const userRecipient = ref({})
 const messageReceived = ref('')
 const selectedItem = ref('message')
+const showSettingsMenu = ref(false)
+const menuPositionX = ref(0)
+const menuPositionY = ref(0)
+
+const openMenu = () => {
+  showSettingsMenu.value = true
+}
 
 const auth = data.value
 const connect = () => {
@@ -58,7 +65,7 @@ const fetchChatByUserId = (user) => {
         </template>
       </v-list-item>
 
-      <v-list-item :class="{ 'selected-item': selectedItem === 'setting' }" @click="selectedItem = 'setting'">
+      <v-list-item class="settings-button" :class="{ 'selected-item': selectedItem === 'setting' }" @click="openMenu">
         <template #prepend>
           <v-icon class="tw-ml-[6px]" color="white">mdi-cog</v-icon>
         </template>
@@ -77,6 +84,11 @@ const fetchChatByUserId = (user) => {
     </app-base-card>
     <div v-else>empty</div>
   </v-card>
+  <v-menu v-model="showSettingsMenu" absolute :style="{ top: 180 + 'px', left: 70 + 'px' }">
+    <v-list>
+      <v-list-item @click="showSettingsDialog = true">Logout</v-list-item>
+    </v-list>
+  </v-menu>
 </template>
 
 <style scoped>

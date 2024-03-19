@@ -58,7 +58,7 @@
     "vue3-perfect-scrollbar": "1.6.0",
     "vue3-recaptcha-v2": "1.0.1",
     "vuedraggable": "^2.24.3",
-    "vuetify": "3.3.13",
+    "vuetify": "^3.3.13",
     "vuetify-money": "^1.2.0",
     "yup": "^1.2.0",
     "yup-locales": "^1.2.16"
