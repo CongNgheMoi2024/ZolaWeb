@@ -32,7 +32,7 @@ definePageMeta({
           <div class="text-subtitle-1 mb-6" style="text-align: center">
             {{ t('login.model.loginToZaloAccountToConnectToZolaWebApplication') }}
           </div>
-          <AuthLoginForm />
+          <!-- <AuthLoginForm /> -->
           <h6 class="text-h6 d-flex align-center mt-6 font-weight-medium">
             {{ t('login.model.newToZola') }}
             <v-btn

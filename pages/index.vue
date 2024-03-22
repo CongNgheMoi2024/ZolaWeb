@@ -3,7 +3,9 @@ import AppBaseCard from '@/components/common/atom/AppBaseCard.vue'
 import ChatListing from '@/components/chats/ChatListing.vue'
 import ChatDetail from '@/components/chats/ChatDetail.vue'
 import ChatProfile from '@/components/chats/ChatProfile.vue'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const { $api } = useNuxtApp()
 const nuxtApp = useNuxtApp()
 const { data } = useAuth()
@@ -18,6 +20,8 @@ const menuPositionY = ref(0)
 const openMenu = () => {
   showSettingsMenu.value = true
 }
+
+const logout = () => {}
 
 const auth = data.value
 const connect = () => {
@@ -86,7 +90,7 @@ const fetchChatByUserId = (user) => {
   </v-card>
   <v-menu v-model="showSettingsMenu" absolute :style="{ top: 180 + 'px', left: 70 + 'px' }">
     <v-list>
-      <v-list-item @click="showSettingsDialog = true">Logout</v-list-item>
+      <v-list-item @click="logout">{{ t('chats.action.logout') }}</v-list-item>
     </v-list>
   </v-menu>
 </template>

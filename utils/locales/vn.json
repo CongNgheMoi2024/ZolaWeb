@@ -24,7 +24,8 @@
       "send": "Gửi",
       "cancel": "Hủy",
       "create": "Tạo",
-      "search": "Tìm kiếm"
+      "search": "Tìm kiếm",
+      "logout": "Đăng xuất"
     },
     "message": {
       "addFriendSuccess": "Gửi lời mời kết bạn thành công",
@@ -39,8 +40,9 @@
     "model": {
       "phone": "Số điện thoại",
       "password": "Mật khẩu",
-      "confirmPassword": "Xác nhận mật khẩu",
-      "forgotPassword": "Quên mật khẩu"
+      "newToZola": "Bạn mới biết đến Zola?",
+      "welcomeToZola": "Chào mừng bạn đến với Zola",
+      "loginToZaloAccountToConnectToZolaWebApplication": "Đăng nhập vào tài khoản Zalo để kết nối với ứng dụng Zola Web"
     },
     "validation": {
       "minPhone": "Số điện thoại phải có ít nhất 8 ký tự",
@@ -54,13 +56,43 @@
     },
     "message": {
       "loginSuccess": "Đăng nhập thành công",
-      "loginFailed": "Đăng nhập thất bại",
-      "registerSuccess": "Đăng ký thành công",
-      "registerFailed": "Đăng ký thất bại"
+      "loginFailed": "Đăng nhập thất bại"
     },
     "action": {
       "login": "Đăng nhập",
-      "forgotPassword": "Quên mật khẩu"
+      "register": "Tạo tài khoản",
+      "forgotPassword": "Quên mật khẩu?"
     }
+  },
+  "register":{
+    "model": {
+      "register": "Đăng ký",
+      "name": "Tên",
+      "phone": "Số điện thoại",
+      "password": "Mật khẩu",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "retypePassword": "Nhập lại mật khẩu",
+      "sex": "Giới tính",
+      "male": "Nam",
+      "female": "Nữ",
+      "birthday": "Ngày sinh",
+      "welcomeToZola": "Chào mừng bạn đến với Zola",
+      "loginToZaloAccountToConnectToZolaWebApplication": "Đăng nhập vào tài khoản Zalo để kết nối với ứng dụng Zola Web"
+    },
+    "validation": {
+      "minPhone": "Số điện thoại phải có ít nhất 8 ký tự",
+      "maxPhone": "Số điện thoại phải có ít nhất 20 ký tự",
+      "phone": "Số điện thoại không hợp lệ",
+      "password": "Mật khẩu không hợp lệ",
+      "minPassword": "Mật khẩu phải có ít nhất 6 ký tự",
+      "regexPassword": "Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ cái, số và ký tự đặc biệt",
+      "regexRetypePassword": "Mật khẩu không khớp",
+      "birthday": "Ngày sinh không hợp lệ"
+    },
+    "message": {
+      "registerSuccess": "Đăng ký thành công",
+      "registerFailed": "Đăng ký thất bại"
+    }
+
   }
 }

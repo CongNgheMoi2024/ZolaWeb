@@ -73,8 +73,11 @@ const login = handleSubmit((values) => {
     <text-input v-model="form.password" name="password" type="password" />
     <div class="d-flex flex-wrap align-center my-3 ml-n2">
       <div class="ml-sm-auto">
-        <NuxtLink class="text-primary text-decoration-none text-body-1 opacity-1 font-weight-medium" to="">
-          {{ t('login.model.forgotPassword') }}
+        <NuxtLink
+          class="text-primary text-decoration-none text-body-1 opacity-1 font-weight-medium"
+          to="/auth/forgotPassword"
+        >
+          {{ t('login.action.forgotPassword') }}
         </NuxtLink>
       </div>
     </div>
