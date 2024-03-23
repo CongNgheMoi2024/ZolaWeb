@@ -8,7 +8,7 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 const { $api } = useNuxtApp()
 const nuxtApp = useNuxtApp()
-const { data } = useAuth()
+const { data, signOut } = useAuth()
 const stompClient = nuxtApp.$stompClient
 const userRecipient = ref({})
 const messageReceived = ref('')
@@ -46,13 +46,27 @@ onMounted(() => {
 const fetchChatByUserId = (user) => {
   userRecipient.value = user
 }
+
+const logOut = async () => {
+  await signOut({ callbackUrl: '/auth/login' })
+}
 </script>
 
 <template>
   <v-navigation-drawer class="tw-bg-primary" permanent width="70">
-    <v-avatar class="d-block text-center mt-4 mx-2" color="grey-darken-1" size="large">
-      <img alt="pro" src="/images/profile/user-1.jpg" width="54" />
-    </v-avatar>
+    <v-menu location="end" offset="15">
+      <template #activator="{ props }">
+        <v-avatar v-bind="props" class="d-block text-center mt-4 mx-2" color="grey-darken-1" size="large">
+          <img alt="pro" src="/images/profile/user-1.jpg" width="54" />
+        </v-avatar>
+      </template>
+
+      <v-list>
+        <v-list-item>
+          <v-list-item-title class="cursor-pointer" @click="logOut()">Logout</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-menu>
 
     <v-divider class="mx-3 mt-5 my-2" />
 
