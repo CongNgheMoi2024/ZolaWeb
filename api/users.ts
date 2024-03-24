@@ -20,4 +20,12 @@ export class UserAPI extends BaseApi {
   getFriendByName(id: string, name: string): Promise<any> {
     return this.get(`/users/${id}/friends/${name}`)
   }
+
+  sendOTPForgetPassword(phone: string): Promise<any> {
+    return this.post('/forget-password', { phone })
+  }
+
+  verifyOTP(phone: string, otp: string, password: string): Promise<any> {
+    return this.put('/otp-forget/{phone}', { phone, otp, password })
+  }
 }

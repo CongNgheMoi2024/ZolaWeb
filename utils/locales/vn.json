@@ -94,5 +94,37 @@
       "registerFailed": "Đăng ký thất bại"
     }
 
+  },
+  "forgotPassword":{
+    "model": {
+      "forgotPassword": "Quên mật khẩu",
+      "phone": "Số điện thoại",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "newPassword": "Mật khẩu mới",
+      "verifyAccount": "Xác minh tài khoản",
+      "verifyCode": "Mã xác minh",
+      "requiredOTP": "Vui lòng nhập mã xác minh"
+    },
+    "validation": {
+      "minPhone": "Số điện thoại phải có ít nhất 8 ký tự",
+      "maxPhone": "Số điện thoại phải có ít nhất 20 ký tự",
+      "phone": "Số điện thoại không hợp lệ",
+      "password": "Mật khẩu không hợp lệ",
+      "minPassword": "Mật khẩu phải có ít nhất 6 ký tự",
+      "regexPassword": "Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ cái, số và ký tự đặc biệt",
+      "confirmPasswordMatch": "Mật khẩu không khớp",
+      "otpLength" : "Mã xác minh phải có 6 chữ số"
+    },
+    "message": {
+      "forgotPasswordSuccess": "Đổi mật khẩu thành công",
+      "forgotPasswordFailed": "Đổi mật khẩu thất bại",
+      "sendOTPSuccess": "Gửi mã xác minh thành công",
+      "sendOTPFailed": "Gửi mã xác minh thất bại"
+    },
+    "action": {
+      "continue": "Tiếp tục",
+      "backToLogin": "Quay lại đăng nhập",
+      "confirm": "Xác nhận"
+    }
   }
 }

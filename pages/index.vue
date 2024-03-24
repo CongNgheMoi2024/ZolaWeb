@@ -60,12 +60,6 @@ const logOut = async () => {
           <img alt="pro" src="/images/profile/user-1.jpg" width="54" />
         </v-avatar>
       </template>
-
-      <v-list>
-        <v-list-item>
-          <v-list-item-title class="cursor-pointer" @click="logOut()">Logout</v-list-item-title>
-        </v-list-item>
-      </v-list>
     </v-menu>
 
     <v-divider class="mx-3 mt-5 my-2" />
@@ -104,7 +98,7 @@ const logOut = async () => {
   </v-card>
   <v-menu v-model="showSettingsMenu" absolute :style="{ top: 180 + 'px', left: 70 + 'px' }">
     <v-list>
-      <v-list-item @click="logout">{{ t('chats.action.logout') }}</v-list-item>
+      <v-list-item @click="logOut()">{{ t('chats.action.logout') }}</v-list-item>
     </v-list>
   </v-menu>
 </template>

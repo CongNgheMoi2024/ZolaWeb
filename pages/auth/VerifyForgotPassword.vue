@@ -27,10 +27,10 @@ definePageMeta({
       <v-col class="d-flex align-center justify-center bg-surface" cols="12" lg="7" xl="4">
         <div class="mt-xl-0 mt-5 mw-100" style="width: 50%">
           <h2 class="text-h3 font-weight-bold mb-2" style="text-align: center">
-            {{ t('forgotPassword.model.forgotPassword') }}
+            {{ t('forgotPassword.model.verifyAccount') }}
           </h2>
 
-          <AuthForgotPasswordForm />
+          <AuthVerifyForgotPasswordForm />
           <v-btn
             class="pl-0 text-primary text-body-1 opacity-1 pl-2 font-weight-medium"
             height="auto"
