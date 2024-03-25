@@ -1,5 +1,5 @@
+import { useI18n } from 'vue-i18n';
 <script setup lang="ts">
-import RegisterForm from '~/components/auth/RegisterForm.vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -26,17 +26,20 @@ definePageMeta({
       </v-col>
       <v-col class="d-flex align-center justify-center bg-surface" cols="12" lg="6" xl="4">
         <div class="mt-xl-0 mt-5 mw-100" style="width: 50%">
-          <h2 class="text-h3 font-weight-bold mb-2">
-            {{ t('register.model.createNewAccountZola') }}
+          <h2 class="text-h3 font-weight-bold mb-2" style="text-align: center">
+            {{ t('forgotPassword.model.forgotPassword') }}
           </h2>
 
-          <register-form />
-          <h6 class="text-h6 d-flex justify-center align-center mt-3">
-            {{ t('register.model.alreadyHaveAccount') }}
-            <v-btn class="text-primary text-body-1 opacity-1 pl-2 font-weight-medium" to="/auth/login" variant="plain">
-              {{ t('register.action.login') }}
-            </v-btn>
-          </h6>
+          <AuthForgotPasswordForm />
+          <v-btn
+            class="pl-0 text-primary text-body-1 opacity-1 pl-2 font-weight-medium"
+            height="auto"
+            to="/auth/login"
+            variant="plain"
+            style="top: 20px"
+          >
+            {{ t('forgotPassword.action.backToLogin') }}
+          </v-btn>
         </div>
       </v-col>
     </v-row>

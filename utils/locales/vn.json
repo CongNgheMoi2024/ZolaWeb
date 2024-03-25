@@ -18,13 +18,15 @@
     "addFriend": "Thêm bạn",
     "makeFriend": "Kết bạn",
     "model": {
-      "phone": "Số điện thoại"
+      "phone": "Số điện thoại",
+      "password": "Mật khẩu"
     },
     "action": {
       "send": "Gửi",
       "cancel": "Hủy",
       "create": "Tạo",
-      "search": "Tìm kiếm"
+      "search": "Tìm kiếm",
+      "logout": "Đăng xuất"
     },
     "message": {
       "addFriendSuccess": "Gửi lời mời kết bạn thành công",
@@ -39,11 +41,12 @@
     "model": {
       "phone": "Số điện thoại",
       "password": "Mật khẩu",
-      "confirmPassword": "Xác nhận mật khẩu",
-      "forgotPassword": "Quên mật khẩu"
+      "newToZola": "Bạn mới biết đến Zola?",
+      "welcomeToZola": "Chào mừng bạn đến với Zola",
+      "loginToZaloAccountToConnectToZolaWebApplication": "Đăng nhập vào tài khoản Zalo để kết nối với ứng dụng Zola Web"
     },
     "validation": {
-      "minPhone": "Số điện thoại phải có ít nhất 8 ký tự",
+      "minPhone": "Số điện thoại phải có ít nhất 10 ký tự",
       "maxPhone": "Số điện thoại phải có ít nhất 20 ký tự",
       "phone": "Số điện thoại không hợp lệ",
       "password": "Mật khẩu không hợp lệ",
@@ -54,13 +57,85 @@
     },
     "message": {
       "loginSuccess": "Đăng nhập thành công",
-      "loginFailed": "Đăng nhập thất bại",
-      "registerSuccess": "Đăng ký thành công",
-      "registerFailed": "Đăng ký thất bại"
+      "loginFailed": "Đăng nhập thất bại"
     },
     "action": {
       "login": "Đăng nhập",
-      "forgotPassword": "Quên mật khẩu"
+      "register": "Tạo tài khoản",
+      "forgotPassword": "Quên mật khẩu?"
+    }
+  },
+  "register":{
+    "model": {
+      "register": "Đăng ký",
+      "name": "Tên",
+      "phone": "Số điện thoại",
+      "password": "Mật khẩu",
+      "retypePassword": "Nhập lại mật khẩu",
+      "sex": "Giới tính",
+      "male": "Nam",
+      "female": "Nữ",
+      "birthday": "Ngày sinh",
+      "verifyAccount":"Một mã xác minh đã được gửi đến bạn. Vui lòng kiểm tra tin nhắn của bạn để xác minh tài khoản",
+      "alreadyHaveAccount": "Bạn đã có tài khoản?",
+      "createNewAccountZola": "Tạo tài khoản Zola",
+      "loginToZaloAccountToConnectToZolaWebApplication": "Đăng nhập vào tài khoản Zalo để kết nối với ứng dụng Zola Web"
+    },
+    "validation": {
+      "name": "Vui lòng nhập tên",
+      "minPhone": "Số điện thoại phải có ít nhất 10 ký tự",
+      "maxPhone": "Số điện thoại phải có ít nhất 20 ký tự",
+      "phone": "Số điện thoại không hợp lệ",
+      "password": "Mật khẩu không hợp lệ",
+      "minPassword": "Mật khẩu phải có ít nhất 6 ký tự",
+      "regexPassword": "Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ cái, số và ký tự đặc biệt",
+      "regexRetypePassword": "Mật khẩu không khớp",
+      "birthday": "Ngày sinh không hợp lệ"
+    },
+    "message": {
+      "registerSuccess": "Đăng ký thành công",
+      "registerFailed": "Đăng ký thất bại",
+      "sendingOTP":"Đang gửi mã xác minh",
+      "verifyAccountSuccess": "Xác minh tài khoản thành công",
+      "verifyAccountFailed": "Xác minh tài khoản thất bại"
+    },
+    "action": {
+      "confirm" : "Xác nhận",
+      "login": "Đăng nhập"
+    }
+
+  },
+  "forgotPassword":{
+    "model": {
+      "forgotPassword": "Quên mật khẩu",
+      "phone": "Số điện thoại",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "newPassword": "Mật khẩu mới",
+      "verifyAccount": "Xác minh tài khoản",
+      "verifyCode": "Mã xác minh",
+      "requiredOTP": "Vui lòng nhập mã xác minh"
+    },
+    "validation": {
+      "minPhone": "Số điện thoại phải có ít nhất 10 ký tự",
+      "maxPhone": "Số điện thoại phải có ít nhất 20 ký tự",
+      "phone": "Số điện thoại không hợp lệ",
+      "password": "Mật khẩu không hợp lệ",
+      "requiredPassword": "Vui lòng nhập mật khẩu",
+      "minPassword": "Mật khẩu phải có ít nhất 6 ký tự",
+      "regexPassword": "Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ cái, số và ký tự đặc biệt",
+      "confirmPasswordMatch": "Mật khẩu không khớp",
+      "otpLength" : "Mã xác minh phải có 6 chữ số"
+    },
+    "message": {
+      "forgotPasswordSuccess": "Đổi mật khẩu thành công",
+      "forgotPasswordFailed": "Đổi mật khẩu thất bại",
+      "sendOTPSuccess": "Gửi mã xác minh thành công",
+      "sendOTPFailed": "Gửi mã xác minh thất bại"
+    },
+    "action": {
+      "continue": "Tiếp tục",
+      "backToLogin": "Quay lại đăng nhập",
+      "confirm": "Xác nhận"
     }
   }
 }

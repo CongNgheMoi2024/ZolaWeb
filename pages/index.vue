@@ -3,7 +3,9 @@ import AppBaseCard from '@/components/common/atom/AppBaseCard.vue'
 import ChatListing from '@/components/chats/ChatListing.vue'
 import ChatDetail from '@/components/chats/ChatDetail.vue'
 import ChatProfile from '@/components/chats/ChatProfile.vue'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const { $api } = useNuxtApp()
 const nuxtApp = useNuxtApp()
 const { data, signOut } = useAuth()
@@ -11,6 +13,15 @@ const stompClient = nuxtApp.$stompClient
 const userRecipient = ref({})
 const messageReceived = ref('')
 const selectedItem = ref('message')
+const showSettingsMenu = ref(false)
+const menuPositionX = ref(0)
+const menuPositionY = ref(0)
+
+const openMenu = () => {
+  showSettingsMenu.value = true
+}
+
+const logout = () => {}
 
 const auth = data.value
 const connect = () => {
@@ -49,12 +60,6 @@ const logOut = async () => {
           <img alt="pro" src="/images/profile/user-1.jpg" width="54" />
         </v-avatar>
       </template>
-
-      <v-list>
-        <v-list-item>
-          <v-list-item-title class="cursor-pointer" @click="logOut()">Logout</v-list-item-title>
-        </v-list-item>
-      </v-list>
     </v-menu>
 
     <v-divider class="mx-3 mt-5 my-2" />
@@ -72,7 +77,7 @@ const logOut = async () => {
         </template>
       </v-list-item>
 
-      <v-list-item :class="{ 'selected-item': selectedItem === 'setting' }" @click="selectedItem = 'setting'">
+      <v-list-item class="settings-button" :class="{ 'selected-item': selectedItem === 'setting' }" @click="openMenu">
         <template #prepend>
           <v-icon class="tw-ml-[6px]" color="white">mdi-cog</v-icon>
         </template>
@@ -91,6 +96,11 @@ const logOut = async () => {
     </app-base-card>
     <div v-else>empty</div>
   </v-card>
+  <v-menu v-model="showSettingsMenu" absolute :style="{ top: 180 + 'px', left: 70 + 'px' }">
+    <v-list>
+      <v-list-item @click="logOut()">{{ t('chats.action.logout') }}</v-list-item>
+    </v-list>
+  </v-menu>
 </template>
 
 <style scoped>
