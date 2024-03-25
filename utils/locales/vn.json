@@ -18,7 +18,8 @@
     "addFriend": "Thêm bạn",
     "makeFriend": "Kết bạn",
     "model": {
-      "phone": "Số điện thoại"
+      "phone": "Số điện thoại",
+      "password": "Mật khẩu"
     },
     "action": {
       "send": "Gửi",
@@ -45,7 +46,7 @@
       "loginToZaloAccountToConnectToZolaWebApplication": "Đăng nhập vào tài khoản Zalo để kết nối với ứng dụng Zola Web"
     },
     "validation": {
-      "minPhone": "Số điện thoại phải có ít nhất 8 ký tự",
+      "minPhone": "Số điện thoại phải có ít nhất 10 ký tự",
       "maxPhone": "Số điện thoại phải có ít nhất 20 ký tự",
       "phone": "Số điện thoại không hợp lệ",
       "password": "Mật khẩu không hợp lệ",
@@ -70,17 +71,19 @@
       "name": "Tên",
       "phone": "Số điện thoại",
       "password": "Mật khẩu",
-      "confirmPassword": "Xác nhận mật khẩu",
       "retypePassword": "Nhập lại mật khẩu",
       "sex": "Giới tính",
       "male": "Nam",
       "female": "Nữ",
       "birthday": "Ngày sinh",
-      "welcomeToZola": "Chào mừng bạn đến với Zola",
+      "verifyAccount":"Một mã xác minh đã được gửi đến bạn. Vui lòng kiểm tra tin nhắn của bạn để xác minh tài khoản",
+      "alreadyHaveAccount": "Bạn đã có tài khoản?",
+      "createNewAccountZola": "Tạo tài khoản Zola",
       "loginToZaloAccountToConnectToZolaWebApplication": "Đăng nhập vào tài khoản Zalo để kết nối với ứng dụng Zola Web"
     },
     "validation": {
-      "minPhone": "Số điện thoại phải có ít nhất 8 ký tự",
+      "name": "Vui lòng nhập tên",
+      "minPhone": "Số điện thoại phải có ít nhất 10 ký tự",
       "maxPhone": "Số điện thoại phải có ít nhất 20 ký tự",
       "phone": "Số điện thoại không hợp lệ",
       "password": "Mật khẩu không hợp lệ",
@@ -91,7 +94,14 @@
     },
     "message": {
       "registerSuccess": "Đăng ký thành công",
-      "registerFailed": "Đăng ký thất bại"
+      "registerFailed": "Đăng ký thất bại",
+      "sendingOTP":"Đang gửi mã xác minh",
+      "verifyAccountSuccess": "Xác minh tài khoản thành công",
+      "verifyAccountFailed": "Xác minh tài khoản thất bại"
+    },
+    "action": {
+      "confirm" : "Xác nhận",
+      "login": "Đăng nhập"
     }
 
   },
@@ -106,10 +116,11 @@
       "requiredOTP": "Vui lòng nhập mã xác minh"
     },
     "validation": {
-      "minPhone": "Số điện thoại phải có ít nhất 8 ký tự",
+      "minPhone": "Số điện thoại phải có ít nhất 10 ký tự",
       "maxPhone": "Số điện thoại phải có ít nhất 20 ký tự",
       "phone": "Số điện thoại không hợp lệ",
       "password": "Mật khẩu không hợp lệ",
+      "requiredPassword": "Vui lòng nhập mật khẩu",
       "minPassword": "Mật khẩu phải có ít nhất 6 ký tự",
       "regexPassword": "Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ cái, số và ký tự đặc biệt",
       "confirmPasswordMatch": "Mật khẩu không khớp",

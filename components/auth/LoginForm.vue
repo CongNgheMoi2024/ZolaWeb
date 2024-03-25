@@ -17,7 +17,7 @@ const schema = yup.object({
     .required(t('login.validation.requiredPhone'))
     .label(t('chats.model.phone'))
     .matches(/^[0-9]+$/, t('login.validation.phone'))
-    .min(8, t('login.validation.minPhone'))
+    .min(10, t('login.validation.minPhone'))
     .max(20, t('login.validation.maxPhone')),
   password: yup
     .string()

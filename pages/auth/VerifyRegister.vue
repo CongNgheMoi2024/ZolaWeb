@@ -1,6 +1,7 @@
 import { useI18n } from 'vue-i18n';
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { AuthVerifyForgotPasswordForm } from '../../.nuxt/components'
 
 const { t } = useI18n()
 definePageMeta({
@@ -27,16 +28,15 @@ definePageMeta({
       <v-col class="d-flex align-center justify-center bg-surface" cols="12" lg="6" xl="4">
         <div class="mt-xl-0 mt-5 mw-100" style="width: 50%">
           <h2 class="text-h3 font-weight-bold mb-2" style="text-align: center">
-            {{ t('forgotPassword.model.forgotPassword') }}
+            {{ t('forgotPassword.model.verifyAccount') }}
           </h2>
-
-          <AuthForgotPasswordForm />
+          <AuthVerifyRegisterForm />
           <v-btn
             class="pl-0 text-primary text-body-1 opacity-1 pl-2 font-weight-medium"
             height="auto"
             to="/auth/login"
             variant="plain"
-            style="top: 20px"
+            style="top: 30px"
           >
             {{ t('forgotPassword.action.backToLogin') }}
           </v-btn>

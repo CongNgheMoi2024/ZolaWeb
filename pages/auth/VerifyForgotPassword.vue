@@ -14,7 +14,7 @@ definePageMeta({
 <template>
   <div class="pa-3">
     <v-row class="h-100vh mh-100 auth">
-      <v-col class="d-lg-flex align-center justify-center authentication position-relative" cols="12" lg="5" xl="1">
+      <v-col class="d-lg-flex align-center justify-center authentication position-relative" cols="12" lg="6" xl="1">
         <div class="">
           <img
             alt="login-background"
@@ -24,7 +24,7 @@ definePageMeta({
           />
         </div>
       </v-col>
-      <v-col class="d-flex align-center justify-center bg-surface" cols="12" lg="7" xl="4">
+      <v-col class="d-flex align-center justify-center bg-surface" cols="12" lg="6" xl="4">
         <div class="mt-xl-0 mt-5 mw-100" style="width: 50%">
           <h2 class="text-h3 font-weight-bold mb-2" style="text-align: center">
             {{ t('forgotPassword.model.verifyAccount') }}

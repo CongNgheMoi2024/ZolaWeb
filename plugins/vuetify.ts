@@ -90,6 +90,9 @@ export default defineNuxtPlugin((nuxtApp) => {
       VTooltip: {
         location: 'top',
       },
+      VueDatePicker: {
+        density: 'comfortable',
+      },
     },
   })
 

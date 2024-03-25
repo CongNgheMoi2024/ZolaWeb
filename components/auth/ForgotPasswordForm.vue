@@ -17,7 +17,7 @@ const schema = yup.object({
     .required(t('login.validation.requiredPhone'))
     .label(t('chats.model.phone'))
     .matches(/^[0-9]+$/, t('login.validation.phone'))
-    .min(8, t('login.validation.minPhone'))
+    .min(10, t('login.validation.minPhone'))
     .max(20, t('login.validation.maxPhone')),
 })
 
@@ -41,12 +41,9 @@ const form = ref({
 const sendOTP = handleSubmit(async (values) => {
   loading.value = true
   try {
-    const response = await $api.users.sendOTPForgetPassword(values.phone)
+    const formattedPhone = values.phone.startsWith('0') ? `+84${values.phone.slice(1)}` : values.phone
+    await $api.auth.sendOTPForgetPassword(formattedPhone)
     toast.success(t('forgotPassword.message.sendOTPSuccess'))
-    router.push({
-      name: 'forgot-password-otp',
-      query: { phone: values.phone },
-    })
     router.push('/auth/verifyForgotPassword')
   } catch (error) {
     setErrors(error.error)

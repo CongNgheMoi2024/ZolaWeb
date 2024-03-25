@@ -10,7 +10,6 @@ const { t } = useI18n()
 const toast = useToast()
 const loading = ref(false)
 const { $api } = useNuxtApp()
-const isSubmitting = ref(false)
 
 const schema = yup.object({
   otp: yup
@@ -48,13 +47,13 @@ const vuetifyConfig = (state: any) => ({
 const form = ref({
   otp: defineComponentBinds('otp', vuetifyConfig),
   password: defineComponentBinds('password', vuetifyConfig),
-  confirmPassword: defineComponentBinds('confirmPassword', vuetifyConfig),
+  confirm_password: defineComponentBinds('confirmPassword', vuetifyConfig),
 })
 
 const changePassword = handleSubmit(async (values) => {
   loading.value = true
   try {
-    await $api.users.verifyOTP(values).then(
+    await $api.users.verifyOTPForgetPassword(values).then(
       (response) => {
         toast.success(t('forgotPassword.message.forgotPasswordSuccess'))
         router.push('/auth/login')
