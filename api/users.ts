@@ -20,4 +20,8 @@ export class UserAPI extends BaseApi {
   getFriendByName(id: string, name: string): Promise<any> {
     return this.get(`/users/${id}/friends/${name}`)
   }
+
+  getFriends(): Promise<any> {
+    return this.get('/users/friends')
+  }
 }
