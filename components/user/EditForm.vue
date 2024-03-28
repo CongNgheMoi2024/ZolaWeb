@@ -1,0 +1,190 @@
+<script setup lang="ts">
+import profileBg from '~/images/backgrounds/profilebg.jpg'
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
+import { useForm } from 'vee-validate'
+import TextInput from '@/components/forms/form-validation/TextInput.vue'
+import * as yup from 'yup'
+import { defineProps } from 'vue'
+import VueDatePicker from '@vuepic/vue-datepicker'
+
+const toast = useToast()
+const { t } = useI18n()
+const { data, signOut } = useAuth()
+const { $api } = useNuxtApp()
+const user = ref({})
+const auth = data.value
+const loading = ref(false)
+const sex = ref()
+const date = ref()
+const nameUser = ref()
+const phone = ref()
+
+const props = defineProps<{
+  closeDialog: () => void
+  closeProfileDialog: () => void
+  openProfileDialog: () => void
+}>()
+
+const closeDialog = () => {
+  props.openProfileDialog()
+  props.closeDialog()
+}
+const closeProfileDialog = () => {
+  props.closeProfileDialog()
+}
+
+const openProfileDialog = () => {
+  props.openProfileDialog()
+}
+const fetchProfileById = async (values) => {
+  await $api.users.getProfile(values).then((res) => {
+    user.value = res.data
+    nameUser.value = user.value.name
+    phone.value = user.value.phone
+    sex.value = user.value.sex === true ? 'Nam' : 'Nữ'
+    date.value = user.value.birthday ? parseDate(user.value.birthday) : new Date()
+  })
+}
+
+const formatDate = (date) => {
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+
+  return `${year}-${month}-${day}`
+}
+const parseDate = (dateString) => {
+  const [year, month, day] = dateString.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+const schema = yup.object({
+  name: yup.string().required(t('register.validation.name')).label(t('register.model.name')),
+})
+
+const vuetifyConfig = (state: any) => ({
+  props: {
+    'error-messages': state.errors,
+  },
+})
+
+const { defineComponentBinds, handleSubmit, setErrors } = useForm({
+  validationSchema: schema,
+  initialValues: {
+    name: nameUser.value,
+  },
+})
+
+const form = ref({
+  name: defineComponentBinds('name', vuetifyConfig),
+})
+
+const saveEdit = async () => {
+  loading.value = true
+  try {
+    const sexValue = sex.value === 'Nam' ? 1 : 0
+    await $api.users
+      .updateProfile(phone.value, {
+        name: nameUser.value,
+        sex: sexValue,
+        birthday: formatDate(date.value),
+      })
+      .then(() => {
+        toast.success(t('profile.message.editProfileSuccess'))
+        openProfileDialog()
+        closeDialog()
+      })
+  } catch (error) {
+    toast.error(t('profile.message.editProfileFailed'))
+    console.log(error.error)
+    loading.value = false
+  }
+}
+fetchProfileById({})
+</script>
+<template>
+  <v-card class="overflow-hidden" elevation="10" style="height: 430px">
+    <!-- v-label tên hiển thị -->
+    <v-form ref="form">
+      <v-label class="text-center" style="font-size: 16px; font-weight: 500; margin-top: 20px; margin-left: 20px">
+        {{ t('profile.model.name') }}
+      </v-label>
+      <v-text-field v-model="nameUser" outlined dense placeholder="Name" class="mx-4 mt-3" />
+      <!-- radio group giới tính -->
+
+      <v-label class="text-title-1 pb-2 mt-5" style="font-size: 16px; font-weight: 550; margin-left: 20px">
+        {{ t('profile.informationUser') }}
+      </v-label>
+      <br />
+      <v-label class="text-center mt-4" style="font-size: 16px; font-weight: 500; margin-top: 20px; margin-left: 20px">
+        {{ t('profile.model.sex') }}
+      </v-label>
+      <v-radio-group v-model="sex" inline name="sex" style="margin-left: 10px" class="mt-3">
+        <v-radio label="Nam" value="Nam" color="primary" />
+        <v-radio label="Nữ" value="Nữ" color="primary" style="margin-left: 40px" />
+      </v-radio-group>
+      <v-label class="text-center mt-3" style="font-size: 16px; font-weight: 500; margin-top: 20px; margin-left: 20px">
+        {{ t('register.model.birthday') }}
+      </v-label>
+      <vue-date-picker
+        class="mt-3"
+        v-model="date"
+        :enable-time-picker="false"
+        :format="formatDate"
+        :max-date="new Date()"
+        style="height: 110%; margin-left: 15px; width: 93%"
+      />
+      <v-card-actions class="mt-1">
+        <v-spacer />
+        <v-btn color="error" flat text @click="closeDialog">
+          {{ t('profile.action.cancel') }}
+        </v-btn>
+        <v-btn color="success" flat @click="saveEdit">
+          {{ t('profile.action.save') }}
+        </v-btn>
+      </v-card-actions>
+    </v-form>
+  </v-card>
+</template>
+<style scoped>
+<style lang='scss' > .avatar-border {
+  background-image: linear-gradient(rgb(80, 178, 252), rgb(244, 76, 102));
+  border-radius: 50%;
+  width: 110px;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  .userImage {
+    border: 4px solid rgb(255, 255, 255);
+  }
+  margin-right: 0px;
+}
+
+.edit-border {
+  background-image: linear-gradient(rgba(83, 83, 83, 0.738), rgba(103, 103, 103, 0.64));
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .userImage {
+    border: 4px solid rgb(255, 255, 255);
+  }
+}
+
+.top-spacer {
+  margin-top: -95px;
+}
+
+.profiletab .v-slide-group__content {
+  justify-content: end;
+  .v-btn--variant-text .v-btn__overlay {
+    background: transparent;
+  }
+}
+</style>

@@ -14,11 +14,16 @@ const userRecipient = ref({})
 const messageReceived = ref('')
 const selectedItem = ref('message')
 const showSettingsMenu = ref(false)
-const menuPositionX = ref(0)
-const menuPositionY = ref(0)
+const menu = ref(false)
+const profileDialog = ref(false)
+const isEditing = ref(false)
+const values = ref({})
+const user = ref({})
 
-const openMenu = () => {
-  showSettingsMenu.value = true
+const fetchProfileById = async (values) => {
+  await $api.users.getProfile(values).then((res) => {
+    user.value = res.data
+  })
 }
 
 const logout = () => {}
@@ -41,6 +46,7 @@ const onMessageReceived = (payload) => {
 
 onMounted(() => {
   connect()
+  fetchProfileById({})
 })
 
 const fetchChatByUserId = (user) => {
@@ -50,16 +56,57 @@ const fetchChatByUserId = (user) => {
 const logOut = async () => {
   await signOut({ callbackUrl: '/auth/login' })
 }
+
+const openProfile = () => {
+  console.log('open profile')
+}
+
+const saveEdit = () => {
+  isEditing.value = !isEditing.value
+}
+
+const closeDialog = () => {
+  isEditing.value = false
+}
+
+const closeProfileDialog = () => {
+  profileDialog.value = false
+}
+const openEditProfile = () => {
+  isEditing.value = true
+}
+
+const openProfileDialog = () => {
+  profileDialog.value = true
+}
 </script>
 
 <template>
   <v-navigation-drawer class="tw-bg-primary" permanent width="70">
     <v-menu location="end" offset="15">
       <template #activator="{ props }">
-        <v-avatar v-bind="props" class="d-block text-center mt-4 mx-2" color="grey-darken-1" size="large">
-          <img alt="pro" src="/images/profile/user-1.jpg" width="54" />
-        </v-avatar>
+        <v-btn icon v-bind="props" @click="menu = !menu" class="d-block text-center mt-4 mx-2">
+          <v-avatar color="grey-darken-1" size="large">
+            <img alt="pro" src="/images/profile/user-1.jpg" width="54" />
+          </v-avatar>
+        </v-btn>
       </template>
+      <v-card min-width="200">
+        <v-list>
+          <v-list-item>
+            <h5 class="text-h6 font-weight-medium">{{ user.name }}</h5>
+          </v-list-item>
+        </v-list>
+        <v-divider />
+        <v-list>
+          <v-list-item @click="openProfileDialog">
+            <label>{{ t('chats.yourProfile') }}</label>
+          </v-list-item>
+          <v-list-item>
+            <label>{{ t('chats.setting') }}</label>
+          </v-list-item>
+        </v-list>
+      </v-card>
     </v-menu>
 
     <v-divider class="mx-3 mt-5 my-2" />
@@ -77,9 +124,18 @@ const logOut = async () => {
         </template>
       </v-list-item>
 
-      <v-list-item class="settings-button" :class="{ 'selected-item': selectedItem === 'setting' }" @click="openMenu">
+      <v-list-item class="settings-button" :class="{ 'selected-item': selectedItem === 'setting' }">
         <template #prepend>
-          <v-icon class="tw-ml-[6px]" color="white">mdi-cog</v-icon>
+          <v-menu>
+            <template #activator="{ props }">
+              <v-icon v-bind="props" @click="showSettingsMenu = !showSettingsMenu" class="tw-ml-[6px]" color="white">
+                mdi-cog
+              </v-icon>
+            </template>
+            <v-list>
+              <v-list-item @click="logOut()">{{ t('chats.action.logout') }}</v-list-item>
+            </v-list>
+          </v-menu>
         </template>
       </v-list-item>
     </v-list>
@@ -96,11 +152,36 @@ const logOut = async () => {
     </app-base-card>
     <div v-else>empty</div>
   </v-card>
-  <v-menu v-model="showSettingsMenu" absolute :style="{ top: 180 + 'px', left: 70 + 'px' }">
-    <v-list>
-      <v-list-item @click="logOut()">{{ t('chats.action.logout') }}</v-list-item>
-    </v-list>
-  </v-menu>
+  <v-dialog v-model="profileDialog" max-width="460">
+    <v-card class="overflow-auto" style="height: 540px">
+      <v-container>
+        <v-card-title class="pa-5">
+          <span class="text-h5">
+            {{ t('chats.informationAccount') }}
+          </span>
+        </v-card-title>
+        <UserProfileForm :closeProfileDialog="closeProfileDialog" :openEditProfile="openEditProfile" />
+      </v-container>
+    </v-card>
+  </v-dialog>
+
+  <v-dialog v-model="isEditing" max-width="460">
+    <v-card class="overflow-auto" style="height: 540px">
+      <v-container>
+        <v-card-title class="pa-5">
+          <span class="text-h5">
+            {{ t('profile.editInformationAccount') }}
+          </span>
+        </v-card-title>
+        <UserEditForm
+          :closeDialog="closeDialog"
+          :closeProfileDialog="closeProfileDialog"
+          :openProfileDialog="openProfileDialog"
+          :fetchProfile="fetchProfileById"
+        />
+      </v-container>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped>

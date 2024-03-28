@@ -20,4 +20,24 @@ export class UserAPI extends BaseApi {
   getFriendByName(id: string, name: string): Promise<any> {
     return this.get(`/users/${id}/friends/${name}`)
   }
+
+  getListFriend(): Promise<any> {
+    return this.get('/users/friends')
+  }
+
+  getProfile(params: any): Promise<any> {
+    return this.get('/users/profile', { params })
+  }
+
+  updateProfile(phone: string, params: any): Promise<any> {
+    return this.put(`/users/update/${phone}`, params)
+  }
+
+  uploadAvatar(id: string, params: any): Promise<any> {
+    return this.post(`/users/upload-avatar/${id}`, params)
+  }
+
+  uploadImageCover(id: string, params: any): Promise<any> {
+    return this.post(`/users/upload-image-cover/${id}`, params)
+  }
 }

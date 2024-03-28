@@ -25,6 +25,9 @@ const fetch = async () => {
       return item.userRecipient
     })
   })
+  await $api.users.getListFriend().then((res) => {
+    userFriends.value = res.data
+  })
 }
 
 const fetchChatByUserId = (userRecipient) => {
