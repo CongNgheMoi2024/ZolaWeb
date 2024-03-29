@@ -5,16 +5,74 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 import { defineProps } from 'vue'
+import { useToast } from 'vue-toastification'
 
 const { t } = useI18n()
+const toast = useToast()
 const { data, signOut } = useAuth()
 const { $api } = useNuxtApp()
 const user = ref({})
 const auth = data.value
+
+const avatarFile = ref<File | null>(null)
+const coverFile = ref<File | null>(null)
+const avatarInput = ref<any>(null)
+const coverInput = ref<any>(null)
+
 const fetchProfileById = async (values) => {
   await $api.users.getProfile(values).then((res) => {
     user.value = res.data
+    console.log(user)
   })
+}
+
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  avatarFile.value = (target.files as FileList)[0] || null
+  if (avatarFile.value) {
+    uploadAvatar(avatarFile.value)
+  }
+  avatarInput.value.clearable = true
+}
+
+const uploadAvatar = async (avatarFile: File) => {
+  const formData = new FormData()
+  formData.append('avatar', avatarFile)
+
+  try {
+    await $api.users.uploadAvatar(auth.id, formData)
+    await fetchProfileById({})
+    toast.success(t('profile.message.uploadAvatarSuccess'))
+  } catch (error) {
+    toast.error(t('profile.message.uploadAvatarError'))
+  }
+}
+
+const handleFileCoverChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  coverFile.value = (target.files as FileList)[0] || null
+  if (coverFile.value) {
+    uploadCover(coverFile.value)
+  }
+  coverInput.value.clearable = true
+}
+
+const uploadCover = async (coverFile: File) => {
+  const formData = new FormData()
+  formData.append('cover', coverFile)
+
+  try {
+    const response = await $api.users.uploadImageCover(auth.id, formData)
+    if (response.status === 200) {
+      await fetchProfileById({})
+      console.log('success', user.value)
+      toast.success(t('profile.message.uploadCoverSuccess'))
+    } else {
+      throw new Error('Upload cover failed')
+    }
+  } catch (error) {
+    toast.error('thất bại', error.message)
+  }
 }
 
 const props = defineProps<{
@@ -32,29 +90,20 @@ const openEditProfile = () => {
 }
 
 fetchProfileById({})
-
-const customBase64Uploader = async (event) => {
-  const file = event.files[0]
-  const reader = new FileReader()
-  let blob = await fetch(file.objectURL).then((r) => r.blob())
-
-  reader.readAsDataURL(blob)
-
-  reader.onloadend = function () {
-    const base64data = reader.result
-  }
-}
 </script>
 <template>
   <v-card class="overflow-hidden" elevation="10" style="height: 430px">
-    <img alt="profile" class="w-100" :src="profileBg" />
+    <img alt="profile" class="w-100" :src="user?.imageCover" v-if="user?.imageCover" style="height: 123px" />
+    <img alt="profile" class="w-100" :src="profileBg" v-else />
     <v-btn icon size="36px" style="left: 91%; top: -50px">
       <v-file-input
         class="file-input"
         style="right: -9.5px; top: 7px; position: absolute"
         accept="image/png, image/jpeg, image/jpg"
-        @change="customBase64Uploader"
+        @change="handleFileCoverChange"
+        a
         prepend-icon="mdi-camera"
+        ref="coverInput"
       />
     </v-btn>
 
@@ -64,7 +113,21 @@ const customBase64Uploader = async (event) => {
           <div class="text-center top-spacer">
             <div class="avatar-border">
               <v-avatar class="userImage" size="100">
-                <img alt="Mathew" src="/images/profile/user-1.jpg" width="100" />
+                <img
+                  alt="profile"
+                  class="w-100"
+                  :src="user?.avatar"
+                  v-if="user?.avatar"
+                  style="
+                    height: 100px;
+                    width: 100px;
+                    border-line: 1px;
+                    border-radius: 50%;
+                    border-color: lightgray;
+                    border-style: solid;
+                  "
+                />
+                <img alt="Mathew" src="/images/profile/user-1.jpg" width="100" v-else />
               </v-avatar>
 
               <h5 class="text-h5 mt-3">{{ user.name }}</h5>
@@ -75,8 +138,9 @@ const customBase64Uploader = async (event) => {
                 class="file-input"
                 style="right: -9.5px; top: 7px; position: absolute"
                 accept="image/png, image/jpeg, image/jpg"
-                @change="customBase64Uploader"
+                @change="handleFileChange"
                 prepend-icon="mdi-camera"
+                ref="avatarInput"
               />
             </v-btn>
           </div>

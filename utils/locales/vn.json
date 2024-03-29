@@ -158,7 +158,11 @@
     },
     "message": {
       "editProfileSuccess": "Chỉnh sửa thông tin thành công",
-      "editProfileFailed": "Chỉnh sửa thông tin thất bại"
+      "editProfileFailed": "Chỉnh sửa thông tin thất bại",
+      "uploadAvatarSuccess": "Tải ảnh đại diện thành công",
+      "uploadAvatarFailed": "Tải ảnh đại diện thất bại",
+      "uploadCoverSuccess": "Tải ảnh bìa thành công",
+      "uploadCoverError": "Tải ảnh bìa thất bại"
     }
   }
 }
