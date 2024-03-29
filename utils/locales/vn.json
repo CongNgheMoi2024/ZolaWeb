@@ -4,7 +4,8 @@
       "save": "Lưu",
       "cancel": "Hủy",
       "search": "Tìm kiếm",
-      "close": "Đóng"
+      "close": "Đóng",
+      "create": "Tạo"
     },
     "status": {
       "active": "Hoạt động",
@@ -20,9 +21,11 @@
     "yourProfile": "Hồ sơ của bạn",
     "informationAccount": "Thông tin tài khoản",
     "setting": "Cài đặt",
+    "addGroup": "Tạo nhóm",
     "model": {
       "phone": "Số điện thoại",
-      "password": "Mật khẩu"
+      "password": "Mật khẩu",
+      "nameGroup": "Tên nhóm"
     },
     "action": {
       "send": "Gửi",

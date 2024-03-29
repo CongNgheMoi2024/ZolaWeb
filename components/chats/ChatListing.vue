@@ -3,13 +3,12 @@ import { ref, onMounted } from 'vue'
 import { useModal } from 'vue-final-modal'
 import { useI18n } from 'vue-i18n'
 import { debounce } from 'lodash'
-import { useChatStore } from '@/stores/apps/chat'
-import AddFriendModal from '~/components/chats/addFriend/AddFriendModal.vue'
+import AddFriendModal from '~/components/chats/AddFriend/AddFriendModal.vue'
 import AppLoading from '@/components/common/AppLoading.vue'
+import AddGroupModal from '~/components/chats/AddGroup/AddGroupModal.vue'
 
 const emit = defineEmits(['chatDetail'])
 const { $api } = useNuxtApp()
-const store = useChatStore()
 const users = ref([])
 const searchValue = ref('')
 const { t } = useI18n()
@@ -38,7 +37,7 @@ onMounted(() => {
   fetch()
 })
 
-const { open, close } = useModal({
+const addFriendModal = useModal({
   component: AddFriendModal,
   attrs: {
     title: t('chats.addFriend'),
@@ -47,7 +46,21 @@ const { open, close } = useModal({
     width: '500px',
     zIndexFn: () => 1010,
     onClosed() {
-      close()
+      addFriendModal.close()
+    },
+  },
+})
+
+const addGroupModel = useModal({
+  component: AddGroupModal,
+  attrs: {
+    title: t('chats.addGroup'),
+    submitText: t('common.action.create'),
+    cancelText: t('common.action.cancel'),
+    width: '500px',
+    zIndexFn: () => 1010,
+    onClosed() {
+      addGroupModel.close()
     },
   },
 })
@@ -157,11 +170,11 @@ const searchFriend = debounce((value) => {
       </v-menu>
 
       <div v-if="menuOpen === false" class="tw-flex">
-        <v-btn class="tw-ml-1" size="40" variant="text" @click="open">
+        <v-btn class="tw-ml-1" size="40" variant="text" @click="addFriendModal.open">
           <v-icon>mdi-account-plus-outline</v-icon>
         </v-btn>
 
-        <v-btn class="tw-ml-1" size="40" variant="text">
+        <v-btn class="tw-ml-1" size="40" variant="text" @click="addGroupModel.open">
           <v-icon>mdi-account-multiple-plus-outline</v-icon>
         </v-btn>
       </div>

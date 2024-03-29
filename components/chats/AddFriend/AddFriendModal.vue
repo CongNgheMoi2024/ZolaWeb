@@ -2,8 +2,8 @@
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import * as yup from 'yup'
-import AppModal from '~/components/common/AppModal.vue'
-import SearchUserByPhoneForm from '~/components/chats/addFriend/SearchUserByPhoneForm.vue'
+import AppModal from '@/components/common/AppModal.vue'
+import SearchUserByPhoneForm from '@/components/chats/AddFriend/SearchUserByPhoneForm.vue'
 
 const props = defineProps({
   item: {

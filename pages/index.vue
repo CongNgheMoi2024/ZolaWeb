@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import AppBaseCard from '@/components/common/atom/AppBaseCard.vue'
 import ChatListing from '@/components/chats/ChatListing.vue'
 import ChatDetail from '@/components/chats/ChatDetail.vue'
-import ChatProfile from '@/components/chats/ChatProfile.vue'
-import { useI18n } from 'vue-i18n'
+import FriendMenu from '~/components/Friends/FriendMenu.vue'
+import ListFriends from '~/components/Friends/ListFriends.vue'
 
 const { t } = useI18n()
 const { $api } = useNuxtApp()
@@ -19,14 +20,17 @@ const profileDialog = ref(false)
 const isEditing = ref(false)
 const values = ref({})
 const user = ref({})
+const selectedMenuFriend = ref({
+  title: 'Danh sách bạn bè',
+  icon: 'mdi-account-details-outline',
+  code: 'list-friends',
+})
 
 const fetchProfileById = async (values) => {
   await $api.users.getProfile(values).then((res) => {
     user.value = res.data
   })
 }
-
-const logout = () => {}
 
 const auth = data.value
 const connect = () => {
@@ -40,6 +44,7 @@ const onConnected = () => {
 const onError = () => {
   console.log('error')
 }
+
 const onMessageReceived = (payload) => {
   messageReceived.value = JSON.parse(payload.body)
 }
@@ -79,6 +84,13 @@ const openEditProfile = () => {
 const openProfileDialog = () => {
   profileDialog.value = true
 }
+const changeMenuFriend = (menu) => {
+  selectedMenuFriend.value = menu
+}
+
+onMounted(() => {
+  connect()
+})
 </script>
 
 <template>
@@ -118,7 +130,7 @@ const openProfileDialog = () => {
         </template>
       </v-list-item>
 
-      <v-list-item :class="{ 'selected-item': selectedItem === 'account' }" @click="selectedItem = 'account'">
+      <v-list-item :class="{ 'selected-item': selectedItem === 'friends' }" @click="selectedItem = 'friends'">
         <template #prepend>
           <v-icon class="tw-ml-[6px]" color="white">mdi-account-box-outline</v-icon>
         </template>
@@ -150,7 +162,14 @@ const openProfileDialog = () => {
         <chat-detail :message-received="messageReceived" :user-recipient="userRecipient" />
       </template>
     </app-base-card>
-    <div v-else>empty</div>
+    <app-base-card v-if="selectedItem === 'friends'">
+      <template #leftpart>
+        <friend-menu @change-menu="changeMenuFriend" />
+      </template>
+      <template #rightpart>
+        <list-friends :selected-menu-friend="selectedMenuFriend" />
+      </template>
+    </app-base-card>
   </v-card>
   <v-dialog v-model="profileDialog" max-width="460">
     <v-card class="overflow-auto" style="height: 540px">

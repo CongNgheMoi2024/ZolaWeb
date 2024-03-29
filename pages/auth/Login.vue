@@ -1,4 +1,3 @@
-import { useI18n } from 'vue-i18n';
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
@@ -14,7 +13,7 @@ definePageMeta({
 <template>
   <div class="pa-3">
     <v-row class="h-100vh mh-100 auth">
-      <v-col class="d-lg-flex align-center justify-center authentication position-relative" cols="12" lg="6" xl="1">
+      <v-col class="d-lg-flex align-center justify-center authentication position-relative" cols="12" lg="6">
         <div class="">
           <img
             alt="login-background"

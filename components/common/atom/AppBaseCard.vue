@@ -39,5 +39,6 @@
   width: 100%;
   min-height: 500px;
   position: relative;
+  max-height: 100vh;
 }
 </style>
