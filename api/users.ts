@@ -36,6 +36,7 @@ export class UserAPI extends BaseApi {
   uploadImageCover(id: string, params: any): Promise<any> {
     return this.post(`/users/upload-image-cover/${id}`, params)
   }
+  
   getFriends(): Promise<any> {
     return this.get('/users/friends')
   }

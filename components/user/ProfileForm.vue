@@ -16,8 +16,6 @@ const auth = data.value
 
 const avatarFile = ref<File | null>(null)
 const coverFile = ref<File | null>(null)
-const avatarInput = ref<any>(null)
-const coverInput = ref<any>(null)
 
 const fetchProfileById = async (values) => {
   await $api.users.getProfile(values).then((res) => {
@@ -32,7 +30,6 @@ const handleFileChange = (event: Event) => {
   if (avatarFile.value) {
     uploadAvatar(avatarFile.value)
   }
-  avatarInput.value.clearable = true
 }
 
 const uploadAvatar = async (avatarFile: File) => {
@@ -54,24 +51,18 @@ const handleFileCoverChange = (event: Event) => {
   if (coverFile.value) {
     uploadCover(coverFile.value)
   }
-  coverInput.value.clearable = true
 }
 
 const uploadCover = async (coverFile: File) => {
   const formData = new FormData()
-  formData.append('cover', coverFile)
+  formData.append('image-cover', coverFile)
 
   try {
-    const response = await $api.users.uploadImageCover(auth.id, formData)
-    if (response.status === 200) {
-      await fetchProfileById({})
-      console.log('success', user.value)
-      toast.success(t('profile.message.uploadCoverSuccess'))
-    } else {
-      throw new Error('Upload cover failed')
-    }
+    await $api.users.uploadImageCover(auth.id, formData)
+    await fetchProfileById({})
+    toast.success(t('profile.message.uploadCoverSuccess'))
   } catch (error) {
-    toast.error('thất bại', error.message)
+    toast.error(t('profile.message.uploadCoverError'))
   }
 }
 
@@ -101,9 +92,7 @@ fetchProfileById({})
         style="right: -9.5px; top: 7px; position: absolute"
         accept="image/png, image/jpeg, image/jpg"
         @change="handleFileCoverChange"
-        a
         prepend-icon="mdi-camera"
-        ref="coverInput"
       />
     </v-btn>
 
@@ -132,7 +121,6 @@ fetchProfileById({})
 
               <h5 class="text-h5 mt-3">{{ user.name }}</h5>
             </div>
-
             <v-btn icon size="36px" style="top: -40%; left: 30%">
               <v-file-input
                 class="file-input"
@@ -140,7 +128,6 @@ fetchProfileById({})
                 accept="image/png, image/jpeg, image/jpg"
                 @change="handleFileChange"
                 prepend-icon="mdi-camera"
-                ref="avatarInput"
               />
             </v-btn>
           </div>
