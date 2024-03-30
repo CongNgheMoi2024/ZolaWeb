@@ -18,6 +18,9 @@
   "chats": {
     "addFriend": "Thêm bạn",
     "makeFriend": "Kết bạn",
+    "yourProfile": "Hồ sơ của bạn",
+    "informationAccount": "Thông tin tài khoản",
+    "setting": "Cài đặt",
     "addGroup": "Tạo nhóm",
     "model": {
       "phone": "Số điện thoại",
@@ -139,6 +142,30 @@
       "continue": "Tiếp tục",
       "backToLogin": "Quay lại đăng nhập",
       "confirm": "Xác nhận"
+    }
+  },
+  "profile": {
+    "editInformationAccount": "Chỉnh sửa thông tin tài khoản",
+    "informationUser": "Thông tin cá nhân",
+    "model": {
+      "name": "Tên hiển thị",
+      "phone": "Số điện thoại",
+      "sex":"Giới tính",
+      "birthday":"Ngày sinh"
+    },
+    "action": {
+      "edit": "Chỉnh sửa",
+      "save": "Lưu",
+      "cancel": "Hủy",
+      "exit": "Thoát"
+    },
+    "message": {
+      "editProfileSuccess": "Chỉnh sửa thông tin thành công",
+      "editProfileFailed": "Chỉnh sửa thông tin thất bại",
+      "uploadAvatarSuccess": "Tải ảnh đại diện thành công",
+      "uploadAvatarFailed": "Tải ảnh đại diện thất bại",
+      "uploadCoverSuccess": "Tải ảnh bìa thành công",
+      "uploadCoverError": "Tải ảnh bìa thất bại"
     }
   }
 }
