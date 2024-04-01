@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import RegisterForm from '~/components/auth/RegisterForm.vue'
 import { useI18n } from 'vue-i18n'
-
-const router = useRouter()
 
 const { t } = useI18n()
 definePageMeta({
@@ -31,7 +28,8 @@ definePageMeta({
           <h2 class="text-h3 font-weight-bold mb-2">
             {{ t('register.model.createNewAccountZola') }}
           </h2>
-          <register-form />
+
+          <auth-verify-phone-form />
           <h6 class="text-h6 d-flex justify-center align-center mt-3">
             {{ t('register.model.alreadyHaveAccount') }}
             <v-btn class="text-primary text-body-1 opacity-1 pl-2 font-weight-medium" to="/auth/login" variant="plain">

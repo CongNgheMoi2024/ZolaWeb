@@ -1,15 +1,24 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
 import * as yup from 'yup'
 import { useI18n } from 'vue-i18n'
-import TextInput from '@/components/forms/form-validation/TextInput.vue'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
 const toast = useToast()
 const loading = ref(false)
 const { $api } = useNuxtApp()
+const phone = ref('')
+const newPasswordEye = ref(false)
+const confirmationPasswordEye = ref(false)
+
+onMounted(async () => {
+  phone.value = route.query.phone
+  console.log('phone', phone.value)
+})
 
 const schema = yup.object({
   otp: yup
@@ -19,22 +28,18 @@ const schema = yup.object({
     .matches(/^\d{6}$/, t('forgotPassword.validation.otpLength')),
   password: yup
     .string()
-    .required(t('forgotPassword.model.requiredOTP'))
-    .label(t('forgotPassword.model.verifyCode'))
-    .matches(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/, t('login.validation.regexPassword')),
-  confirmPassword: yup
-    .string()
     .required(t('login.validation.requiredPassword'))
     .label(t('chats.model.password'))
-    .oneOf([yup.ref('password')], t('forgotPassword.validation.confirmPasswordMatch')),
+    .matches(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/, t('login.validation.regexPassword')),
+  confirm_password: yup.string().oneOf([yup.ref('password')], t('login.validation.passwordConfirmation')),
 })
 
 const { defineComponentBinds, handleSubmit, setErrors } = useForm({
   validationSchema: schema,
   initialValues: {
-    otp: '',
-    password: '',
-    confirmPassword: '',
+    otp: null,
+    password: null,
+    confirm_password: '',
   },
 })
 
@@ -47,23 +52,26 @@ const vuetifyConfig = (state: any) => ({
 const form = ref({
   otp: defineComponentBinds('otp', vuetifyConfig),
   password: defineComponentBinds('password', vuetifyConfig),
-  confirm_password: defineComponentBinds('confirmPassword', vuetifyConfig),
+  confirm_password: defineComponentBinds('confirm_password', vuetifyConfig),
 })
 
 const changePassword = handleSubmit(async (values) => {
   loading.value = true
+  console.log(phone.value, values.otp, values.password, values.confirm_password)
   try {
-    await $api.users.verifyOTPForgetPassword(values).then(
-      (response) => {
+    await $api.auths
+      .verifyOTPForgetPassword(phone.value, {
+        otp: values.otp,
+        password: values.password,
+        confirm_password: values.confirm_password,
+      })
+      .then(() => {
         toast.success(t('forgotPassword.message.forgotPasswordSuccess'))
         router.push('/auth/login')
-      },
-      (error) => {
-        setErrors(error.error)
-      }
-    )
+      })
   } catch (error) {
     toast.error(t('forgotPassword.message.forgotPasswordFailed'))
+    console.log('error', error)
   } finally {
     loading.value = false
   }
@@ -76,15 +84,27 @@ const changePassword = handleSubmit(async (values) => {
     <v-label class="text-subtitle-1 font-weight-medium pb-2 text-lightText">
       {{ t('forgotPassword.model.verifyCode') }}
     </v-label>
-    <text-input v-model="form.otp" name="otp" type="text" />
+    <v-text-field v-bind="form.otp" type="text" />
     <v-label class="text-subtitle-1 font-weight-medium pb-2 text-lightText">
       {{ t('forgotPassword.model.newPassword') }}
     </v-label>
-    <text-input v-model="form.password" name="password" type="password" />
+    <v-text-field
+      v-bind="form.password"
+      :append-icon="newPasswordEye ? 'mdi-eye' : 'mdi-eye-off'"
+      counter
+      :type="newPasswordEye ? 'text' : 'password'"
+      @click:append="newPasswordEye = !newPasswordEye"
+    />
     <v-label class="text-subtitle-1 font-weight-medium pb-2 text-lightText">
       {{ t('forgotPassword.model.confirmPassword') }}
     </v-label>
-    <text-input v-model="form.confirmPassword" name="confirmPassword" type="password" />
+    <v-text-field
+      v-bind="form.confirm_password"
+      :append-icon="confirmationPasswordEye ? 'mdi-eye' : 'mdi-eye-off'"
+      counter
+      :type="confirmationPasswordEye ? 'text' : 'password'"
+      @click:append="confirmationPasswordEye = !confirmationPasswordEye"
+    />
 
     <div class="d-flex align-center text-center mb-6" />
     <v-btn block color="primary" flat :loading="loading" size="large" type="submit">

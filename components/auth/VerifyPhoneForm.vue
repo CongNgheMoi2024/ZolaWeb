@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useToast } from 'vue-toastification'
-import * as yup from 'yup'
 import { useI18n } from 'vue-i18n'
+import { ref, defineProps } from 'vue'
+import * as yup from 'yup'
+import { useToast } from 'vue-toastification'
+import { useForm } from 'vee-validate'
 import TextInput from '@/components/forms/form-validation/TextInput.vue'
 
 const router = useRouter()
@@ -10,6 +11,13 @@ const { t } = useI18n()
 const toast = useToast()
 const loading = ref(false)
 const { $api } = useNuxtApp()
+
+const props = defineProps({
+  phone: {
+    type: String,
+    required: true,
+  },
+})
 
 const schema = yup.object({
   phone: yup
@@ -21,6 +29,12 @@ const schema = yup.object({
     .max(20, t('login.validation.maxPhone')),
 })
 
+const vuetifyConfig = (state: any) => ({
+  props: {
+    'error-messages': state.errors,
+  },
+})
+
 const { defineComponentBinds, handleSubmit, setErrors } = useForm({
   validationSchema: schema,
   initialValues: {
@@ -28,42 +42,39 @@ const { defineComponentBinds, handleSubmit, setErrors } = useForm({
   },
 })
 
-const vuetifyConfig = (state: any) => ({
-  props: {
-    'error-messages': state.errors,
-  },
-})
-
 const form = ref({
   phone: defineComponentBinds('phone', vuetifyConfig),
 })
 
-const sendOTP = handleSubmit(async (values) => {
+const verify = handleSubmit(async (values) => {
   loading.value = true
   try {
     const formattedPhone = values.phone.startsWith('0') ? `+84${values.phone.slice(1)}` : values.phone
-    await $api.auths.sendOTPForgetPassword({ phoneNo: formattedPhone })
-    toast.success(t('forgotPassword.message.sendOTPSuccess'))
-    router.push({ path: '/auth/verifyForgotPassword', query: { phone: values.phone } })
+    await $api.auths.sendOTPRegister({ phoneNo: formattedPhone }).then(
+      (response) => {
+        toast.success(t('register.message.sendingOTP'))
+        router.push({ path: '/auth/verifyRegister', query: { phone: values.phone } })
+      },
+      (error) => {
+        setErrors(error.error)
+      }
+    )
   } catch (error) {
-    setErrors(error.message)
-    toast.error(t('forgotPassword.message.sendOTPFailed'))
+    toast.error(t('register.message.phoneInvalidOrExistPleaseTryAgain'))
   } finally {
     loading.value = false
   }
 })
 </script>
-
 <template>
-  <div class="d-flex align-center text-center mb-6" />
-  <v-form class="mt-5" @submit="sendOTP">
-    <v-label class="text-subtitle-1 font-weight-medium pb-2 text-lightText">
-      {{ t('forgotPassword.model.phone') }}
+  <v-form ref="form" class="mt-5" @submit="verify">
+    <v-label class="text-subtitle-1 font-weight-medium pb-2">
+      {{ t('register.model.phone') }}
     </v-label>
     <text-input v-model="form.phone" name="phone" type="text" />
     <div class="d-flex align-center text-center mb-6" />
     <v-btn block color="primary" flat :loading="loading" size="large" type="submit">
-      {{ t('forgotPassword.action.continue') }}
+      {{ t('register.action.confirm') }}
     </v-btn>
   </v-form>
 </template>

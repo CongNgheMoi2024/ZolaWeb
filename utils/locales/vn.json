@@ -103,9 +103,10 @@
     "message": {
       "registerSuccess": "Đăng ký thành công",
       "registerFailed": "Đăng ký thất bại",
-      "sendingOTP":"Đang gửi mã xác minh",
+      "sendingOTP":"Đã gửi mã xác minh",
       "verifyAccountSuccess": "Xác minh tài khoản thành công",
-      "verifyAccountFailed": "Xác minh tài khoản thất bại"
+      "verifyAccountFailed": "Xác minh tài khoản thất bại",
+      "phoneInvalidOrExistPleaseTryAgain": "Số điện thoại không hợp lệ hoặc đã tồn tại.\nVui lòng thử lại"
     },
     "action": {
       "confirm" : "Xác nhận",
@@ -169,7 +170,7 @@
       "uploadCoverSuccess": "Tải ảnh bìa thành công",
       "uploadCoverError": "Tải ảnh bìa thất bại"
     }
-  },
+   },
   "changePassword": {
     "title": "Đổi mật khẩu",
     "model": {
