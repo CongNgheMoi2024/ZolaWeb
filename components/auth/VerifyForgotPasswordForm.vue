@@ -17,7 +17,6 @@ const confirmationPasswordEye = ref(false)
 
 onMounted(async () => {
   phone.value = route.query.phone
-  console.log('phone', phone.value)
 })
 
 const schema = yup.object({
@@ -57,7 +56,7 @@ const form = ref({
 
 const changePassword = handleSubmit(async (values) => {
   loading.value = true
-  console.log(phone.value, values.otp, values.password, values.confirm_password)
+
   try {
     await $api.auths
       .verifyOTPForgetPassword(phone.value, {
@@ -71,7 +70,6 @@ const changePassword = handleSubmit(async (values) => {
       })
   } catch (error) {
     toast.error(t('forgotPassword.message.forgotPasswordFailed'))
-    console.log('error', error)
   } finally {
     loading.value = false
   }

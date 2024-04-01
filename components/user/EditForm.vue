@@ -97,7 +97,6 @@ const saveEdit = async () => {
       })
   } catch (error) {
     toast.error(t('profile.message.editProfileFailed'))
-    console.log(error.error)
     loading.value = false
   }
 }
