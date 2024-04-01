@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import profileBg from '~/images/backgrounds/profilebg.jpg'
-import { ref } from 'vue'
+import { ref, defineProps } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { useForm } from 'vee-validate'
-import TextInput from '@/components/forms/form-validation/TextInput.vue'
 import * as yup from 'yup'
-import { defineProps } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
+import TextInput from '@/components/forms/form-validation/TextInput.vue'
+import profileBg from '~/images/backgrounds/profilebg.jpg'
 
 const toast = useToast()
 const { t } = useI18n()
@@ -111,7 +110,7 @@ fetchProfileById({})
       <v-label class="text-center" style="font-size: 16px; font-weight: 500; margin-top: 20px; margin-left: 20px">
         {{ t('profile.model.name') }}
       </v-label>
-      <v-text-field v-model="nameUser" outlined dense placeholder="Name" class="mx-4 mt-3" />
+      <v-text-field v-model="nameUser" class="mx-4 mt-3" dense outlined placeholder="Name" />
       <!-- radio group giới tính -->
 
       <v-label class="text-title-1 pb-2 mt-5" style="font-size: 16px; font-weight: 550; margin-left: 20px">
@@ -121,16 +120,16 @@ fetchProfileById({})
       <v-label class="text-center mt-4" style="font-size: 16px; font-weight: 500; margin-top: 20px; margin-left: 20px">
         {{ t('profile.model.sex') }}
       </v-label>
-      <v-radio-group v-model="sex" inline name="sex" style="margin-left: 10px" class="mt-3">
-        <v-radio label="Nam" value="Nam" color="primary" />
-        <v-radio label="Nữ" value="Nữ" color="primary" style="margin-left: 40px" />
+      <v-radio-group v-model="sex" class="mt-3" inline name="sex" style="margin-left: 10px">
+        <v-radio color="primary" label="Nam" value="Nam" />
+        <v-radio color="primary" label="Nữ" style="margin-left: 40px" value="Nữ" />
       </v-radio-group>
       <v-label class="text-center mt-3" style="font-size: 16px; font-weight: 500; margin-top: 20px; margin-left: 20px">
         {{ t('register.model.birthday') }}
       </v-label>
       <vue-date-picker
-        class="mt-3"
         v-model="date"
+        class="mt-3"
         :enable-time-picker="false"
         :format="formatDate"
         :max-date="new Date()"
@@ -149,7 +148,7 @@ fetchProfileById({})
   </v-card>
 </template>
 <style scoped>
-<style lang='scss' > .avatar-border {
+.avatar-border {
   background-image: linear-gradient(rgb(80, 178, 252), rgb(244, 76, 102));
   border-radius: 50%;
   width: 110px;

@@ -3,8 +3,8 @@ import { useI18n } from 'vue-i18n'
 import AppBaseCard from '@/components/common/atom/AppBaseCard.vue'
 import ChatListing from '@/components/chats/ChatListing.vue'
 import ChatDetail from '@/components/chats/ChatDetail.vue'
-import FriendMenu from '~/components/Friends/FriendMenu.vue'
-import ListFriends from '~/components/Friends/ListFriends.vue'
+import FriendMenu from '@/components/Friends/FriendMenu.vue'
+import ListFriends from '@/components/Friends/ListFriends.vue'
 
 const { t } = useI18n()
 const { $api } = useNuxtApp()
@@ -20,6 +20,8 @@ const profileDialog = ref(false)
 const isEditing = ref(false)
 const values = ref({})
 const user = ref({})
+const isChangePassword = ref(false)
+
 const selectedMenuFriend = ref({
   title: 'Danh sách bạn bè',
   icon: 'mdi-account-details-outline',
@@ -33,6 +35,8 @@ const fetchProfileById = async (values) => {
 }
 
 const auth = data.value
+
+console.log('auth', auth)
 const connect = () => {
   stompClient.connect({}, onConnected, onError)
 }
@@ -72,6 +76,7 @@ const saveEdit = () => {
 
 const closeDialog = () => {
   isEditing.value = false
+  isChangePassword.value = false
 }
 
 const closeProfileDialog = () => {
@@ -97,9 +102,9 @@ onMounted(() => {
   <v-navigation-drawer class="tw-bg-primary" permanent width="70">
     <v-menu location="end" offset="15">
       <template #activator="{ props }">
-        <v-btn icon v-bind="props" @click="menu = !menu" class="d-block text-center mt-4 mx-2">
+        <v-btn v-bind="props" class="d-block text-center mt-4 mx-2" icon @click="menu = !menu">
           <v-avatar color="grey-darken-1" size="large">
-            <img alt="pro" src="/images/profile/user-1.jpg" width="54" />
+            <img alt="pro" :src="user.avatar ? user.avatar : '/images/profile/user-1.jpg'" width="54" />
           </v-avatar>
         </v-btn>
       </template>
@@ -113,6 +118,9 @@ onMounted(() => {
         <v-list>
           <v-list-item @click="openProfileDialog">
             <label>{{ t('chats.yourProfile') }}</label>
+          </v-list-item>
+          <v-list-item @click="isChangePassword = true">
+            <label>{{ t('changePassword.title') }}</label>
           </v-list-item>
           <v-list-item>
             <label>{{ t('chats.setting') }}</label>
@@ -140,7 +148,7 @@ onMounted(() => {
         <template #prepend>
           <v-menu>
             <template #activator="{ props }">
-              <v-icon v-bind="props" @click="showSettingsMenu = !showSettingsMenu" class="tw-ml-[6px]" color="white">
+              <v-icon v-bind="props" class="tw-ml-[6px]" color="white" @click="showSettingsMenu = !showSettingsMenu">
                 mdi-cog
               </v-icon>
             </template>
@@ -179,7 +187,7 @@ onMounted(() => {
             {{ t('chats.informationAccount') }}
           </span>
         </v-card-title>
-        <UserProfileForm :closeProfileDialog="closeProfileDialog" :openEditProfile="openEditProfile" />
+        <UserProfileForm :close-profile-dialog="closeProfileDialog" :open-edit-profile="openEditProfile" />
       </v-container>
     </v-card>
   </v-dialog>
@@ -193,11 +201,24 @@ onMounted(() => {
           </span>
         </v-card-title>
         <UserEditForm
-          :closeDialog="closeDialog"
-          :closeProfileDialog="closeProfileDialog"
-          :openProfileDialog="openProfileDialog"
-          :fetchProfile="fetchProfileById"
+          :close-dialog="closeDialog"
+          :close-profile-dialog="closeProfileDialog"
+          :fetch-profile="fetchProfileById"
+          :open-profile-dialog="openProfileDialog"
         />
+      </v-container>
+    </v-card>
+  </v-dialog>
+
+  <v-dialog v-model="isChangePassword" max-width="460">
+    <v-card class="overflow-auto tw-max-h-[540px]">
+      <v-container>
+        <v-card-title class="pa-5">
+          <span class="text-h5">
+            {{ t('changePassword.title') }}
+          </span>
+        </v-card-title>
+        <AuthChangePasswordForm :user="user" @close-dialog="isChangePassword = false" />
       </v-container>
     </v-card>
   </v-dialog>
