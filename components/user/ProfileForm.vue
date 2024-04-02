@@ -19,7 +19,6 @@ const coverFile = ref<File | null>(null)
 const fetchProfileById = async (values) => {
   await $api.users.getProfile(values).then((res) => {
     user.value = res.data
-    console.log(user)
   })
 }
 

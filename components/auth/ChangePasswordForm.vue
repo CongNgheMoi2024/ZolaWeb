@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as yup from 'yup'
 import { useI18n } from 'vue-i18n'
-import { useToast } from "vue-toastification"
+import { useToast } from 'vue-toastification'
 
 const props = defineProps({
   user: Object,

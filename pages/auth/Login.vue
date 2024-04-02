@@ -37,7 +37,7 @@ definePageMeta({
             <v-btn
               class="pl-0 text-primary text-body-1 opacity-1 pl-2 font-weight-medium"
               height="auto"
-              to="/auth/register"
+              to="/auth/verifyPhone"
               variant="plain"
             >
               {{ t('login.action.register') }}
