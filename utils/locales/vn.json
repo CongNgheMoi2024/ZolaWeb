@@ -25,7 +25,8 @@
     "model": {
       "phone": "Số điện thoại",
       "password": "Mật khẩu",
-      "nameGroup": "Tên nhóm"
+      "nameGroup": "Tên nhóm",
+      "passwordNew": "Mật khẩu mới"
     },
     "action": {
       "send": "Gửi",
@@ -59,7 +60,8 @@
       "minPassword": "Mật khẩu phải có ít nhất 6 ký tự",
       "regexPassword": "Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ cái, số và ký tự đặc biệt",
       "requiredPhone": "Vui lòng nhập số điện thoại",
-      "requiredPassword": "Vui lòng nhập mật khẩu"
+      "requiredPassword": "Vui lòng nhập mật khẩu",
+      "passwordConfirmation": "Mật khẩu không khớp"
     },
     "message": {
       "loginSuccess": "Đăng nhập thành công",
@@ -101,9 +103,10 @@
     "message": {
       "registerSuccess": "Đăng ký thành công",
       "registerFailed": "Đăng ký thất bại",
-      "sendingOTP":"Đang gửi mã xác minh",
+      "sendingOTP":"Đã gửi mã xác minh",
       "verifyAccountSuccess": "Xác minh tài khoản thành công",
-      "verifyAccountFailed": "Xác minh tài khoản thất bại"
+      "verifyAccountFailed": "Xác minh tài khoản thất bại",
+      "phoneInvalidOrExistPleaseTryAgain": "Số điện thoại không hợp lệ hoặc đã tồn tại.\nVui lòng thử lại"
     },
     "action": {
       "confirm" : "Xác nhận",
@@ -166,6 +169,28 @@
       "uploadAvatarFailed": "Tải ảnh đại diện thất bại",
       "uploadCoverSuccess": "Tải ảnh bìa thành công",
       "uploadCoverError": "Tải ảnh bìa thất bại"
+    }
+   },
+  "changePassword": {
+    "title": "Đổi mật khẩu",
+    "model": {
+      "oldPassword": "Mật khẩu cũ",
+      "newPassword": "Mật khẩu mới",
+      "confirmPassword": "Xác nhận mật khẩu"
+    },
+    "validation": {
+      "password": "Mật khẩu không hợp lệ",
+      "minPassword": "Mật khẩu phải có ít nhất 6 ký tự",
+      "regexPassword": "Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ cái, số và ký tự đặc biệt",
+      "confirmPasswordMatch": "Mật khẩu không khớp"
+    },
+    "message": {
+      "changePasswordSuccess": "Đổi mật khẩu thành công",
+      "changePasswordFailed": "Đổi mật khẩu thất bại"
+    },
+    "action": {
+      "save": "Lưu",
+      "cancel": "Hủy"
     }
   }
 }

@@ -10,6 +10,7 @@ const { signIn, data } = useAuth()
 const toast = useToast()
 const { t } = useI18n()
 const loading = ref(false)
+const passwordEye = ref(false)
 
 const schema = yup.object({
   phone: yup
@@ -70,7 +71,12 @@ const login = handleSubmit((values) => {
     <v-label class="text-subtitle-1 font-weight-medium pb-2 text-lightText">{{ t('login.model.phone') }}</v-label>
     <text-input v-model="form.phone" name="phone" type="text" />
     <v-label class="text-subtitle-1 font-weight-medium pb-2 text-lightText">{{ t('login.model.password') }}</v-label>
-    <text-input v-model="form.password" name="password" type="password" />
+    <v-text-field
+      v-bind="form.password"
+      :append-icon="passwordEye ? 'mdi-eye' : 'mdi-eye-off'"
+      :type="passwordEye ? 'text' : 'password'"
+      @click:append="passwordEye = !passwordEye"
+    />
     <div class="d-flex flex-wrap align-center my-3 ml-n2">
       <div class="ml-sm-auto">
         <NuxtLink

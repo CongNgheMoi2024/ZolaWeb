@@ -1,23 +1,23 @@
 import { BaseApi } from '@/api/base'
 
 export class AuthAPI extends BaseApi {
-  sendOTPForgetPassword(phoneNo: string): Promise<any> {
-    return this.post('/forget-password', { phoneNo })
+  sendOTPForgetPassword(data: any): Promise<any> {
+    return this.post('/forget-password', data)
   }
 
-  verifyOTPForgetPassword(data: any): Promise<any> {
-    return this.put('/otp-forget/{phone}', { data })
+  verifyOTPForgetPassword(phone: string, data: any): Promise<any> {
+    return this.put(`/otp-forget/${phone}`, data)
   }
 
   register(data: any): Promise<any> {
     return this.post('/auth/register', data)
   }
 
-  sendOTPRegister(phoneNo: string): Promise<any> {
-    return this.post('/phoneNumber', { phoneNo })
+  sendOTPRegister(data: any): Promise<any> {
+    return this.post('/phoneNumber', data)
   }
 
-  verifyOTPRegister(otp: any): Promise<any> {
-    return this.post('/otp', { otp })
+  verifyOTPRegister(data: any): Promise<any> {
+    return this.post('/otp', data)
   }
 }

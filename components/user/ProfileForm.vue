@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import profileBg from '~/images/backgrounds/profilebg.jpg'
-import { ref } from 'vue'
+import { ref, defineProps } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-const router = useRouter()
-import { defineProps } from 'vue'
 import { useToast } from 'vue-toastification'
+import profileBg from '@/images/backgrounds/profilebg.jpg'
+const router = useRouter()
 
 const { t } = useI18n()
 const toast = useToast()
@@ -20,7 +19,6 @@ const coverFile = ref<File | null>(null)
 const fetchProfileById = async (values) => {
   await $api.users.getProfile(values).then((res) => {
     user.value = res.data
-    console.log(user)
   })
 }
 
@@ -84,15 +82,15 @@ fetchProfileById({})
 </script>
 <template>
   <v-card class="overflow-hidden" elevation="10" style="height: 430px">
-    <img alt="profile" class="w-100" :src="user?.imageCover" v-if="user?.imageCover" style="height: 123px" />
-    <img alt="profile" class="w-100" :src="profileBg" v-else />
+    <img v-if="user?.imageCover" alt="profile" class="w-100" :src="user?.imageCover" style="height: 123px" />
+    <img v-else alt="profile" class="w-100" :src="profileBg" />
     <v-btn icon size="36px" style="left: 91%; top: -50px">
       <v-file-input
-        class="file-input"
-        style="right: -9.5px; top: 7px; position: absolute"
         accept="image/png, image/jpeg, image/jpg"
-        @change="handleFileCoverChange"
+        class="file-input"
         prepend-icon="mdi-camera"
+        style="right: -9.5px; top: 7px; position: absolute"
+        @change="handleFileCoverChange"
       />
     </v-btn>
 
@@ -103,10 +101,10 @@ fetchProfileById({})
             <div class="avatar-border">
               <v-avatar class="userImage" size="100">
                 <img
+                  v-if="user?.avatar"
                   alt="profile"
                   class="w-100"
                   :src="user?.avatar"
-                  v-if="user?.avatar"
                   style="
                     height: 100px;
                     width: 100px;
@@ -116,18 +114,18 @@ fetchProfileById({})
                     border-style: solid;
                   "
                 />
-                <img alt="Mathew" src="/images/profile/user-1.jpg" width="100" v-else />
+                <img v-else alt="Mathew" src="/images/profile/user-1.jpg" width="100" />
               </v-avatar>
 
               <h5 class="text-h5 mt-3">{{ user.name }}</h5>
             </div>
             <v-btn icon size="36px" style="top: -40%; left: 30%">
               <v-file-input
-                class="file-input"
-                style="right: -9.5px; top: 7px; position: absolute"
                 accept="image/png, image/jpeg, image/jpg"
-                @change="handleFileChange"
+                class="file-input"
                 prepend-icon="mdi-camera"
+                style="right: -9.5px; top: 7px; position: absolute"
+                @change="handleFileChange"
               />
             </v-btn>
           </div>

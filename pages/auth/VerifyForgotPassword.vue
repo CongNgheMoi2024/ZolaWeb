@@ -1,4 +1,3 @@
-import { useI18n } from 'vue-i18n';
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
@@ -30,7 +29,7 @@ definePageMeta({
             {{ t('forgotPassword.model.verifyAccount') }}
           </h2>
 
-          <AuthVerifyForgotPasswordForm />
+          <auth-verify-forgot-password-form />
           <v-btn
             class="pl-0 text-primary text-body-1 opacity-1 pl-2 font-weight-medium"
             height="auto"
