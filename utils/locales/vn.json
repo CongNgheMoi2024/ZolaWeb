@@ -160,7 +160,9 @@
       "edit": "Chỉnh sửa",
       "save": "Lưu",
       "cancel": "Hủy",
-      "exit": "Thoát"
+      "exit": "Thoát",
+      "updateAvatar": "Cập nhật ảnh đại diện",
+      "updateCover": "Cập nhật ảnh bìa"
     },
     "message": {
       "editProfileSuccess": "Chỉnh sửa thông tin thành công",

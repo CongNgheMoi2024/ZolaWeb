@@ -2,11 +2,10 @@
 import { ref, defineProps } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
-import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import VueDatePicker from '@vuepic/vue-datepicker'
-import TextInput from '@/components/forms/form-validation/TextInput.vue'
-import profileBg from '~/images/backgrounds/profilebg.jpg'
+import '@vuepic/vue-datepicker/dist/main.css'
+import { useForm } from 'vee-validate'
 
 const toast = useToast()
 const { t } = useI18n()
@@ -17,14 +16,19 @@ const auth = data.value
 const loading = ref(false)
 const sex = ref()
 const date = ref()
-const nameUser = ref()
+const nameUser = ref(user.name)
 const phone = ref()
 
 const props = defineProps<{
   closeDialog: () => void
   closeProfileDialog: () => void
   openProfileDialog: () => void
+  loadData: () => void
 }>()
+
+const loadData = () => {
+  props.loadData()
+}
 
 const closeDialog = () => {
   props.openProfileDialog()
@@ -68,7 +72,7 @@ const vuetifyConfig = (state: any) => ({
     'error-messages': state.errors,
   },
 })
-
+await fetchProfileById({})
 const { defineComponentBinds, handleSubmit, setErrors } = useForm({
   validationSchema: schema,
   initialValues: {
@@ -80,18 +84,19 @@ const form = ref({
   name: defineComponentBinds('name', vuetifyConfig),
 })
 
-const saveEdit = async () => {
+const saveEdit = handleSubmit(async (values) => {
   loading.value = true
   try {
     const sexValue = sex.value === 'Nam' ? 1 : 0
     await $api.users
       .updateProfile(phone.value, {
-        name: nameUser.value,
+        name: values.name,
         sex: sexValue,
         birthday: formatDate(date.value),
       })
       .then(() => {
         toast.success(t('profile.message.editProfileSuccess'))
+        loadData()
         openProfileDialog()
         closeDialog()
       })
@@ -99,17 +104,16 @@ const saveEdit = async () => {
     toast.error(t('profile.message.editProfileFailed'))
     loading.value = false
   }
-}
-fetchProfileById({})
+})
 </script>
 <template>
   <v-card class="overflow-hidden" elevation="10" style="height: 430px">
     <!-- v-label tên hiển thị -->
-    <v-form ref="form">
+    <v-form>
       <v-label class="text-center" style="font-size: 16px; font-weight: 500; margin-top: 20px; margin-left: 20px">
         {{ t('profile.model.name') }}
       </v-label>
-      <v-text-field v-model="nameUser" class="mx-4 mt-3" dense outlined placeholder="Name" />
+      <v-text-field v-bind="form.name" class="mx-4 mt-3" dense outlined />
       <!-- radio group giới tính -->
 
       <v-label class="text-title-1 pb-2 mt-5" style="font-size: 16px; font-weight: 550; margin-left: 20px">
@@ -139,7 +143,7 @@ fetchProfileById({})
         <v-btn color="error" flat text @click="closeDialog">
           {{ t('profile.action.cancel') }}
         </v-btn>
-        <v-btn color="success" flat @click="saveEdit">
+        <v-btn color="success" flat :loading="loading" @click="saveEdit">
           {{ t('profile.action.save') }}
         </v-btn>
       </v-card-actions>

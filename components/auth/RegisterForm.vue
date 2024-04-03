@@ -17,7 +17,7 @@ const sex = ref('Nam')
 const { $api } = useNuxtApp()
 const passwordEye = ref(false)
 const confirmPasswordEye = ref(false)
-const date = ref(new Date())
+const date = ref(new Date().setDate(new Date().getDate() - 1))
 const phone = ref('')
 
 const props = defineProps({
@@ -30,7 +30,7 @@ const props = defineProps({
 const yesterday = () => {
   const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
-  date.value = yesterday
+
   return yesterday
 }
 
@@ -130,10 +130,10 @@ const register = handleSubmit(async (values) => {
     </v-label>
     <v-text-field
       v-bind="form.retype_password"
-      :append-icon="confirmationPasswordEye ? 'mdi-eye' : 'mdi-eye-off'"
+      :append-icon="confirmPasswordEye ? 'mdi-eye' : 'mdi-eye-off'"
       counter
-      :type="confirmationPasswordEye ? 'text' : 'password'"
-      @click:append="confirmationPasswordEye = !confirmationPasswordEye"
+      :type="confirmPasswordEye ? 'text' : 'password'"
+      @click:append="confirmPasswordEye = !confirmPasswordEye"
     />
     <v-label class="text-subtitle-1 font-weight-medium pb-2">
       {{ t('register.model.sex') }}

@@ -15,19 +15,45 @@ const auth = data.value
 
 const avatarFile = ref<File | null>(null)
 const coverFile = ref<File | null>(null)
+const dialogAvatar = ref(false)
+const dialogCover = ref(false)
+const selectedAvatar = ref(null)
+const selectedCover = ref(null)
 
-const fetchProfileById = async (values) => {
-  await $api.users.getProfile(values).then((res) => {
+const fetchProfile = async () => {
+  await $api.users.getProfile(auth.id).then((res) => {
     user.value = res.data
   })
 }
 
-const handleFileChange = (event: Event) => {
+const handleFileChange = async (event: Event) => {
   const target = event.target as HTMLInputElement
   avatarFile.value = (target.files as FileList)[0] || null
   if (avatarFile.value) {
-    uploadAvatar(avatarFile.value)
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      selectedAvatar.value = e.target.result
+      dialogAvatar.value = true // Open the dialog
+    }
+    reader.readAsDataURL(avatarFile.value)
   }
+}
+
+const cancel = () => {
+  selectedAvatar.value = null
+  selectedCover.value = null
+  dialogCover.value = false
+  dialogAvatar.value = false
+}
+
+const updateAvatar = () => {
+  uploadAvatar(avatarFile.value)
+  dialogAvatar.value = false
+}
+
+const updateCover = () => {
+  uploadCover(coverFile.value)
+  dialogCover.value = false
 }
 
 const uploadAvatar = async (avatarFile: File) => {
@@ -36,7 +62,8 @@ const uploadAvatar = async (avatarFile: File) => {
 
   try {
     await $api.users.uploadAvatar(auth.id, formData)
-    await fetchProfileById({})
+    await fetchProfile()
+    loadData()
     toast.success(t('profile.message.uploadAvatarSuccess'))
   } catch (error) {
     toast.error(t('profile.message.uploadAvatarError'))
@@ -47,7 +74,12 @@ const handleFileCoverChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   coverFile.value = (target.files as FileList)[0] || null
   if (coverFile.value) {
-    uploadCover(coverFile.value)
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      selectedCover.value = e.target.result
+      dialogCover.value = true // Open the dialog
+    }
+    reader.readAsDataURL(coverFile.value)
   }
 }
 
@@ -57,7 +89,7 @@ const uploadCover = async (coverFile: File) => {
 
   try {
     await $api.users.uploadImageCover(auth.id, formData)
-    await fetchProfileById({})
+    await fetchProfile()
     toast.success(t('profile.message.uploadCoverSuccess'))
   } catch (error) {
     toast.error(t('profile.message.uploadCoverError'))
@@ -67,7 +99,11 @@ const uploadCover = async (coverFile: File) => {
 const props = defineProps<{
   closeProfileDialog: () => void
   openEditProfile: () => void
+  loadData: () => void
 }>()
+const loadData = () => {
+  props.loadData()
+}
 
 const closeProfileDialog = () => {
   props.closeProfileDialog()
@@ -78,7 +114,7 @@ const openEditProfile = () => {
   props.openEditProfile()
 }
 
-fetchProfileById({})
+fetchProfile()
 </script>
 <template>
   <v-card class="overflow-hidden" elevation="10" style="height: 430px">
@@ -171,6 +207,26 @@ fetchProfileById({})
       </v-btn>
     </v-card-actions>
   </v-card>
+  <v-dialog v-model="dialogAvatar" max-width="500px" @click:outside="cancel">
+    <v-card>
+      <v-img v-if="selectedAvatar" :src="selectedAvatar" />
+      <v-card-actions class="mt-4">
+        <v-spacer />
+        <v-btn color="primary" @click="updateAvatar">{{ t('profile.action.updateAvatar') }}</v-btn>
+        <v-btn @click="cancel">{{ t('profile.action.cancel') }}</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog v-model="dialogCover" max-width="500px" @click:outside="cancel">
+    <v-card>
+      <v-img v-if="selectedCover" :src="selectedCover" />
+      <v-card-actions class="mt-4">
+        <v-spacer />
+        <v-btn color="primary" @click="updateCover">{{ t('profile.action.updateCover') }}</v-btn>
+        <v-btn @click="cancel">{{ t('profile.action.cancel') }}</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 <style scoped>
 <style lang='scss' > .avatar-border {
