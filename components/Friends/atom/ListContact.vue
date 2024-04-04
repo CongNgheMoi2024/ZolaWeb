@@ -139,7 +139,7 @@ onMounted(() => {
         >
           <template #prepend>
             <v-avatar>
-              <img alt="pro" :src="'https://randomuser.me/api/portraits/women/8.jpg'" width="50" />
+              <img alt="pro" :src="user.avatar" width="50" />
             </v-avatar>
           </template>
 
@@ -165,7 +165,11 @@ onMounted(() => {
             <v-card>
               <v-card-title>
                 <v-avatar>
-                  <img alt="pro" :src="'user.avatar'" width="50" />
+                  <img
+                    alt="pro"
+                    :src="friendRequestToUser.fromUser?.avatar ?? '/images/profile/user-1.jpg'"
+                    width="50"
+                  />
                 </v-avatar>
                 <span class="tw-ml-1">{{ friendRequestToUser.fromUser?.name }}</span>
               </v-card-title>
@@ -186,7 +190,11 @@ onMounted(() => {
             <v-card>
               <v-card-title>
                 <v-avatar>
-                  <img alt="pro" :src="'user.avatar'" width="50" />
+                  <img
+                    alt="pro"
+                    :src="friendRequestFromUser.toUser?.avatar ?? '/images/profile/user-1.jpg'"
+                    width="50"
+                  />
                 </v-avatar>
                 <span class="tw-ml-1">{{ friendRequestFromUser.toUser?.name }}</span>
               </v-card-title>
@@ -206,7 +214,7 @@ onMounted(() => {
 
         <v-btn @click="dialogDecline = false">Hủy</v-btn>
 
-        <v-btn @click="declineFriendRequest" color="error">Đồng ý</v-btn>
+        <v-btn color="error" @click="declineFriendRequest">Đồng ý</v-btn>
       </template>
     </v-card>
   </v-dialog>
