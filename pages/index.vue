@@ -186,7 +186,7 @@ const loadData = async () => {
     </app-base-card>
   </v-card>
   <v-dialog v-model="profileDialog" max-width="460">
-    <v-card class="overflow-auto" style="height: 540px">
+    <v-card class="overflow-auto" style="height: 610px">
       <v-container>
         <v-card-title class="pa-5">
           <span class="text-h5">
@@ -203,7 +203,7 @@ const loadData = async () => {
   </v-dialog>
 
   <v-dialog v-model="isEditing" max-width="460">
-    <v-card class="overflow-auto" style="height: 540px">
+    <v-card class="overflow-auto" style="height: 610px">
       <v-container>
         <v-card-title class="pa-5">
           <span class="text-h5">
