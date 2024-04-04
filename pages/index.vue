@@ -21,6 +21,8 @@ const isEditing = ref(false)
 const values = ref({})
 const user = ref({})
 const isChangePassword = ref(false)
+const avatar = ref(user.avatar)
+const nameUser = ref(user.name)
 
 const selectedMenuFriend = ref({
   title: 'Danh sách bạn bè',
@@ -31,12 +33,13 @@ const selectedMenuFriend = ref({
 const fetchProfileById = async (values) => {
   await $api.users.getProfile(values).then((res) => {
     user.value = res.data
+    avatar.value = user.value.avatar
+    nameUser.value = user.value.name
   })
 }
 
 const auth = data.value
 
-console.log('auth', auth)
 const connect = () => {
   stompClient.connect({}, onConnected, onError)
 }
@@ -55,7 +58,7 @@ const onMessageReceived = (payload) => {
 
 onMounted(() => {
   connect()
-  fetchProfileById({})
+  loadData()
 })
 
 const fetchChatByUserId = (user) => {
@@ -96,6 +99,9 @@ const changeMenuFriend = (menu) => {
 onMounted(() => {
   connect()
 })
+const loadData = async () => {
+  await fetchProfileById({})
+}
 </script>
 
 <template>
@@ -104,14 +110,14 @@ onMounted(() => {
       <template #activator="{ props }">
         <v-btn v-bind="props" class="d-block text-center mt-4 mx-2" icon @click="menu = !menu">
           <v-avatar color="grey-darken-1" size="large">
-            <img alt="pro" :src="user.avatar ? user.avatar : '/images/profile/user-1.jpg'" width="54" />
+            <img alt="pro" :src="avatar ? avatar : '/images/profile/user-1.jpg'" width="54" />
           </v-avatar>
         </v-btn>
       </template>
       <v-card min-width="200">
         <v-list>
           <v-list-item>
-            <h5 class="text-h6 font-weight-medium">{{ user.name }}</h5>
+            <h5 class="text-h6 font-weight-medium">{{ nameUser }}</h5>
           </v-list-item>
         </v-list>
         <v-divider />
@@ -187,7 +193,11 @@ onMounted(() => {
             {{ t('chats.informationAccount') }}
           </span>
         </v-card-title>
-        <UserProfileForm :close-profile-dialog="closeProfileDialog" :open-edit-profile="openEditProfile" />
+        <UserProfileForm
+          :close-profile-dialog="closeProfileDialog"
+          :open-edit-profile="openEditProfile"
+          :loadData="loadData"
+        />
       </v-container>
     </v-card>
   </v-dialog>
@@ -203,8 +213,8 @@ onMounted(() => {
         <UserEditForm
           :close-dialog="closeDialog"
           :close-profile-dialog="closeProfileDialog"
-          :fetch-profile="fetchProfileById"
           :open-profile-dialog="openProfileDialog"
+          :loadData="loadData"
         />
       </v-container>
     </v-card>
