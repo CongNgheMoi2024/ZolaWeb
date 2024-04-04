@@ -58,6 +58,13 @@ const formatDate = (date) => {
 
   return `${year}-${month}-${day}`
 }
+
+const yesterday = () => {
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  return yesterday
+}
+
 const parseDate = (dateString) => {
   const [year, month, day] = dateString.split('-').map(Number)
   return new Date(year, month - 1, day)
@@ -107,38 +114,36 @@ const saveEdit = handleSubmit(async (values) => {
 })
 </script>
 <template>
-  <v-card class="overflow-hidden" elevation="10" style="height: 430px">
-    <!-- v-label tên hiển thị -->
+  <v-card class="overflow-hidden" elevation="10" style="height: 480px">
     <v-form>
       <v-label class="text-center" style="font-size: 16px; font-weight: 500; margin-top: 20px; margin-left: 20px">
         {{ t('profile.model.name') }}
       </v-label>
-      <v-text-field v-bind="form.name" class="mx-4 mt-3" dense outlined />
-      <!-- radio group giới tính -->
+      <v-text-field v-bind="form.name" class="mx-4 mt-7" dense outlined />
 
-      <v-label class="text-title-1 pb-2 mt-5" style="font-size: 16px; font-weight: 550; margin-left: 20px">
+      <v-label class="text-title-1 pb-2 mt-7" style="font-size: 16px; font-weight: 550; margin-left: 20px">
         {{ t('profile.informationUser') }}
       </v-label>
       <br />
-      <v-label class="text-center mt-4" style="font-size: 16px; font-weight: 500; margin-top: 20px; margin-left: 20px">
+      <v-label class="text-center mt-5" style="font-size: 16px; font-weight: 500; margin-top: 20px; margin-left: 20px">
         {{ t('profile.model.sex') }}
       </v-label>
       <v-radio-group v-model="sex" class="mt-3" inline name="sex" style="margin-left: 10px">
         <v-radio color="primary" label="Nam" value="Nam" />
         <v-radio color="primary" label="Nữ" style="margin-left: 40px" value="Nữ" />
       </v-radio-group>
-      <v-label class="text-center mt-3" style="font-size: 16px; font-weight: 500; margin-top: 20px; margin-left: 20px">
+      <v-label class="text-center mt-5" style="font-size: 16px; font-weight: 500; margin-top: 20px; margin-left: 20px">
         {{ t('register.model.birthday') }}
       </v-label>
       <vue-date-picker
         v-model="date"
-        class="mt-3"
+        class="mt-5 custom-date-picker"
         :enable-time-picker="false"
         :format="formatDate"
-        :max-date="new Date()"
+        :max-date="yesterday()"
         style="height: 110%; margin-left: 15px; width: 93%"
       />
-      <v-card-actions class="mt-1">
+      <v-card-actions class="mt-3">
         <v-spacer />
         <v-btn color="error" flat text @click="closeDialog">
           {{ t('profile.action.cancel') }}
@@ -188,5 +193,9 @@ const saveEdit = handleSubmit(async (values) => {
   .v-btn--variant-text .v-btn__overlay {
     background: transparent;
   }
+}
+
+.custom-date-picker {
+  z-index: 9999;
 }
 </style>

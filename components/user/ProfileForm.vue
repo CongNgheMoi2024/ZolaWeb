@@ -32,8 +32,23 @@ const handleFileChange = async (event: Event) => {
   if (avatarFile.value) {
     const reader = new FileReader()
     reader.onload = (e) => {
-      selectedAvatar.value = e.target.result
-      dialogAvatar.value = true // Open the dialog
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        canvas.width = img.width
+        canvas.height = img.height
+        ctx?.drawImage(img, 0, 0, img.width, img.height)
+        canvas.toBlob(
+          (blob) => {
+            selectedAvatar.value = URL.createObjectURL(blob)
+            dialogAvatar.value = true
+          },
+          'image/jpeg',
+          0.8
+        )
+      }
+      img.src = e.target.result as string
     }
     reader.readAsDataURL(avatarFile.value)
   }
@@ -76,8 +91,23 @@ const handleFileCoverChange = (event: Event) => {
   if (coverFile.value) {
     const reader = new FileReader()
     reader.onload = (e) => {
-      selectedCover.value = e.target.result
-      dialogCover.value = true // Open the dialog
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        canvas.width = img.width
+        canvas.height = img.height
+        ctx?.drawImage(img, 0, 0, img.width, img.height)
+        canvas.toBlob(
+          (blob) => {
+            selectedCover.value = URL.createObjectURL(blob)
+            dialogCover.value = true
+          },
+          'image/jpeg',
+          0.8
+        )
+      }
+      img.src = e.target.result as string
     }
     reader.readAsDataURL(coverFile.value)
   }
@@ -117,7 +147,7 @@ const openEditProfile = () => {
 fetchProfile()
 </script>
 <template>
-  <v-card class="overflow-hidden" elevation="10" style="height: 430px">
+  <v-card class="overflow-hidden" elevation="10" style="height: 480px">
     <img v-if="user?.imageCover" alt="profile" class="w-100" :src="user?.imageCover" style="height: 123px" />
     <img v-else alt="profile" class="w-100" :src="profileBg" />
     <v-btn icon size="36px" style="left: 91%; top: -50px">
@@ -172,32 +202,32 @@ fetchProfile()
       </v-row>
       <v-row>
         <v-col class="text-center" cols="6" sm="4" style="margin-left: 50px">
-          <v-row class="mt-1">
+          <v-row class="mt-3">
             <h5 style="color: gray">{{ t('profile.model.sex') }}</h5>
           </v-row>
-          <v-row class="mt-5">
+          <v-row class="mt-7">
             <h5 style="color: gray">{{ t('profile.model.birthday') }}</h5>
           </v-row>
-          <v-row class="mt-5">
+          <v-row class="mt-7">
             <h5 style="color: gray">
               {{ t('profile.model.phone') }}
             </h5>
           </v-row>
         </v-col>
         <v-col>
-          <v-row class="mt-1">
+          <v-row class="mt-3">
             <h5>{{ user.sex == true ? 'Nam' : 'Nữ' }}</h5>
           </v-row>
-          <v-row class="mt-5">
+          <v-row class="mt-7">
             <h5>{{ user.birthday }}</h5>
           </v-row>
-          <v-row class="mt-5">
+          <v-row class="mt-7">
             <h5>{{ user.phone }}</h5>
           </v-row>
         </v-col>
       </v-row>
     </div>
-    <v-card-actions class="mt-3">
+    <v-card-actions class="mt-5">
       <v-spacer />
       <v-btn color="error" flat text @click="closeProfileDialog">
         {{ t('profile.action.exit') }}
@@ -209,7 +239,7 @@ fetchProfile()
   </v-card>
   <v-dialog v-model="dialogAvatar" max-width="500px" @click:outside="cancel">
     <v-card>
-      <v-img v-if="selectedAvatar" :src="selectedAvatar" />
+      <v-img v-if="selectedAvatar" class="mt-2" max-height="500px" :src="selectedAvatar" />
       <v-card-actions class="mt-4">
         <v-spacer />
         <v-btn color="primary" @click="updateAvatar">{{ t('profile.action.updateAvatar') }}</v-btn>
@@ -219,7 +249,7 @@ fetchProfile()
   </v-dialog>
   <v-dialog v-model="dialogCover" max-width="500px" @click:outside="cancel">
     <v-card>
-      <v-img v-if="selectedCover" :src="selectedCover" />
+      <v-img v-if="selectedCover" class="mt-2" max-height="500px" :src="selectedCover" />
       <v-card-actions class="mt-4">
         <v-spacer />
         <v-btn color="primary" @click="updateCover">{{ t('profile.action.updateCover') }}</v-btn>
