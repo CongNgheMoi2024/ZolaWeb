@@ -149,7 +149,7 @@ fetchProfile()
 <template>
   <v-card class="overflow-hidden" elevation="10" style="height: 480px">
     <img v-if="user?.imageCover" alt="profile" class="w-100" :src="user?.imageCover" style="height: 123px" />
-    <img v-else alt="profile" class="w-100" :src="profileBg" />
+    <img v-else alt="profile" class="w-100" src="/images/backgrounds/profilebg.jpg" />
     <v-btn icon size="36px" style="left: 91%; top: -50px">
       <v-file-input
         accept="image/png, image/jpeg, image/jpg"
