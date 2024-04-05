@@ -24,6 +24,9 @@ const isSubmitting = ref(false)
 const { t } = useI18n()
 const toast = useToast()
 const user = ref(null)
+const friendRequests = ref([])
+const { data } = useAuth()
+const auth = data.value
 
 const schema = yup.object({
   phone: yup.string().nullable().required().label(t('chats.model.phone')),
@@ -57,6 +60,13 @@ const submit = handleSubmit(async (values) => {
         setErrors(error.error)
       }
     )
+
+    await $api.friendRequests.getFriendRequestByFromUser(auth.id).then((res) => {
+      console.log(res)
+      if (res.status === 200) {
+        friendRequests.value = res.data
+      }
+    })
   } catch (error) {
     setErrors(error.error)
   } finally {
@@ -78,6 +88,12 @@ const closed = () => {
     @cancel="emit('closed')"
     @submit="submit"
   >
-    <search-user-by-phone-form :set-field-value="setFieldValue" :user="user" :value="form" @closed="closed" />
+    <search-user-by-phone-form
+      :friend-requests="friendRequests"
+      :set-field-value="setFieldValue"
+      :user="user"
+      :value="form"
+      @closed="closed"
+    />
   </app-modal>
 </template>

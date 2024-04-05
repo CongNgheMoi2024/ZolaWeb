@@ -9,6 +9,7 @@ import { useForm } from 'vee-validate'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
+const { signIn } = useAuth()
 const router = useRouter()
 const { t } = useI18n()
 const toast = useToast()
@@ -93,7 +94,20 @@ const register = handleSubmit(async (values) => {
       .then(
         (response) => {
           toast.success(t('register.message.registerSuccess'))
-          router.push('/auth/login')
+          signIn('credentials', {
+            phone: phone.value,
+            password: values.password,
+            redirect: false,
+            callbackUrl: '/api/v1/auth/login',
+          }).then(({ error, ok }) => {
+            if (error) {
+              toast.error(t('login.message.loginFailed'))
+              loading.value = false
+              setErrors(error)
+            } else {
+              router.push({ path: '/' })
+            }
+          })
         },
         (error) => {
           setErrors(error.error)

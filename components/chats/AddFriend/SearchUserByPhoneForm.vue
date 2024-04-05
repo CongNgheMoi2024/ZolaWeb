@@ -19,6 +19,10 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  friendRequests: {
+    type: Array,
+    default: () => [],
+  },
 })
 
 const { t } = useI18n()
@@ -33,12 +37,14 @@ const form = computed({
   set: (val) => emit('update:value', val),
 })
 
-const makeFriend = async (id) => {
-  await $api.users
-    .addFriend(auth.id, id)
-    .then(() => {
-      toast.success(t('common.status.success'))
-      emit('closed')
+const sendFriendRequest = async (id) => {
+  await $api.friendRequests
+    .sendFriendRequest(auth.id, id)
+    .then((res) => {
+      if (res.status === 200) {
+        toast.success(t('common.status.success'))
+        emit('closed')
+      }
     })
     .catch(() => {
       toast.error(t('common.status.error'))
@@ -61,7 +67,13 @@ const makeFriend = async (id) => {
       :title="user.name"
     >
       <template #append>
-        <v-btn color="primary" variant="outlined" @click="makeFriend(user.id)">{{ t('chats.makeFriend') }}</v-btn>
+        <span v-if="friendRequests.some((friendRequest) => friendRequest.toUserId === user.id)">
+          Đã gửi yêu cầu kết bạn
+        </span>
+
+        <v-btn v-else color="primary" variant="outlined" @click="sendFriendRequest(user.id)">
+          {{ t('chats.makeFriend') }}
+        </v-btn>
       </template>
     </v-list-item>
   </v-list>
