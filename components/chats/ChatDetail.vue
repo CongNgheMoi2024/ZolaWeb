@@ -16,6 +16,8 @@ const props = defineProps({
     default: '',
   },
 })
+const myOptionsMsg = ref(false)
+const optionsMsg = ref(false)
 
 console.log('props.userRecipient', props.userRecipient)
 
@@ -92,6 +94,21 @@ const formatStatusUser = (status) => {
     return 'containerBg'
   }
 }
+
+const openOptionsMsg = () => {
+  optionsMsg.value = true
+}
+
+const openMyOptionsMsg = () => {
+  myOptionsMsg.value = true
+}
+
+const copyMsg = (id) => {
+  console.log('copy', id)
+}
+const deleteMsg = (id) => {
+  console.log('delete', id)
+}
 </script>
 <template>
   <div v-if="chatDetail">
@@ -131,46 +148,86 @@ const formatStatusUser = (status) => {
         <div class="d-flex">
           <div class="w-100">
             <div v-for="chat in chatDetail" :key="chat.id" class="pa-5">
-              <div v-if="auth?.id === chat.senderId" class="justify-end d-flex text-end mb-1">
-                <div>
-                  <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
-                    {{
-                      formatDistanceToNowStrict(new Date(chat.timestamp), {
-                        addSuffix: false,
-                      })
-                    }}
-                    ago
-                  </small>
+              <div class="message-container">
+                <div v-if="auth?.id === chat.senderId" class="justify-end d-flex text-end mb-1">
+                  <div>
+                    <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
+                      {{
+                        formatDistanceToNowStrict(new Date(chat.timestamp), {
+                          addSuffix: false,
+                        })
+                      }}
+                      ago
+                    </small>
+                    <v-row>
+                      <div class="message-menu" style="margin-right: 10px">
+                        <v-menu v-model="myOptionsMsg" start>
+                          <template #prepare>
+                            <v-btn class="text-medium-emphasis" icon size="42" variant="text" @click="openMyOptionsMsg">
+                              <DotsVerticalIcon size="24" />
+                            </v-btn>
+                          </template>
+                          <v-sheet>
+                            <v-list>
+                              <v-list-item @click="copyMsg(chat.id)">Copy</v-list-item>
+                              <v-list-item @click="forwardMsg(chat.id)">Forward</v-list-item>
+                              <v-list-item @click="deleteMsg(chat.id)">Delete</v-list-item>
+                              <v-list-item @click="deleteMsg(chat.id)">Delete</v-list-item>
+                            </v-list>
+                          </v-sheet>
+                        </v-menu>
+                      </div>
 
-                  <v-sheet v-if="chat.attachments == null" class="bg-grey100 rounded-md px-3 py-2 mb-1">
-                    <p class="text-body-1">{{ chat.content }}</p>
-                  </v-sheet>
-                  <v-sheet v-else class="mb-1">
-                    <img alt="pro" class="rounded-md" :src="chat.msg" width="250" />
-                  </v-sheet>
+                      <v-sheet v-if="chat.attachments == null" class="bg-grey100 rounded-md px-3 py-2 mb-1">
+                        <p class="text-body-1">{{ chat.content }}</p>
+                      </v-sheet>
+                      <v-sheet v-else class="mb-1">
+                        <img alt="pro" class="rounded-md" :src="chat.msg" width="250" />
+                      </v-sheet>
+                    </v-row>
+                  </div>
                 </div>
-              </div>
-              <div v-else class="d-flex align-items-start gap-3 mb-1">
-                <!---User Avatar-->
-                <!--                <v-avatar>-->
-                <!--                  <img alt="pro" :src="chatDetail.thumb" width="40" />-->
-                <!--                </v-avatar>-->
-                <div>
-                  <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
-                    {{
-                      formatDistanceToNowStrict(new Date(chat.timestamp), {
-                        addSuffix: false,
-                      })
-                    }}
-                    ago
-                  </small>
-
-                  <v-sheet v-if="chat.attachments == null" class="bg-grey100 rounded-md px-3 py-2 mb-1">
-                    <p class="text-body-1">{{ chat.content }}</p>
-                  </v-sheet>
-                  <v-sheet v-else class="mb-1">
-                    <img alt="pro" class="rounded-md" :src="chat.msg" width="250" />
-                  </v-sheet>
+                <div v-else class="d-flex align-items-start gap-3 mb-1">
+                  <!---User Avatar-->
+                  <!-- <v-avatar>
+                    <img alt="pro" :src="chatDetail.thumb" width="40" />
+                  </v-avatar> -->
+                  <div>
+                    <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
+                      {{
+                        formatDistanceToNowStrict(new Date(chat.timestamp), {
+                          addSuffix: false,
+                        })
+                      }}
+                      ago
+                    </small>
+                    <v-row>
+                      <v-sheet v-if="chat.attachments == null" class="bg-grey100 rounded-md px-3 py-2 mb-1">
+                        <p class="text-body-1">{{ chat.content }}</p>
+                      </v-sheet>
+                      <v-sheet v-else class="mb-1">
+                        <img alt="pro" class="rounded-md" :src="chat.msg" width="250" />
+                      </v-sheet>
+                      <div class="message-menu" style="margin-left: 10px">
+                        <v-menu v-model="optionsMsg">
+                          <template #prepare>
+                            <v-btn class="text-medium-emphasis" icon size="42" variant="text" @click="openOptionsMsg">
+                              <DotsVerticalIcon size="24" />
+                            </v-btn>
+                          </template>
+                          <v-sheet>
+                            <v-sheet>
+                              <v-list>
+                                <v-list-item @click="copyMsg(chat.id)">Copy</v-list-item>
+                                <v-list-item @click="forwardMsg(chat.id)">Forward</v-list-item>
+                                <v-list-item @click="deleteMsg(chat.id)">Delete</v-list-item>
+                              </v-list>
+                            </v-sheet>
+                          </v-sheet>
+                        </v-menu>
+                      </div>
+                    </v-row>
+                  </div>
                 </div>
               </div>
             </div>
@@ -231,5 +288,15 @@ const formatStatusUser = (status) => {
     z-index: 1;
     background: rgba(0, 0, 0, 0.2);
   }
+}
+.message-container {
+  position: relative;
+}
+.message-menu {
+  display: none;
+}
+
+.message-container:hover .message-menu {
+  display: block;
 }
 </style>
