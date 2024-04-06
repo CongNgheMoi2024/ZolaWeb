@@ -46,22 +46,24 @@ const form = ref({
   password: defineComponentBinds('password', vuetifyConfig),
 })
 
-const login = handleSubmit((values) => {
+const login = handleSubmit(async (values) => {
   loading.value = true
-  signIn('credentials', {
+  await signIn('credentials', {
     phone: values.phone,
     password: values.password,
-    redirect: false,
-    callbackUrl: '/api/v1/auth/login',
-  }).then(({ error, ok }) => {
-    if (error) {
-      toast.error(t('login.message.loginFailed'))
-      loading.value = false
-      setErrors(error)
-    } else {
-      router.push({ path: '/' })
-    }
+    redirect: true,
+    callbackUrl: '/',
   })
+    .then(({ error, ok }) => {
+      if (error) {
+        toast.error(t('login.message.loginFailed'))
+        loading.value = false
+        setErrors(error)
+      }
+    })
+    .finally(() => {
+      loading.value = false
+    })
 })
 </script>
 

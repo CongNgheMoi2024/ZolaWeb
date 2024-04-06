@@ -5,6 +5,7 @@ import ChatListing from '@/components/chats/ChatListing.vue'
 import ChatDetail from '@/components/chats/ChatDetail.vue'
 import FriendMenu from '@/components/Friends/FriendMenu.vue'
 import ListFriends from '@/components/Friends/ListFriends.vue'
+import Welcome from '@/pages/auth/Welcome.vue'
 
 const { t } = useI18n()
 const { $api } = useNuxtApp()
@@ -21,8 +22,9 @@ const isEditing = ref(false)
 const values = ref({})
 const user = ref({})
 const isChangePassword = ref(false)
-const avatar = ref(user.avatar)
-const nameUser = ref(user.name)
+const avatar = ref(user.value.avatar)
+const nameUser = ref(user.value.name)
+const reloadChatListing = ref(false)
 
 const selectedMenuFriend = ref({
   title: 'Danh sách bạn bè',
@@ -40,8 +42,8 @@ const fetchProfileById = async (values) => {
 
 const auth = data.value
 
-const connect = () => {
-  stompClient.connect({}, onConnected, onError)
+const connect = async () => {
+  await stompClient.connect({}, onConnected, onError)
 }
 
 const onConnected = () => {
@@ -54,12 +56,8 @@ const onError = () => {
 
 const onMessageReceived = (payload) => {
   messageReceived.value = JSON.parse(payload.body)
+  reloadChatListing.value = true
 }
-
-onMounted(() => {
-  connect()
-  loadData()
-})
 
 const fetchChatByUserId = (user) => {
   userRecipient.value = user
@@ -67,14 +65,6 @@ const fetchChatByUserId = (user) => {
 
 const logOut = async () => {
   await signOut({ callbackUrl: '/auth/login' })
-}
-
-const openProfile = () => {
-  console.log('open profile')
-}
-
-const saveEdit = () => {
-  isEditing.value = !isEditing.value
 }
 
 const closeDialog = () => {
@@ -85,6 +75,7 @@ const closeDialog = () => {
 const closeProfileDialog = () => {
   profileDialog.value = false
 }
+
 const openEditProfile = () => {
   isEditing.value = true
 }
@@ -92,16 +83,19 @@ const openEditProfile = () => {
 const openProfileDialog = () => {
   profileDialog.value = true
 }
+
 const changeMenuFriend = (menu) => {
   selectedMenuFriend.value = menu
 }
 
-onMounted(() => {
-  connect()
-})
 const loadData = async () => {
   await fetchProfileById({})
 }
+
+onMounted(() => {
+  connect()
+  loadData()
+})
 </script>
 
 <template>
@@ -170,10 +164,17 @@ const loadData = async () => {
   <v-card class="overflow-hidden tw-pl-[70px]" elevation="10">
     <app-base-card v-if="selectedItem === 'message'">
       <template #leftpart>
-        <chat-listing @chat-detail="fetchChatByUserId" />
+        <chat-listing
+          :reload-chat-listing="reloadChatListing"
+          @chat-detail="fetchChatByUserId"
+          @update:reload-chat-listing="reloadChatListing = false"
+        />
       </template>
       <template #rightpart>
-        <chat-detail :message-received="messageReceived" :user-recipient="userRecipient" />
+        <div v-if="Object.keys(userRecipient).length === 0">
+          <welcome />
+        </div>
+        <chat-detail v-else :message-received="messageReceived" :user-recipient="userRecipient" />
       </template>
     </app-base-card>
     <app-base-card v-if="selectedItem === 'friends'">
@@ -195,8 +196,8 @@ const loadData = async () => {
         </v-card-title>
         <UserProfileForm
           :close-profile-dialog="closeProfileDialog"
+          :load-data="loadData"
           :open-edit-profile="openEditProfile"
-          :loadData="loadData"
         />
       </v-container>
     </v-card>
@@ -213,8 +214,8 @@ const loadData = async () => {
         <UserEditForm
           :close-dialog="closeDialog"
           :close-profile-dialog="closeProfileDialog"
+          :load-data="loadData"
           :open-profile-dialog="openProfileDialog"
-          :loadData="loadData"
         />
       </v-container>
     </v-card>
@@ -238,6 +239,7 @@ const loadData = async () => {
 .selected-item {
   background-color: rgba(0, 0, 0, 0.1) !important;
 }
+
 :deep(.v-navigation-drawer__content) {
   border-right: none !important;
 }

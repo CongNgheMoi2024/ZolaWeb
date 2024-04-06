@@ -44,4 +44,8 @@ export class UserAPI extends BaseApi {
   changePassword(id: string, params: any): Promise<any> {
     return this.post(`/users/change-password/${id}`, params)
   }
+
+  getUserByPhoneSkipMe(phone: string, id: string): Promise<any> {
+    return this.get(`/users/${phone}/skip-me/${id}`)
+  }
 }

@@ -42,7 +42,7 @@ const sendFriendRequest = async (id) => {
     .sendFriendRequest(auth.id, id)
     .then((res) => {
       if (res.status === 200) {
-        toast.success(t('common.status.success'))
+        toast.success('Đã gửi yêu cầu kết bạn')
         emit('closed')
       }
     })

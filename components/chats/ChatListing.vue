@@ -3,13 +3,21 @@ import { ref, onMounted } from 'vue'
 import { useModal } from 'vue-final-modal'
 import { useI18n } from 'vue-i18n'
 import { debounce } from 'lodash'
+import { formatDistanceToNowStrict } from 'date-fns'
 import AddFriendModal from '~/components/chats/AddFriend/AddFriendModal.vue'
 import AppLoading from '@/components/common/AppLoading.vue'
 import AddGroupModal from '~/components/chats/AddGroup/AddGroupModal.vue'
 
-const emit = defineEmits(['chatDetail'])
+const props = defineProps({
+  reloadChatListing: {
+    type: Boolean,
+    default: false,
+  },
+})
+
+const emit = defineEmits(['chatDetail', 'update:reloadChatListing'])
 const { $api } = useNuxtApp()
-const users = ref([])
+const rooms = ref([])
 const searchValue = ref('')
 const { t } = useI18n()
 const { data } = useAuth()
@@ -20,12 +28,7 @@ const loadingSearchFriend = ref(false)
 
 const fetch = async () => {
   await $api.rooms.getRoomByUser(auth.id).then((res) => {
-    users.value = res.data.map((item) => {
-      return item.userRecipient
-    })
-  })
-  await $api.users.getListFriend().then((res) => {
-    userFriends.value = res.data
+    rooms.value = res.data
   })
 }
 
@@ -105,6 +108,16 @@ const searchFriend = debounce((value) => {
     userFriends.value = []
   }
 }, 1000)
+
+watch(
+  () => props.reloadChatListing,
+  (value) => {
+    if (value) {
+      fetch()
+      emit('update:reloadChatListing')
+    }
+  }
+)
 </script>
 <template>
   <v-sheet>
@@ -191,13 +204,13 @@ const searchFriend = debounce((value) => {
     <v-list>
       <!---Single Item-->
       <v-list-item
-        v-for="user in users"
-        :key="user.id"
+        v-for="room in rooms"
+        :key="room.id"
         class="text-no-wrap chatItem"
         color="primary"
         lines="two"
-        :value="user.id"
-        @click="fetchChatByUserId(user)"
+        :value="room.id"
+        @click="fetchChatByUserId(room.userRecipient)"
       >
         <!---Avatar-->
         <template #prepend>
@@ -205,31 +218,27 @@ const searchFriend = debounce((value) => {
             <img alt="pro" :src="'https://randomuser.me/api/portraits/women/8.jpg'" width="50" />
           </v-avatar>
 
-          <v-badge class="badg-dotDetail" :color="formatStatusUser(user.onlineStatus)" dot />
+          <v-badge class="badg-dotDetail" :color="formatStatusUser(room.userRecipient?.onlineStatus)" dot />
         </template>
         <!---Name-->
         <v-list-item-title class="text-subtitle-1 textPrimary w-100 font-weight-semibold">
-          {{ user.name }}
+          {{ room.userRecipient?.name }}
         </v-list-item-title>
         <!---Subtitle-->
-        <!--                <v-sheet v-if="chat.chatHistory.slice(-1)[0].type == 'img'">-->
-        <!--                  <small class="textPrimary text-subtitle-2">Sent a Photo</small>-->
-        <!--                </v-sheet>-->
-        <!--                <div v-else class="text-subtitle-2 textPrimary mt-1 text-truncate w-100">-->
-        <!--                  {{ chat.chatHistory.slice(-1)[0].msg }}-->
-        <!--                </div>-->
+        <!--        <v-sheet v-if="chat.chatHistory.slice(-1)[0].type == 'img'">-->
+        <!--          <small class="textPrimary text-subtitle-2">Sent a Photo</small>-->
+        <!--        </v-sheet>-->
+        <div class="text-subtitle-2 textPrimary mt-1 text-truncate w-100">
+          {{ room.lastMessage?.content }}
+        </div>
         <!---Last seen--->
-        <!--        <template #append>-->
-        <!--          <div class="d-flex flex-column text-right w-25">-->
-        <!--            <small class="textPrimary text-subtitle-2">-->
-        <!--              {{-->
-        <!--                formatDistanceToNowStrict(new Date(lastActivity(chat)), {-->
-        <!--                  addSuffix: false,-->
-        <!--                })-->
-        <!--              }}-->
-        <!--            </small>-->
-        <!--          </div>-->
-        <!--        </template>-->
+        <template #append>
+          <div class="d-flex flex-column text-right w-25">
+            <small class="textPrimary text-subtitle-2">
+              {{ formatDistanceToNowStrict(new Date(room.lastMessage?.timestamp)) }}
+            </small>
+          </div>
+        </template>
       </v-list-item>
     </v-list>
   </perfect-scrollbar>

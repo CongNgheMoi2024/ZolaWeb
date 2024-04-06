@@ -52,7 +52,7 @@ const form = ref({
 const submit = handleSubmit(async (values) => {
   isSubmitting.value = true
   try {
-    await $api.users.getUserByPhone(values.phone).then(
+    await $api.users.getUserByPhoneSkipMe(values.phone, auth.id).then(
       (response) => {
         user.value = response.data
       },

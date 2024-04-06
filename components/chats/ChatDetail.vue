@@ -17,14 +17,14 @@ const props = defineProps({
   },
 })
 
-console.log('props.userRecipient', props.userRecipient)
+const emit = defineEmits(['chat-send-msg'])
 
 const { $api } = useNuxtApp()
 const { data } = useAuth()
 
 const auth = data.value
-const messageReceived = computed(() => props.messageReceived)
-const userRecipient = computed(() => props.userRecipient)
+const messageReceived = toRef(props, 'messageReceived')
+const userRecipient = toRef(props, 'userRecipient')
 // const { lgAndUp } = useDisplay()
 //
 // const store = useChatStore()
@@ -70,9 +70,10 @@ const addChatSendMsg = (msg) => {
 watch(
   () => userRecipient,
   () => {
+    console.log('Annnnnn')
     fetchChatDetail()
   },
-  { deep: true }
+  { deep: true, immediate: true }
 )
 
 watch(
