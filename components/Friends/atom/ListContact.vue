@@ -86,7 +86,7 @@ const declineFriendRequest = async () => {
     .declineFriendRequest(auth.id, declineUser.value.id)
     .then((res) => {
       toast.success('Thu hồi lời mời thành công')
-      fetchFriendRequestByFromUserId()
+      fetchFriendRequestByToUserId()
       dialogDecline.value = false
     })
     .catch((error) => {
@@ -139,7 +139,7 @@ onMounted(() => {
         >
           <template #prepend>
             <v-avatar>
-              <img alt="pro" :src="user.avatar" width="50" />
+              <img alt="pro" :src="user.avatar ?? '/images/profile/user-1.jpg'" width="50" />
             </v-avatar>
           </template>
 
@@ -161,7 +161,13 @@ onMounted(() => {
       <h3>Lời mời kết bạn</h3>
       <div class="mt-2">
         <v-row>
-          <v-col v-for="friendRequestToUser in friendRequestToUsers" :key="friendRequestToUser.id" cols="3">
+          <v-col
+            v-for="friendRequestToUser in friendRequestToUsers"
+            :key="friendRequestToUser.id"
+            cols="12"
+            lg="3"
+            sm="6"
+          >
             <v-card>
               <v-card-title>
                 <v-avatar>
@@ -186,7 +192,13 @@ onMounted(() => {
       <h3 class="mt-4">Lời mời đã gửi</h3>
       <div class="mt-2">
         <v-row>
-          <v-col v-for="friendRequestFromUser in friendRequestFromUsers" :key="friendRequestFromUser.id" cols="3">
+          <v-col
+            v-for="friendRequestFromUser in friendRequestFromUsers"
+            :key="friendRequestFromUser.id"
+            cols="12"
+            lg="3"
+            sm="6"
+          >
             <v-card>
               <v-card-title>
                 <v-avatar>
@@ -199,6 +211,7 @@ onMounted(() => {
                 <span class="tw-ml-1">{{ friendRequestFromUser.toUser?.name }}</span>
               </v-card-title>
               <v-card-actions>
+                <v-spacer />
                 <v-btn color="error" @click="openDialogDecline(friendRequestFromUser.toUser)">Thu hồi lời mời</v-btn>
               </v-card-actions>
             </v-card>
