@@ -22,18 +22,25 @@
     "informationAccount": "Thông tin tài khoản",
     "setting": "Cài đặt",
     "addGroup": "Tạo nhóm",
+    "friendsSelected": "Bạn bè đã chọn",
+    "forwardMessage": "Chuyển tiếp tin nhắn",
     "model": {
       "phone": "Số điện thoại",
       "password": "Mật khẩu",
       "nameGroup": "Tên nhóm",
-      "passwordNew": "Mật khẩu mới"
+      "passwordNew": "Mật khẩu mới",
+      "findPeopleAndGroup": "Tìm kiếm bạn bè và nhóm",
+      "message": "Tin nhắn"
     },
     "action": {
       "send": "Gửi",
       "cancel": "Hủy",
       "create": "Tạo",
       "search": "Tìm kiếm",
-      "logout": "Đăng xuất"
+      "logout": "Đăng xuất",
+      "withdraw": "Thu hồi",
+      "delete": "Xóa",
+      "forward": "Chuyển tiếp"
     },
     "message": {
       "addFriendSuccess": "Gửi lời mời kết bạn thành công",
@@ -41,7 +48,9 @@
       "makeFriendSuccess": "Kết bạn thành công",
       "makeFriendFailed": "Kết bạn thất bại",
       "findFriendByName": "Vui lòng nhập tên bạn bè",
-      "friendNotFound": "Không tìm thấy bạn bè"
+      "friendNotFound": "Không tìm thấy bạn bè",
+      "forwardSuccess": "Chuyển tiếp tin nhắn thành công",
+      "forwardFailed": "Chuyển tiếp tin nhắn thất bại"
     }
   },
   "login": {

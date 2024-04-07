@@ -8,4 +8,8 @@ export class ChatAPI extends BaseApi {
   sendFileMessage(data: any): Promise<any> {
     return this.post('/send-file-message', data)
   }
+
+  forwardMessage(recipientId: string, data: any): Promise<any> {
+    return this.post(`/forward-messages/${recipientId}`, data)
+  }
 }

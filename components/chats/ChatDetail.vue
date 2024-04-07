@@ -5,6 +5,8 @@ import { useDisplay } from 'vuetify'
 import ChatSendMsg from './ChatSendMsg.vue'
 import ChatInfo from './ChatInfo.vue'
 import { useChatStore } from '@/stores/apps/chat'
+import messages from '@/utils/locales/messages'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   userRecipient: {
@@ -16,9 +18,12 @@ const props = defineProps({
     default: '',
   },
 })
-const myOptionsMsg = ref(false)
-const optionsMsg = ref(false)
-
+const { t } = useI18n()
+const menu = ref('')
+const myOptionsMsg = ref()
+const optionsMsg = ref()
+const dialogForward = ref(false)
+const chatForward = ref({})
 const emit = defineEmits(['chat-send-msg'])
 
 const { $api } = useNuxtApp()
@@ -60,6 +65,8 @@ const fetchChatDetail = async () => {
   console.log('props.userRecipient', props.userRecipient)
   await $api.chats.chat(auth?.id, props.userRecipient.id).then((res) => {
     chatDetail.value = res.data
+    myOptionsMsg.value = Array(chatDetail.value.length).fill(false)
+    optionsMsg.value = Array(chatDetail.value.length).fill(false)
   })
   scrollToBottom()
 }
@@ -96,12 +103,26 @@ const formatStatusUser = (status) => {
   }
 }
 
-const openOptionsMsg = () => {
-  optionsMsg.value = true
+const showMenu = (id) => {
+  menu.value = id
 }
 
-const openMyOptionsMsg = () => {
-  myOptionsMsg.value = true
+const closeMenu = (id) => {
+  menu.value = ''
+}
+
+const isMenuVisible = (id) => {
+  return menu.value === id
+}
+
+const openOptionsMsg = (chatId) => {
+  optionsMsg.value[chatId] = true
+  console.log('openOptionsMsg', chatId)
+}
+
+const openMyOptionsMsg = (chatId) => {
+  myOptionsMsg.value[chatId] = true
+  console.log('openMyOptionsMsg', chatId)
 }
 
 const copyMsg = (id) => {
@@ -109,6 +130,14 @@ const copyMsg = (id) => {
 }
 const deleteMsg = (id) => {
   console.log('delete', id)
+}
+const forwardMsg = (chat) => {
+  dialogForward.value = true
+  chatForward.value = chat
+}
+
+const closeDialogForward = () => {
+  dialogForward.value = false
 }
 </script>
 <template>
@@ -149,7 +178,7 @@ const deleteMsg = (id) => {
         <div class="d-flex">
           <div class="w-100">
             <div v-for="chat in chatDetail" :key="chat.id" class="pa-5">
-              <div class="message-container">
+              <div class="messages-container" @mouseenter="showMenu(chat.id)" @mouseleave="closeMenu(chat.id)">
                 <div v-if="auth?.id === chat.senderId" class="justify-end d-flex text-end mb-1">
                   <div>
                     <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
@@ -161,24 +190,31 @@ const deleteMsg = (id) => {
                       ago
                     </small>
                     <v-row>
-                      <div class="message-menu" style="margin-right: 10px">
-                        <v-menu v-model="myOptionsMsg" start>
-                          <template #prepare>
-                            <v-btn class="text-medium-emphasis" icon size="42" variant="text" @click="openMyOptionsMsg">
+                      <div v-show="isMenuVisible(chat.id)">
+                        <v-menu v-model="myOptionsMsg[chat.id]" attach location="start">
+                          <template #activator="{ props }">
+                            <v-btn
+                              v-bind="props"
+                              class="text-medium-emphasis message-menu"
+                              icon
+                              size="42"
+                              style="margin-right: 10px"
+                              variant="text"
+                              @click="openMyOptionsMsg(chat.id)"
+                            >
                               <DotsVerticalIcon size="24" />
                             </v-btn>
                           </template>
-                          <v-sheet>
+                          <v-sheet style="text-align: left">
                             <v-list>
                               <v-list-item @click="copyMsg(chat.id)">Copy</v-list-item>
-                              <v-list-item @click="forwardMsg(chat.id)">Forward</v-list-item>
-                              <v-list-item @click="deleteMsg(chat.id)">Delete</v-list-item>
+                              <v-list-item @click="forwardMsg(chat)">Forward</v-list-item>
+                              <v-list-item @click="withdrawMsg(chat.id)">Withdraw</v-list-item>
                               <v-list-item @click="deleteMsg(chat.id)">Delete</v-list-item>
                             </v-list>
                           </v-sheet>
                         </v-menu>
                       </div>
-
                       <v-sheet v-if="chat.attachments == null" class="bg-grey100 rounded-md px-3 py-2 mb-1">
                         <p class="text-body-1">{{ chat.content }}</p>
                       </v-sheet>
@@ -209,21 +245,27 @@ const deleteMsg = (id) => {
                       <v-sheet v-else class="mb-1">
                         <img alt="pro" class="rounded-md" :src="chat.msg" width="250" />
                       </v-sheet>
-                      <div class="message-menu" style="margin-left: 10px">
-                        <v-menu v-model="optionsMsg">
-                          <template #prepare>
-                            <v-btn class="text-medium-emphasis" icon size="42" variant="text" @click="openOptionsMsg">
+                      <div v-show="isMenuVisible(chat.id)" class="message-menu">
+                        <v-menu v-model="optionsMsg[chat.id]" attach location="end">
+                          <template #activator="{ props }">
+                            <v-btn
+                              v-bind="props"
+                              class="text-medium-emphasis"
+                              icon
+                              size="42"
+                              style="margin-left: 10px"
+                              variant="text"
+                              @click="openOptionsMsg(chat.id)"
+                            >
                               <DotsVerticalIcon size="24" />
                             </v-btn>
                           </template>
                           <v-sheet>
-                            <v-sheet>
-                              <v-list>
-                                <v-list-item @click="copyMsg(chat.id)">Copy</v-list-item>
-                                <v-list-item @click="forwardMsg(chat.id)">Forward</v-list-item>
-                                <v-list-item @click="deleteMsg(chat.id)">Delete</v-list-item>
-                              </v-list>
-                            </v-sheet>
+                            <v-list>
+                              <v-list-item @click="copyMsg(chat.id)">Copy</v-list-item>
+                              <v-list-item @click="forwardMsg(chat)">Forward</v-list-item>
+                              <v-list-item @click="deleteMsg(chat.id)">Delete</v-list-item>
+                            </v-list>
                           </v-sheet>
                         </v-menu>
                       </div>
@@ -245,6 +287,16 @@ const deleteMsg = (id) => {
     <!---Chat send-->
     <chat-send-msg :recipient-id="userRecipient.id" @chat-send-msg="addChatSendMsg" />
   </div>
+  <v-dialog v-model="dialogForward" max-width="700px">
+    <v-card>
+      <v-card-title>{{ t('chats.forwardMessage') }}</v-card-title>
+      <ChatsForwardDialog :chatForward="chatForward" :closeDialogForward="closeDialogForward" />
+      <v-card-actions>
+        <v-spacer />
+        <v-btn color="error" @click="closeDialogForward">Thoát</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 <style lang="scss">
 .rightpartHeight {
@@ -289,15 +341,5 @@ const deleteMsg = (id) => {
     z-index: 1;
     background: rgba(0, 0, 0, 0.2);
   }
-}
-.message-container {
-  position: relative;
-}
-.message-menu {
-  display: none;
-}
-
-.message-container:hover .message-menu {
-  display: block;
 }
 </style>
