@@ -3,8 +3,7 @@ import Stomp from 'stompjs'
 import { defineNuxtPlugin } from '#app'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  const runtimeConfig = useRuntimeConfig()
-  const sock = new SockJS(runtimeConfig.wsUrl)
+  const sock = new SockJS('http://localhost:8080/ws')
   const stompClient = Stomp.over(sock)
   nuxtApp.provide('stompClient', stompClient)
 })
