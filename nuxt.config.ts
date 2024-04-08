@@ -13,6 +13,8 @@ export default defineNuxtConfig({
     // Keys within public, will be also exposed to the client-side
     public: {
       apiBase: process.env.BASE_API_URL,
+      wsUrl: process.env.WS_URL,
+      nextAuthUrl: process.env.NEXTAUTH_URL,
     },
   },
   css: ['vue-final-modal/style.css'],

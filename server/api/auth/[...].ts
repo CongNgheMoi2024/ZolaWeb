@@ -8,6 +8,7 @@ export default NuxtAuthHandler({
   pages: {
     // Change the default behavior to use `/login` as the path for the sign-in page
     signIn: '/auth/login',
+    error: '/auth/login',
   },
   providers: [
     // @ts-ignore Import is exported on .default during SSR, so we need to call it this way. May be fixed via Vite at some point
@@ -52,6 +53,10 @@ export default NuxtAuthHandler({
       ;(session as any).jwt = token.jwt
       ;(session as any).id = token.id
       return Promise.resolve(session)
+    },
+    redirect({ url, baseUrl }) {
+      const runtimeConfig = useRuntimeConfig()
+      return url.startsWith(baseUrl) ? url : runtimeConfig.public.nextAuthUrl + url
     },
   },
 })

@@ -95,14 +95,7 @@ const handleFileUpload = (e: Event) => {
         await $api.chats
           .sendFileMessage(formData)
           .then((res) => {
-            const messageContent = {
-              senderId: auth?.id,
-              recipientId: props.recipientId,
-              content: res.data[0],
-              timestamp: new Date(),
-            }
-
-            emit('chat-send-msg', messageContent)
+            emit('chat-send-msg', res.data[0])
           })
           .catch((error) => {
             console.error('Error sending file', error)

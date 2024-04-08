@@ -32,6 +32,8 @@ import {
 } from '@/theme/DarkTheme'
 //
 import '@vuepic/vue-datepicker/dist/main.css'
+import 'viewerjs/dist/viewer.css'
+import VueViewer from 'v-viewer'
 
 const i18n = createI18n({
   legacy: false,
@@ -117,4 +119,6 @@ export default defineNuxtPlugin((nuxtApp) => {
     easing: 'ease',
   })
   nuxtApp.vueApp.component('VueDatePicker', VueDatePicker)
+  nuxtApp.vueApp.use(VueViewer)
+  nuxtApp.vueApp.component('VueViewer', VueViewer)
 })
