@@ -174,10 +174,10 @@ const closeDialogForward = () => {
       </div>
       <v-divider />
       <!---Chat History-->
-      <div ref="chatContainer" class="rightpartHeight">
+      <div class="rightpartHeight">
         <div class="d-flex">
           <div class="w-100">
-            <perfect-scrollbar class="rightpartHeight">
+            <perfect-scrollbar ref="chatContainer" class="rightpartHeight">
               <div v-for="chat in chatDetail" :key="chat.id" class="pa-5">
                 <div class="messages-container" @mouseenter="showMenu(chat.id)" @mouseleave="closeMenu(chat.id)">
                   <div v-if="auth?.id === chat.senderId" class="justify-end d-flex text-end mb-1">
