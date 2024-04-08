@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useChatStore } from '@/stores/apps/chat'
+import { type } from '../../.nuxt/types/imports'
 
 const msg = ref('')
 const { data } = useAuth()
@@ -15,6 +16,29 @@ const props = defineProps({
     default: '',
   },
 })
+const handleImage = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  const files = target.files as FileList
+  if (files.length > 0) {
+    const file = files[0]
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const image = e.target?.result
+      if (image) {
+        const messageContent = {
+          senderId: auth?.id,
+          recipientId: props.recipientId,
+          content: image,
+          timestamp: new Date(),
+          type: 'image',
+        }
+        stompClient.send('/app/chat', {}, JSON.stringify(messageContent))
+        emit('chat-send-msg', messageContent)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+}
 
 const auth = data.value
 
@@ -118,5 +142,10 @@ const handleFileUpload = (e: Event) => {
 <style scoped lang="scss">
 .shadow-none .v-field--no-label {
   --v-field-padding-top: -7px;
+}
+
+.file-input:deep().v-input__control,
+.file-input:deep().v-input__details {
+  display: none;
 }
 </style>
