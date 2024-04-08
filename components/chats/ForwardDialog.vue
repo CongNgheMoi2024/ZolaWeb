@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import profileBg from '@/images/backgrounds/profilebg.jpg'
+import Toast from 'vue-toastification'
 const router = useRouter()
 
 const { t } = useI18n()
@@ -59,24 +60,27 @@ const searchName = (value) => {
   }
 }
 
-const sendMsgTo = async (list) => {
+const sendMsgTo = async (list: Array) => {
   try {
-    await $api.chats.forwardMessage(props.chatForward.id, list).then((res) => {
-      toast.success(t('chats.message.forwardSuccess'))
-      props.closeDialogForward()
-    })
+    const recipientIds = list.map((friend) => friend.id)
+    await $api.chats
+      .forwardMessage(props.chatForward.id, recipientIds)
+      .then(() => {
+        toast.success(t('chats.message.forwardSuccess'))
+        props.closeDialogForward()
+      })
+      .catch((error) => {
+        console.log('Error:', error.message)
+      })
   } catch (error) {
     toast.error(t('chats.message.forwardError'))
-    console.log('Error:', error.message)
   } finally {
     loading.value = false
   }
   selectedFriends.value = []
-  console.log('Forwarded to:', list, 'msg:', props.chatForward)
 }
 
 const removeSelectedFriend = (index) => {
-  // Xóa bạn bè khỏi danh sách đã chọn khi nhấn vào biểu tượng xóa trên mỗi dòng
   selectedFriends.value.splice(index, 1)
 }
 

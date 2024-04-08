@@ -62,7 +62,6 @@ const scrollToBottom = () => {
 }
 
 const fetchChatDetail = async () => {
-  console.log('props.userRecipient', props.userRecipient)
   await $api.chats.chat(auth?.id, props.userRecipient.id).then((res) => {
     chatDetail.value = res.data
     myOptionsMsg.value = Array(chatDetail.value.length).fill(false)
@@ -73,13 +72,13 @@ const fetchChatDetail = async () => {
 
 const addChatSendMsg = (msg) => {
   chatDetail.value.push(msg)
+  fetchChatDetail()
   emit('chat-send-msg', msg)
 }
 
 watch(
   () => userRecipient,
   () => {
-    console.log('Annnnnn')
     fetchChatDetail()
   },
   { deep: true, immediate: true }
@@ -117,12 +116,10 @@ const isMenuVisible = (id) => {
 
 const openOptionsMsg = (chatId) => {
   optionsMsg.value[chatId] = true
-  console.log('openOptionsMsg', chatId)
 }
 
 const openMyOptionsMsg = (chatId) => {
   myOptionsMsg.value[chatId] = true
-  console.log('openMyOptionsMsg', chatId)
 }
 
 const copyMsg = (id) => {
@@ -137,6 +134,7 @@ const forwardMsg = (chat) => {
 }
 
 const closeDialogForward = () => {
+  fetchChatDetail()
   dialogForward.value = false
 }
 </script>
