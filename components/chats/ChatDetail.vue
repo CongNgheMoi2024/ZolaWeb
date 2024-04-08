@@ -74,6 +74,7 @@ const addChatSendMsg = (msg) => {
   chatDetail.value.push(msg)
   fetchChatDetail()
   emit('chat-send-msg', msg)
+  scrollToBottom()
 }
 
 watch(
