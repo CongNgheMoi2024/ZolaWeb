@@ -34,10 +34,11 @@ const messageReceived = toRef(props, 'messageReceived')
 const userRecipient = toRef(props, 'userRecipient')
 
 const { lgAndUp } = useDisplay()
+
 //
 // const store = useChatStore()
 // onMounted(() => {
-//   store.fetchChats()
+// store.fetchChats()
 // })
 //
 // const chatDetail: any = computed(() => {
@@ -148,7 +149,11 @@ const closeDialogForward = () => {
         <div class="d-flex gap-2 align-center">
           <!---User Avatar-->
           <v-avatar>
-            <img alt="pro" :src="'https://randomuser.me/api/portraits/women/8.jpg'" width="50" />
+            <img
+              alt="pro"
+              :src="userRecipient.avatar ? userRecipient.avatar : '/images/profile/user-1.jpg'"
+              width="50"
+            />
           </v-avatar>
 
           <v-badge class="badg-dotDetail" :color="formatStatusUser(userRecipient.onlineStatus)" dot />
@@ -178,7 +183,7 @@ const closeDialogForward = () => {
         <div class="d-flex">
           <div class="w-100">
             <perfect-scrollbar ref="chatContainer" class="rightpartHeight">
-              <div v-for="chat in chatDetail" :key="chat.id" class="pa-5">
+              <div v-for="(chat, index) in chatDetail" :key="chat.id" class="pa-5">
                 <div class="messages-container" @mouseenter="showMenu(chat.id)" @mouseleave="closeMenu(chat.id)">
                   <div v-if="auth?.id === chat.senderId" class="justify-end d-flex text-end mb-1">
                     <div>
@@ -227,9 +232,6 @@ const closeDialogForward = () => {
                   </div>
                   <div v-else class="d-flex align-items-start gap-3 mb-1">
                     <!---User Avatar-->
-                    <!-- <v-avatar>
-                    <img alt="pro" :src="chatDetail.thumb" width="40" />
-                  </v-avatar> -->
                     <div>
                       <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
                         {{
@@ -240,7 +242,15 @@ const closeDialogForward = () => {
                         ago
                       </small>
                       <v-row>
-                        <v-sheet v-if="chat.attachments == null" class="bg-grey100 rounded-md px-3 py-2 mb-1">
+                        <v-avatar v-if="index === 0 || chat.senderId !== chatDetail[index - 1].senderId">
+                          <img
+                            alt="pro"
+                            :src="userRecipient.avatar ? userRecipient.avatar : '/images/profile/user-1.jpg'"
+                            width="40"
+                          />
+                        </v-avatar>
+                        <div v-else class="ml-10" />
+                        <v-sheet v-if="chat.attachments == null" class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5">
                           <p class="text-body-1">{{ chat.content }}</p>
                         </v-sheet>
                         <v-sheet v-else class="mb-1">
@@ -278,9 +288,11 @@ const closeDialogForward = () => {
             </perfect-scrollbar>
           </div>
           <div v-if="Rpart" class="right-sidebar">
-            <v-sheet>
-              <chat-info :chat-detail="chatDetail" />
-            </v-sheet>
+            <perfect-scrollbar>
+              <v-sheet>
+                <chat-info :chat-detail="chatDetail" :user-recipient="userRecipient" />
+              </v-sheet>
+            </perfect-scrollbar>
           </div>
         </div>
       </div>
