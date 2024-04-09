@@ -12,4 +12,12 @@ export class ChatAPI extends BaseApi {
   forwardMessage(messageId: string, data: any): Promise<any> {
     return this.post(`/forward-messages/${messageId}`, data)
   }
+
+  getImagesAndVideos(senderId: string, recipientId: string): Promise<any> {
+    return this.get(`/image-video-messages/${senderId}/${recipientId}`)
+  }
+
+  getFiles(senderId: string, recipientId: string): Promise<any> {
+    return this.get(`/file-messages/${senderId}/${recipientId}`)
+  }
 }

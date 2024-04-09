@@ -24,6 +24,10 @@
     "addGroup": "Tạo nhóm",
     "friendsSelected": "Bạn bè đã chọn",
     "forwardMessage": "Chuyển tiếp tin nhắn",
+    "image": "Hình ảnh",
+    "file": "File",
+    "haveNotImageSended": "Chưa có hình ảnh được gửi",
+    "haveNotFileSended": "Chưa có file được gửi",
     "model": {
       "phone": "Số điện thoại",
       "password": "Mật khẩu",
@@ -33,6 +37,8 @@
       "message": "Tin nhắn"
     },
     "action": {
+      "copy": "Sao chép",
+      "exit": "Thoát",
       "send": "Gửi",
       "cancel": "Hủy",
       "create": "Tạo",
@@ -40,7 +46,10 @@
       "logout": "Đăng xuất",
       "withdraw": "Thu hồi",
       "delete": "Xóa",
-      "forward": "Chuyển tiếp"
+      "forward": "Chuyển tiếp",
+      "createGroup": "Tạo nhóm",
+      "deleteChatHistory": "Xóa lịch sử chat"
+
     },
     "message": {
       "addFriendSuccess": "Gửi lời mời kết bạn thành công",

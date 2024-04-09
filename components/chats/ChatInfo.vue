@@ -2,49 +2,40 @@
 import { ref, computed, onMounted } from 'vue'
 import { uniq, flatten } from 'lodash'
 import { useChatStore } from '@/stores/apps/chat'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const { $api } = useNuxtApp()
-const props = defineProps({ chatDetail: Object, userRecipient: Object })
+const { data } = useAuth()
+const props = defineProps({
+  chatDetail: Object,
+  userRecipient: Object,
+  listImages: Array,
+  listVideos: Array,
+  listFiles: Array,
+})
+const auth = data.value
+console.log('file', props.listFiles)
 
-// const totalAttachment = computed(() => {
-//   return uniq(flatten(props.chatDetail?.chatHistory.map((item: any) => item.attachment))).length
-// })
+const fileExtensionImages: Record<string, string> = {
+  docx: '/images/chat/docx.png',
+  xlsx: '/images/chat/xlsx.png',
+  pdf: '/images/chat/pdf.png',
+}
 
-// const totalMedia = computed(() => {
-//   return (
-//     uniq(flatten(props.chatDetail?.chatHistory.map((item: any) => (item?.type === 'img' ? item.msg : null)))).length - 1
-//   )
-// })
-const media = [
-  {
-    id: '1',
-    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/800px-Cat03.jpg',
-  },
-  {
-    id: '2',
-    src: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaefwsUtiRTN9847QrLwWfj-a8kkcM_ktrXw&s',
-  },
-
-  {
-    id: '3',
-    src: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaefwsUtiRTN9847QrLwWfj-a8kkcM_ktrXw&s',
-  },
-  {
-    id: '4',
-    src: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaefwsUtiRTN9847QrLwWfj-a8kkcM_ktrXw&s',
-  },
-
-  {
-    id: '12',
-    src: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaefwsUtiRTN9847QrLwWfj-a8kkcM_ktrXw&s',
-  },
-]
+const getFileTypeImage = (extension: string) => {
+  const type = extension.split('.').pop()
+  return fileExtensionImages[type.toLowerCase()] || '/images/chat/docx.png'
+}
 
 const createGroup = () => {
   console.log('createGroup')
 }
 const deleteChatHistory = () => {
   console.log('deleteChatHistory')
+}
+const download = (id: string) => {
+  console.log('download', id)
 }
 </script>
 <template>
@@ -63,44 +54,64 @@ const deleteChatHistory = () => {
     <div class="container-media mt-1">
       <v-list>
         <v-list-item class="list-item" @click="createGroup">
-          <v-icon>mdi-account-multiple-plus</v-icon>
-          Create Group
+          <v-icon class="mr-3">mdi-account-multiple-plus</v-icon>
+          {{ t('chats.action.createGroup') }}
         </v-list-item>
         <v-list-item class="list-item" @click="deleteChatHistory">
-          <v-icon>mdi-delete</v-icon>
-          Delete Chat History
+          <v-icon class="mr-3">mdi-delete</v-icon>
+          {{ t('chats.action.deleteChatHistory') }}
         </v-list-item>
         <v-list-item class="list-item" @click="deleteChatHistory">
-          <v-icon>mdi-magnify</v-icon>
-          Search
+          <v-icon class="mr-3">mdi-magnify</v-icon>
+          {{ t('chats.action.search') }}
         </v-list-item>
       </v-list>
     </div>
     <div class="container-media mt-1">
       <v-expansion-panels>
         <v-expansion-panel>
-          <v-expansion-panel-title class="text-h6">Ảnh/Video</v-expansion-panel-title>
+          <v-expansion-panel-title class="text-h6">
+            {{ t('chats.image') }} ({{ listImages.length }})
+          </v-expansion-panel-title>
           <v-expansion-panel-text>
-            <div class="image-grid">
-              <div v-for="(image, index) in media" :key="index" class="image-item">
-                <v-avatar rounded="md" size="60">
-                  <img alt="pro" :src="image.src" width="70" />
+            <div v-if="listImages && listImages.length > 0" v-viewer>
+              <div class="image-grid">
+                <v-avatar
+                  v-for="{ content } in listImages"
+                  :key="content"
+                  class="image-item"
+                  :data-source="content"
+                  rounded="sm"
+                  size="57"
+                  style="border: 1px solid #cecece"
+                >
+                  <img :src="content" width="90" />
                 </v-avatar>
               </div>
             </div>
+            <h6 v-else style="color: gray">{{ t('chats.haveNotImageSended') }}</h6>
           </v-expansion-panel-text>
           <v-divider />
         </v-expansion-panel>
         <v-expansion-panel>
-          <v-expansion-panel-title class="text-h6">Video</v-expansion-panel-title>
+          <v-expansion-panel-title class="text-h6">
+            {{ t('chats.file') }} ({{ listFiles.length }})
+          </v-expansion-panel-title>
           <v-expansion-panel-text>
-            <div class="image-grid">
-              <div v-for="(image, index) in media" :key="index" class="image-item">
-                <v-avatar rounded="md" size="60">
-                  <img alt="pro" :src="image.src" width="70" />
-                </v-avatar>
+            <div v-if="listFiles && listFiles.length > 0" class="file-list">
+              <div v-for="{ content, fileName, id } in listFiles" :key="id" class="file-item">
+                <v-row class="file-thumbnail mt-4 mb-4" style="align-items: center">
+                  <img :src="getFileTypeImage(content)" alt="File type" width="30" height="30" />
+                  <div class="file-name ml-2" style="max-width: 205px">{{ fileName }}</div>
+                  <v-spacer />
+                  <a download :href="content">
+                    <v-icon color="primary" size="20">mdi-download</v-icon>
+                  </a>
+                </v-row>
+                <v-divider />
               </div>
             </div>
+            <h6 v-else style="color: gray">{{ t('chats.haveNotFileSended') }}</h6>
           </v-expansion-panel-text>
           <v-divider />
         </v-expansion-panel>
@@ -145,7 +156,7 @@ const deleteChatHistory = () => {
 .image-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 7px;
 }
 
 .image-item {
