@@ -2,11 +2,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { useDisplay } from 'vuetify'
+import { useI18n } from 'vue-i18n'
 import ChatSendMsg from './ChatSendMsg.vue'
 import ChatInfo from './ChatInfo.vue'
 import { useChatStore } from '@/stores/apps/chat'
 import messages from '@/utils/locales/messages'
-import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   userRecipient: {
@@ -18,6 +18,7 @@ const props = defineProps({
     default: '',
   },
 })
+
 const { t } = useI18n()
 const menu = ref('')
 const myOptionsMsg = ref()
@@ -140,6 +141,19 @@ const closeDialogForward = () => {
   fetchChatDetail()
   dialogForward.value = false
 }
+
+const checkTypeFile = (url) => {
+  const type = url.split('.').pop()
+  if (type === 'pdf') {
+    return 'pdf'
+  } else if (type === 'docx') {
+    return 'docx'
+  } else if (type === 'xlsx') {
+    return 'xlsx'
+  }
+
+  return 'txt'
+}
 </script>
 <template>
   <div v-if="chatDetail">
@@ -221,11 +235,64 @@ const closeDialogForward = () => {
                             </v-sheet>
                           </v-menu>
                         </div>
-                        <v-sheet v-if="chat.attachments == null" class="bg-grey100 rounded-md px-3 py-2 mb-1">
-                          <p class="text-body-1">{{ chat.content }}</p>
+                        <v-sheet v-if="chat.type === 'IMAGE'" class="mb-1">
+                          <img v-viewer :alt="chat.content" class="tw-max-w-[500px]" :src="chat.content" />
                         </v-sheet>
-                        <v-sheet v-else class="mb-1">
-                          <img alt="pro" class="rounded-md" :src="chat.msg" width="250" />
+                        <v-sheet v-else-if="chat.type === 'FILE'" class="mb-1">
+                          <template v-if="checkTypeFile(chat.content) === 'pdf'">
+                            <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
+                              <div class="d-flex align-center gap-2">
+                                <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/pdf.png" />
+                                <div>
+                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <a download :href="chat.content">
+                                    <v-icon color="primary">mdi-download</v-icon>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          </template>
+                          <template v-else-if="checkTypeFile(chat.content) === 'docx'">
+                            <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
+                              <div class="d-flex align-center gap-2">
+                                <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/docx.png" />
+                                <div>
+                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <a download :href="chat.content">
+                                    <v-icon color="primary">mdi-download</v-icon>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          </template>
+                          <template v-else-if="checkTypeFile(chat.content) === 'xlsx'">
+                            <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
+                              <div class="d-flex align-center gap-2">
+                                <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/xlsx.png" />
+                                <div>
+                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <a download :href="chat.content">
+                                    <v-icon color="primary">mdi-download</v-icon>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          </template>
+                          <template v-else>
+                            <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
+                              <div class="d-flex align-center gap-2">
+                                <div>
+                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <a download :href="chat.content">
+                                    <v-icon color="primary">mdi-download</v-icon>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          </template>
+                        </v-sheet>
+                        <v-sheet v-else class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-max-w-[800px]">
+                          <p class="text-body-1">{{ chat.content }}</p>
                         </v-sheet>
                       </v-row>
                     </div>
@@ -250,11 +317,64 @@ const closeDialogForward = () => {
                           />
                         </v-avatar>
                         <div v-else class="ml-10" />
-                        <v-sheet v-if="chat.attachments == null" class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5">
-                          <p class="text-body-1">{{ chat.content }}</p>
+                        <v-sheet v-if="chat.type === 'IMAGE'" class="mb-1">
+                          <img v-viewer :alt="chat.content" class="tw-max-w-[500px]" :src="chat.content" />
                         </v-sheet>
-                        <v-sheet v-else class="mb-1">
-                          <img alt="pro" class="rounded-md" :src="chat.msg" width="250" />
+                        <v-sheet v-else-if="chat.type === 'FILE'" class="mb-1">
+                          <template v-if="checkTypeFile(chat.content) === 'pdf'">
+                            <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
+                              <div class="d-flex align-center gap-2">
+                                <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/pdf.png" />
+                                <div>
+                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <a download :href="chat.content">
+                                    <v-icon color="primary">mdi-download</v-icon>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          </template>
+                          <template v-else-if="checkTypeFile(chat.content) === 'docx'">
+                            <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
+                              <div class="d-flex align-center gap-2">
+                                <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/docx.png" />
+                                <div>
+                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <a download :href="chat.content">
+                                    <v-icon color="primary">mdi-download</v-icon>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          </template>
+                          <template v-else-if="checkTypeFile(chat.content) === 'xlsx'">
+                            <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
+                              <div class="d-flex align-center gap-2">
+                                <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/xlsx.png" />
+                                <div>
+                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <a download :href="chat.content">
+                                    <v-icon color="primary">mdi-download</v-icon>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          </template>
+                          <template v-else>
+                            <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
+                              <div class="d-flex align-center gap-2">
+                                <div>
+                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <a download :href="chat.content">
+                                    <v-icon color="primary">mdi-download</v-icon>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          </template>
+                        </v-sheet>
+                        <v-sheet v-else class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5">
+                          <p class="text-body-1">{{ chat.content }}</p>
                         </v-sheet>
                         <div v-show="isMenuVisible(chat.id)" class="message-menu">
                           <v-menu v-model="optionsMsg[chat.id]" attach location="end">
@@ -304,7 +424,7 @@ const closeDialogForward = () => {
   <v-dialog v-model="dialogForward" max-width="700px">
     <v-card>
       <v-card-title>{{ t('chats.forwardMessage') }}</v-card-title>
-      <ChatsForwardDialog :chatForward="chatForward" :closeDialogForward="closeDialogForward" />
+      <ChatsForwardDialog :chat-forward="chatForward" :close-dialog-forward="closeDialogForward" />
       <v-card-actions>
         <v-spacer />
         <v-btn color="error" @click="closeDialogForward">Thoát</v-btn>
