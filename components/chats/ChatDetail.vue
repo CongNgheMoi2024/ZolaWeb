@@ -17,6 +17,22 @@ const props = defineProps({
     type: [Object, String],
     default: '',
   },
+  listMedia: {
+    type: Array,
+    default: () => [],
+  },
+  listImages: {
+    type: Array,
+    default: () => [],
+  },
+  listVideos: {
+    type: Array,
+    default: () => [],
+  },
+  listFiles: {
+    type: Array,
+    default: () => [],
+  },
 })
 
 const { t } = useI18n()
@@ -35,7 +51,10 @@ const messageReceived = toRef(props, 'messageReceived')
 const userRecipient = toRef(props, 'userRecipient')
 
 const { lgAndUp } = useDisplay()
-
+const listMedia = ref([])
+const listImages = ref([])
+const listVideos = ref([])
+const listFiles = ref([])
 //
 // const store = useChatStore()
 // onMounted(() => {
@@ -46,6 +65,20 @@ const { lgAndUp } = useDisplay()
 //   return store.chats[store.chatContent - 1]
 // })
 //
+
+const getImagesAndVideos = async () => {
+  await $api.chats.getImagesAndVideos(auth.id, props.userRecipient.id).then((res) => {
+    listMedia.value = res.data
+    listImages.value = listMedia.value.filter((item) => item.type === 'IMAGE')
+    listVideos.value = listMedia.value.filter((item) => item.type === 'VIDEO')
+  })
+}
+const getFiles = async () => {
+  await $api.chats.getFiles(auth.id, props.userRecipient.id).then((res) => {
+    listFiles.value = res.data
+  })
+}
+
 const Rpart = ref(!!lgAndUp)
 
 function toggleRpart() {
@@ -78,12 +111,16 @@ const addChatSendMsg = (msg) => {
   fetchChatDetail()
   emit('chat-send-msg', msg)
   scrollToBottom()
+  getImagesAndVideos()
+  getFiles()
 }
 
 watch(
   () => userRecipient,
   () => {
     fetchChatDetail()
+    getImagesAndVideos()
+    getFiles()
   },
   { deep: true, immediate: true }
 )
@@ -227,10 +264,18 @@ const checkTypeFile = (url) => {
                             </template>
                             <v-sheet style="text-align: left">
                               <v-list>
-                                <v-list-item @click="copyMsg(chat.id)">Copy</v-list-item>
-                                <v-list-item @click="forwardMsg(chat)">Forward</v-list-item>
-                                <v-list-item @click="withdrawMsg(chat.id)">Withdraw</v-list-item>
-                                <v-list-item @click="deleteMsg(chat.id)">Delete</v-list-item>
+                                <v-list-item @click="copyMsg(chat.id)">
+                                  {{ t('chats.action.copy') }}
+                                </v-list-item>
+                                <v-list-item @click="forwardMsg(chat)">
+                                  {{ t('chats.action.forward') }}
+                                </v-list-item>
+                                <v-list-item @click="withdrawMsg(chat.id)">
+                                  {{ t('chats.action.withdraw') }}
+                                </v-list-item>
+                                <v-list-item @click="deleteMsg(chat.id)">
+                                  {{ t('chats.action.delete') }}
+                                </v-list-item>
                               </v-list>
                             </v-sheet>
                           </v-menu>
@@ -393,9 +438,15 @@ const checkTypeFile = (url) => {
                             </template>
                             <v-sheet>
                               <v-list>
-                                <v-list-item @click="copyMsg(chat.id)">Copy</v-list-item>
-                                <v-list-item @click="forwardMsg(chat)">Forward</v-list-item>
-                                <v-list-item @click="deleteMsg(chat.id)">Delete</v-list-item>
+                                <v-list-item @click="copyMsg(chat.id)">
+                                  {{ t('chats.action.copy') }}
+                                </v-list-item>
+                                <v-list-item @click="forwardMsg(chat)">
+                                  {{ t('chats.action.forward') }}
+                                </v-list-item>
+                                <v-list-item @click="deleteMsg(chat.id)">
+                                  {{ t('chats.action.delete') }}
+                                </v-list-item>
                               </v-list>
                             </v-sheet>
                           </v-menu>
@@ -410,7 +461,13 @@ const checkTypeFile = (url) => {
           <div v-if="Rpart" class="right-sidebar">
             <perfect-scrollbar>
               <v-sheet>
-                <chat-info :chat-detail="chatDetail" :user-recipient="userRecipient" />
+                <chat-info
+                  :chat-detail="chatDetail"
+                  :listImages="listImages"
+                  :listVideos="listVideos"
+                  :user-recipient="userRecipient"
+                  :list-files="listFiles"
+                />
               </v-sheet>
             </perfect-scrollbar>
           </div>
@@ -427,7 +484,9 @@ const checkTypeFile = (url) => {
       <ChatsForwardDialog :chat-forward="chatForward" :close-dialog-forward="closeDialogForward" />
       <v-card-actions>
         <v-spacer />
-        <v-btn color="error" @click="closeDialogForward">Thoát</v-btn>
+        <v-btn color="error" @click="closeDialogForward">
+          {{ t('chats.action.exit') }}
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
