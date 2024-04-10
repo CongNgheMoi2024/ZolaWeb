@@ -31,6 +31,10 @@ const props = defineProps({
     type: Function,
     default: () => {},
   },
+  scrollToBottom: {
+    type: Function,
+    default: () => {},
+  },
 })
 
 const fetchProfile = async () => {
@@ -71,6 +75,7 @@ const sendMsgTo = async (list: Array) => {
         toast.success(t('chats.message.forwardSuccess'))
         props.closeDialogForward()
         emit('reloadChatListing')
+        props.scrollToBottom()
       })
       .catch((error) => {
         console.log('Error:', error.message)

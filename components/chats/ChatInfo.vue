@@ -7,6 +7,9 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 const { $api } = useNuxtApp()
 const { data } = useAuth()
+const isOpenVideo = ref(false)
+const haveCanvas = ref()
+
 const props = defineProps({
   chatDetail: Object,
   userRecipient: Object,
@@ -34,9 +37,68 @@ const createGroup = () => {
 const deleteChatHistory = () => {
   console.log('deleteChatHistory')
 }
-const download = (id: string) => {
-  console.log('download', id)
+
+const capture = async (videoLink: string, canvasId: string): Promise<void> => {
+  const video = document.createElement('video')
+  video.src = videoLink
+  video.currentTime = 1
+
+  await new Promise<void>((resolve, reject) => {
+    video.onloadeddata = () => resolve()
+    video.onerror = (error) => reject(error)
+  })
+
+  const canvas = (await document.getElementById(canvasId)) as HTMLCanvasElement
+
+  if (canvas) {
+    canvas.width = 57
+    canvas.height = 57
+    canvas.getContext('2d').drawImage(video, 0, 0, 57, 57)
+  }
+  video.remove()
 }
+
+const openVideo = (videoLink: string) => {
+  const video = document.createElement('video')
+  video.src = videoLink
+  video.controls = true
+  video.autoplay = true
+  video.style.marginLeft = 'auto'
+  video.style.width = '100%'
+  video.style.height = '100%'
+  video.style.position = 'fixed'
+  video.style.top = '0'
+  video.style.left = '0'
+  video.style.zIndex = '9999'
+  video.style.backgroundColor = 'black'
+  video.style.transition = 'all 0.5s'
+  video.style.padding = '20px'
+  video.style.boxSizing = 'border-box'
+  video.style.cursor = 'pointer'
+  video.style.borderRadius = '10px'
+  video.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)'
+  video.style.overflow = 'hidden'
+  video.style.display = 'flex'
+  video.style.alignItems = 'center'
+  video.style.justifyContent = 'center'
+
+  video.onclick = () => {
+    video.remove()
+    isOpenVideo.value = false
+  }
+
+  document.body.appendChild(video)
+}
+const captureAll = () => {
+  props.listVideos.forEach((video) => {
+    capture(video.content, video.id)
+  })
+}
+captureAll()
+
+onMounted(() => {
+  captureAll()
+})
 </script>
 <template>
   <div v-if="chatDetail" class="container">
@@ -95,13 +157,38 @@ const download = (id: string) => {
         </v-expansion-panel>
         <v-expansion-panel>
           <v-expansion-panel-title class="text-h6">
+            {{ t('chats.video') }} ({{ listVideos.length }})
+          </v-expansion-panel-title>
+          <v-expansion-panel-text>
+            <div v-if="listVideos && listVideos.length > 0" class="file-list">
+              <div>{{ captureAll() }}</div>
+              <div class="image-grid">
+                <v-avatar
+                  class="image-item"
+                  rounded="sm"
+                  size="57"
+                  style="border: 1px solid #cecece"
+                  v-for="{ id, content } in listVideos"
+                  :key="id"
+                >
+                  <div @click="openVideo(content)">
+                    <canvas :id="id" height="57" width="57" />
+                  </div>
+                </v-avatar>
+              </div>
+            </div>
+            <h6 v-else style="color: gray">{{ t('chats.haveNotVideoSended') }}</h6>
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+        <v-expansion-panel>
+          <v-expansion-panel-title class="text-h6">
             {{ t('chats.file') }} ({{ listFiles.length }})
           </v-expansion-panel-title>
           <v-expansion-panel-text>
             <div v-if="listFiles && listFiles.length > 0" class="file-list">
               <div v-for="{ content, fileName, id } in listFiles" :key="id" class="file-item">
                 <v-row class="file-thumbnail mt-4 mb-4" style="align-items: center">
-                  <img :src="getFileTypeImage(content)" alt="File type" width="30" height="30" />
+                  <img alt="File type" height="30" :src="getFileTypeImage(content)" width="30" />
                   <div class="file-name ml-2" style="max-width: 205px">{{ fileName }}</div>
                   <v-spacer />
                   <a download :href="content">
