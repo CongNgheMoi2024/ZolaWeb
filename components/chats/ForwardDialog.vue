@@ -7,6 +7,8 @@ import profileBg from '@/images/backgrounds/profilebg.jpg'
 import Toast from 'vue-toastification'
 const router = useRouter()
 
+const emit = defineEmits(['reloadChatListing'])
+
 const { t } = useI18n()
 const toast = useToast()
 const { data } = useAuth()
@@ -68,6 +70,7 @@ const sendMsgTo = async (list: Array) => {
       .then(() => {
         toast.success(t('chats.message.forwardSuccess'))
         props.closeDialogForward()
+        emit('reloadChatListing')
       })
       .catch((error) => {
         console.log('Error:', error.message)

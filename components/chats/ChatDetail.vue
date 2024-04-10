@@ -41,7 +41,7 @@ const myOptionsMsg = ref()
 const optionsMsg = ref()
 const dialogForward = ref(false)
 const chatForward = ref({})
-const emit = defineEmits(['chat-send-msg'])
+const emit = defineEmits(['chat-send-msg', 'reload-chat-listing'])
 
 const { $api } = useNuxtApp()
 const { data } = useAuth()
@@ -187,9 +187,15 @@ const checkTypeFile = (url) => {
     return 'docx'
   } else if (type === 'xlsx') {
     return 'xlsx'
+  } else if (type === 'mp4') {
+    return 'mp4'
   }
 
   return 'txt'
+}
+
+const reloadChatListing = () => {
+  emit('reload-chat-listing')
 }
 </script>
 <template>
@@ -289,7 +295,7 @@ const checkTypeFile = (url) => {
                               <div class="d-flex align-center gap-2">
                                 <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/pdf.png" />
                                 <div>
-                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <p class="text-body-1">{{ chat.fileName }}</p>
                                   <a download :href="chat.content">
                                     <v-icon color="primary">mdi-download</v-icon>
                                   </a>
@@ -302,7 +308,7 @@ const checkTypeFile = (url) => {
                               <div class="d-flex align-center gap-2">
                                 <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/docx.png" />
                                 <div>
-                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <p class="text-body-1">{{ chat.fileName }}</p>
                                   <a download :href="chat.content">
                                     <v-icon color="primary">mdi-download</v-icon>
                                   </a>
@@ -315,7 +321,7 @@ const checkTypeFile = (url) => {
                               <div class="d-flex align-center gap-2">
                                 <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/xlsx.png" />
                                 <div>
-                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <p class="text-body-1">{{ chat.fileName }}</p>
                                   <a download :href="chat.content">
                                     <v-icon color="primary">mdi-download</v-icon>
                                   </a>
@@ -335,6 +341,9 @@ const checkTypeFile = (url) => {
                               </div>
                             </div>
                           </template>
+                        </v-sheet>
+                        <v-sheet v-else-if="chat.type === 'VIDEO'" class="mb-1">
+                          <video class="tw-max-w-[500px]" controls :src="chat.content" />
                         </v-sheet>
                         <v-sheet v-else class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-max-w-[800px]">
                           <p class="text-body-1">{{ chat.content }}</p>
@@ -418,6 +427,9 @@ const checkTypeFile = (url) => {
                             </div>
                           </template>
                         </v-sheet>
+                        <v-sheet v-else-if="chat.type === 'VIDEO'" class="mb-1">
+                          <video class="tw-max-w-[500px]" controls :src="chat.content" />
+                        </v-sheet>
                         <v-sheet v-else class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5">
                           <p class="text-body-1">{{ chat.content }}</p>
                         </v-sheet>
@@ -463,10 +475,10 @@ const checkTypeFile = (url) => {
               <v-sheet>
                 <chat-info
                   :chat-detail="chatDetail"
-                  :listImages="listImages"
-                  :listVideos="listVideos"
-                  :user-recipient="userRecipient"
                   :list-files="listFiles"
+                  :list-images="listImages"
+                  :list-videos="listVideos"
+                  :user-recipient="userRecipient"
                 />
               </v-sheet>
             </perfect-scrollbar>
@@ -481,7 +493,11 @@ const checkTypeFile = (url) => {
   <v-dialog v-model="dialogForward" max-width="700px">
     <v-card>
       <v-card-title>{{ t('chats.forwardMessage') }}</v-card-title>
-      <ChatsForwardDialog :chat-forward="chatForward" :close-dialog-forward="closeDialogForward" />
+      <ChatsForwardDialog
+        :chat-forward="chatForward"
+        :close-dialog-forward="closeDialogForward"
+        @reload-chat-listing="reloadChatListing"
+      />
       <v-card-actions>
         <v-spacer />
         <v-btn color="error" @click="closeDialogForward">
