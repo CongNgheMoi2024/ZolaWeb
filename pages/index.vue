@@ -174,7 +174,13 @@ onMounted(() => {
         <div v-if="Object.keys(userRecipient).length === 0">
           <welcome />
         </div>
-        <chat-detail v-else :message-received="messageReceived" :user-recipient="userRecipient" />
+        <chat-detail
+          v-else
+          :message-received="messageReceived"
+          :user-recipient="userRecipient"
+          @chat-send-msg="reloadChatListing = true"
+          @reload-chat-listing="reloadChatListing = true"
+        />
       </template>
     </app-base-card>
     <app-base-card v-if="selectedItem === 'friends'">

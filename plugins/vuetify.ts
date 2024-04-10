@@ -34,6 +34,9 @@ import {
 import '@vuepic/vue-datepicker/dist/main.css'
 import 'viewerjs/dist/viewer.css'
 import VueViewer from 'v-viewer'
+import EmojiPicker from 'vue3-emoji-picker'
+// import css
+import 'vue3-emoji-picker/css'
 
 const i18n = createI18n({
   legacy: false,
@@ -121,4 +124,5 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component('VueDatePicker', VueDatePicker)
   nuxtApp.vueApp.use(VueViewer)
   nuxtApp.vueApp.component('VueViewer', VueViewer)
+  nuxtApp.vueApp.component('EmojiPicker', EmojiPicker)
 })
