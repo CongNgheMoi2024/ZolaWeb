@@ -338,6 +338,9 @@ const reloadChatListing = () => {
                             </div>
                           </template>
                         </v-sheet>
+                        <v-sheet v-else-if="chat.type === 'VIDEO'" class="mb-1">
+                          <video class="tw-max-w-[500px]" controls :src="chat.content" />
+                        </v-sheet>
                         <v-sheet v-else class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-max-w-[800px]">
                           <p class="text-body-1">{{ chat.content }}</p>
                         </v-sheet>
@@ -421,6 +424,9 @@ const reloadChatListing = () => {
                             </div>
                           </template>
                         </v-sheet>
+                        <v-sheet v-else-if="chat.type === 'VIDEO'" class="mb-1">
+                          <video class="tw-max-w-[500px]" controls :src="chat.content" />
+                        </v-sheet>
                         <v-sheet v-else class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5">
                           <p class="text-body-1">{{ chat.content }}</p>
                         </v-sheet>
@@ -484,7 +490,11 @@ const reloadChatListing = () => {
   <v-dialog v-model="dialogForward" max-width="700px">
     <v-card>
       <v-card-title>{{ t('chats.forwardMessage') }}</v-card-title>
-      <ChatsForwardDialog :chat-forward="chatForward" :close-dialog-forward="closeDialogForward" />
+      <ChatsForwardDialog
+        :chat-forward="chatForward"
+        :close-dialog-forward="closeDialogForward"
+        @reload-chat-listing="reloadChatListing"
+      />
       <v-card-actions>
         <v-spacer />
         <v-btn color="error" @click="closeDialogForward">
