@@ -22,26 +22,51 @@
     "informationAccount": "Thông tin tài khoản",
     "setting": "Cài đặt",
     "addGroup": "Tạo nhóm",
+    "friendsSelected": "Bạn bè đã chọn",
+    "forwardMessage": "Chuyển tiếp tin nhắn",
+    "image": "Hình ảnh",
+    "video": "Video",
+    "file": "File",
+    "haveNotImageSended": "Chưa có hình ảnh được gửi",
+    "haveNotFileSended": "Chưa có file được gửi",
+    "haveNotVideoSended": "Chưa có video được gửi",
+    "messageWithdrawed": "Tin nhắn đã được thu hồi",
     "model": {
       "phone": "Số điện thoại",
       "password": "Mật khẩu",
       "nameGroup": "Tên nhóm",
-      "passwordNew": "Mật khẩu mới"
+      "passwordNew": "Mật khẩu mới",
+      "findPeopleAndGroup": "Tìm kiếm bạn bè và nhóm",
+      "message": "Tin nhắn"
     },
     "action": {
+      "copy": "Sao chép",
+      "exit": "Thoát",
       "send": "Gửi",
       "cancel": "Hủy",
       "create": "Tạo",
       "search": "Tìm kiếm",
-      "logout": "Đăng xuất"
+      "logout": "Đăng xuất",
+      "withdraw": "Thu hồi",
+      "delete": "Xóa",
+      "forward": "Chuyển tiếp",
+      "createGroup": "Tạo nhóm",
+      "deleteChatHistory": "Xóa lịch sử chat"
+
     },
     "message": {
+      "deleteSuccess": "Xóa thành công",
+      "deleteError": "Xóa thất bại",
+      "withdrawSuccess": "Thu hồi tin nhắn thành công",
+      "withdrawError": "Thu hồi tin nhắn thất bại",
       "addFriendSuccess": "Gửi lời mời kết bạn thành công",
       "addFriendFailed": "Gửi lời mời kết bạn thất bại",
       "makeFriendSuccess": "Kết bạn thành công",
       "makeFriendFailed": "Kết bạn thất bại",
       "findFriendByName": "Vui lòng nhập tên bạn bè",
-      "friendNotFound": "Không tìm thấy bạn bè"
+      "friendNotFound": "Không tìm thấy bạn bè",
+      "forwardSuccess": "Chuyển tiếp tin nhắn thành công",
+      "forwardFailed": "Chuyển tiếp tin nhắn thất bại"
     }
   },
   "login": {

@@ -13,6 +13,8 @@ export default defineNuxtConfig({
     // Keys within public, will be also exposed to the client-side
     public: {
       apiBase: process.env.BASE_API_URL,
+      wsUrl: process.env.WS_URL,
+      nextAuthUrl: process.env.NEXTAUTH_URL,
     },
   },
   css: ['vue-final-modal/style.css'],
@@ -28,6 +30,8 @@ export default defineNuxtConfig({
     '@/plugins/vue-money',
     '@/plugins/vue-final-modal',
     '@/plugins/sockjs-client',
+    '@/plugins/directive.client',
+    '@/plugins/vue3-emoji-picker.client',
   ],
   auth: {
     origin: process.env.ORIGIN,
