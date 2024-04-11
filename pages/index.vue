@@ -25,6 +25,7 @@ const isChangePassword = ref(false)
 const avatar = ref(user.value.avatar)
 const nameUser = ref(user.value.name)
 const reloadChatListing = ref(false)
+const reloadChatDetail = ref(false)
 
 const selectedMenuFriend = ref({
   title: 'Danh sách bạn bè',
@@ -55,8 +56,14 @@ const onError = () => {
 }
 
 const onMessageReceived = (payload) => {
-  messageReceived.value = JSON.parse(payload.body)
-  reloadChatListing.value = true
+  const message = JSON.parse(payload.body)
+  if (message.type === 'RECALL') {
+    reloadChatListing.value = true
+    reloadChatDetail.value = true
+  } else {
+    messageReceived.value = message
+    reloadChatListing.value = true
+  }
 }
 
 const fetchChatByUserId = (user) => {
@@ -177,9 +184,11 @@ onMounted(() => {
         <chat-detail
           v-else
           :message-received="messageReceived"
+          :reload-chat-detail="reloadChatDetail"
           :user-recipient="userRecipient"
           @chat-send-msg="reloadChatListing = true"
           @chat-withdraw-msg="reloadChatListing = true"
+          @reload-chat-detail="reloadChatDetail = false"
           @reload-chat-listing="reloadChatListing = true"
         />
       </template>

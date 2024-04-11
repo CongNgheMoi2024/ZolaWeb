@@ -3,11 +3,11 @@ import { ref, computed, onMounted } from 'vue'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { useDisplay } from 'vuetify'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import ChatSendMsg from './ChatSendMsg.vue'
 import ChatInfo from './ChatInfo.vue'
 import { useChatStore } from '@/stores/apps/chat'
 import messages from '@/utils/locales/messages'
-import { useToast } from 'vue-toastification'
 
 const toast = useToast()
 const props = defineProps({
@@ -19,6 +19,10 @@ const props = defineProps({
     type: [Object, String],
     default: '',
   },
+  reloadChatDetail: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const { t } = useI18n()
@@ -27,7 +31,7 @@ const myOptionsMsg = ref()
 const optionsMsg = ref()
 const dialogForward = ref(false)
 const chatForward = ref({})
-const emit = defineEmits(['chat-send-msg', 'reload-chat-listing', 'chat-withdraw-msg', 'fetch-chat-detail'])
+const emit = defineEmits(['chat-send-msg', 'reload-chat-listing', 'chat-withdraw-msg', 'fetch-chat-detail', 'reload-chat-detail'])
 const nuxtApp = useNuxtApp()
 const stompClient = nuxtApp.$stompClient
 const { $api } = useNuxtApp()
@@ -118,6 +122,16 @@ watch(
   () => {
     chatDetail.value.push(messageReceived.value)
     scrollToBottom()
+  }
+)
+
+watch(
+  () => props.reloadChatDetail,
+  () => {
+    if (props.reloadChatDetail) {
+      fetchChatDetail()
+      emit('reload-chat-detail')
+    }
   }
 )
 
@@ -357,7 +371,7 @@ const reloadChatListing = () => {
                             <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
                               <div class="d-flex align-center gap-2">
                                 <div>
-                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <p class="text-body-1">{{ chat.fileName }}</p>
                                   <a download :href="chat.content">
                                     <v-icon color="primary">mdi-download</v-icon>
                                   </a>
@@ -446,7 +460,7 @@ const reloadChatListing = () => {
                             <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
                               <div class="d-flex align-center gap-2">
                                 <div>
-                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <p class="text-body-1">{{ chat.fileName }}</p>
                                   <a download :href="chat.content">
                                     <v-icon color="primary">mdi-download</v-icon>
                                   </a>
