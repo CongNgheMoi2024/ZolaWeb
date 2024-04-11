@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useChatStore } from '@/stores/apps/chat'
 import { type } from '../../.nuxt/types/imports'
+import { useChatStore } from '@/stores/apps/chat'
 
 const msg = ref('')
 const { data } = useAuth()
@@ -9,6 +9,7 @@ const nuxtApp = useNuxtApp()
 const { $api } = useNuxtApp()
 const stompClient = nuxtApp.$stompClient
 const emit = defineEmits(['chat-send-msg'])
+const isEmojiPickerVisible = ref(false)
 
 const props = defineProps({
   recipientId: {
@@ -105,11 +106,25 @@ const handleFileUpload = (e: Event) => {
     }
   }
 }
+
+const toggleEmojiPicker = () => {
+  isEmojiPickerVisible.value = false
+}
+
+const appendEmoji = (emoji: string) => {
+  msg.value += emoji.i
+}
 </script>
 
 <template>
   <form class="d-flex align-center pa-4" @submit.prevent="addItemAndClear(msg)">
-    <v-btn class="text-medium-emphasis" icon variant="text"><MoodSmileIcon size="24" /></v-btn>
+    <div v-click-outside="toggleEmojiPicker">
+      <v-btn class="text-medium-emphasis" icon variant="text" @click="isEmojiPickerVisible = true">
+        <MoodSmileIcon size="24" />
+      </v-btn>
+
+      <emoji-picker v-if="isEmojiPickerVisible" ref="emojiPicker" @select="appendEmoji" />
+    </div>
 
     <v-text-field
       v-model="msg"
@@ -120,6 +135,7 @@ const handleFileUpload = (e: Event) => {
       placeholder="Type a Message"
       variant="solo"
     />
+
     <v-btn class="text-medium-emphasis" :disabled="!msg" icon type="submit" variant="text">
       <SendIcon size="20" />
     </v-btn>
@@ -140,5 +156,10 @@ const handleFileUpload = (e: Event) => {
 .file-input:deep().v-input__control,
 .file-input:deep().v-input__details {
   display: none;
+}
+.v3-emoji-picker {
+  position: absolute;
+  bottom: 130px;
+  z-index: 1000;
 }
 </style>
