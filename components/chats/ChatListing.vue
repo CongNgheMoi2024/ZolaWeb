@@ -228,8 +228,11 @@ watch(
         <!--        <v-sheet v-if="chat.chatHistory.slice(-1)[0].type == 'img'">-->
         <!--          <small class="textPrimary text-subtitle-2">Sent a Photo</small>-->
         <!--        </v-sheet>-->
-        <div class="text-subtitle-2 textPrimary mt-1 text-truncate w-100">
+        <div v-if="room.lastMessage?.status === null" class="text-subtitle-2 textPrimary mt-1 text-truncate w-100">
           {{ room.lastMessage?.content }}
+        </div>
+        <div v-else class="text-subtitle-2 textPrimary mt-1 text-truncate w-100">
+          {{ t('chats.messageWithdrawed') }}
         </div>
         <!---Last seen--->
         <template #append>
