@@ -20,4 +20,8 @@ export class ChatAPI extends BaseApi {
   getFiles(senderId: string, recipientId: string): Promise<any> {
     return this.get(`/file-messages/${senderId}/${recipientId}`)
   }
+
+  deleteMessage(messageId: string): Promise<any> {
+    return this.put(`/delete-messages/${messageId}`)
+  }
 }

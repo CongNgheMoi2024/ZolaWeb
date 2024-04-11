@@ -7,7 +7,9 @@ import ChatSendMsg from './ChatSendMsg.vue'
 import ChatInfo from './ChatInfo.vue'
 import { useChatStore } from '@/stores/apps/chat'
 import messages from '@/utils/locales/messages'
+import { useToast } from 'vue-toastification'
 
+const toast = useToast()
 const props = defineProps({
   userRecipient: {
     type: Object,
@@ -16,22 +18,6 @@ const props = defineProps({
   messageReceived: {
     type: [Object, String],
     default: '',
-  },
-  listMedia: {
-    type: Array,
-    default: () => [],
-  },
-  listImages: {
-    type: Array,
-    default: () => [],
-  },
-  listVideos: {
-    type: Array,
-    default: () => [],
-  },
-  listFiles: {
-    type: Array,
-    default: () => [],
   },
 })
 
@@ -103,7 +89,6 @@ const fetchChatDetail = async () => {
     myOptionsMsg.value = Array(chatDetail.value.length).fill(false)
     optionsMsg.value = Array(chatDetail.value.length).fill(false)
   })
-  scrollToBottom()
 }
 
 const addChatSendMsg = (msg) => {
@@ -119,6 +104,7 @@ watch(
   () => userRecipient,
   () => {
     fetchChatDetail()
+    scrollToBottom()
     getImagesAndVideos()
     getFiles()
   },
@@ -163,11 +149,21 @@ const openMyOptionsMsg = (chatId) => {
   myOptionsMsg.value[chatId] = true
 }
 
-const copyMsg = (id) => {
-  console.log('copy', id)
+const copyMsg = (content) => {
+  // copy noi dung tin nhan
+  navigator.clipboard.writeText(content)
 }
-const deleteMsg = (id) => {
-  console.log('delete', id)
+const deleteMsg = async (id) => {
+  try {
+    await $api.chats.deleteMessage(id).then(() => {
+      toast.success(t('chats.message.deleteSuccess'))
+      fetchChatDetail()
+      reloadChatListing()
+    })
+  } catch (error) {
+    console.log(error.message)
+    toast.error(t('chats.message.deleteError'))
+  }
 }
 const forwardMsg = (chat) => {
   dialogForward.value = true
@@ -270,7 +266,7 @@ const reloadChatListing = () => {
                             </template>
                             <v-sheet style="text-align: left">
                               <v-list>
-                                <v-list-item @click="copyMsg(chat.id)">
+                                <v-list-item @click="copyMsg(chat.content)">
                                   {{ t('chats.action.copy') }}
                                 </v-list-item>
                                 <v-list-item @click="forwardMsg(chat)">
@@ -351,7 +347,7 @@ const reloadChatListing = () => {
                       </v-row>
                     </div>
                   </div>
-                  <div v-else class="d-flex align-items-start gap-3 mb-1">
+                  <div v-else class="d-flex align-items-start gap-3 mb-1 tw-max-w-[700px]">
                     <!---User Avatar-->
                     <div>
                       <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
@@ -374,13 +370,14 @@ const reloadChatListing = () => {
                         <v-sheet v-if="chat.type === 'IMAGE'" class="mb-1">
                           <img v-viewer :alt="chat.content" class="tw-max-w-[500px]" :src="chat.content" />
                         </v-sheet>
-                        <v-sheet v-else-if="chat.type === 'FILE'" class="mb-1">
+
+                        <v-sheet v-else-if="chat.type === 'FILE'" class="mb-1 tw-max-w-[630px]">
                           <template v-if="checkTypeFile(chat.content) === 'pdf'">
                             <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
                               <div class="d-flex align-center gap-2">
                                 <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/pdf.png" />
                                 <div>
-                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <p class="text-body-1">{{ chat.fileName }}</p>
                                   <a download :href="chat.content">
                                     <v-icon color="primary">mdi-download</v-icon>
                                   </a>
@@ -393,7 +390,7 @@ const reloadChatListing = () => {
                               <div class="d-flex align-center gap-2">
                                 <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/docx.png" />
                                 <div>
-                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <p class="text-body-1">{{ chat.fileName }}</p>
                                   <a download :href="chat.content">
                                     <v-icon color="primary">mdi-download</v-icon>
                                   </a>
@@ -406,7 +403,7 @@ const reloadChatListing = () => {
                               <div class="d-flex align-center gap-2">
                                 <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/xlsx.png" />
                                 <div>
-                                  <p class="text-body-1">{{ chat.content }}</p>
+                                  <p class="text-body-1">{{ chat.fileName }}</p>
                                   <a download :href="chat.content">
                                     <v-icon color="primary">mdi-download</v-icon>
                                   </a>
@@ -450,7 +447,7 @@ const reloadChatListing = () => {
                             </template>
                             <v-sheet>
                               <v-list>
-                                <v-list-item @click="copyMsg(chat.id)">
+                                <v-list-item @click="copyMsg(chat.content)">
                                   {{ t('chats.action.copy') }}
                                 </v-list-item>
                                 <v-list-item @click="forwardMsg(chat)">
