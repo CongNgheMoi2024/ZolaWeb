@@ -179,6 +179,7 @@ onMounted(() => {
           :message-received="messageReceived"
           :user-recipient="userRecipient"
           @chat-send-msg="reloadChatListing = true"
+          @chat-withdraw-msg="reloadChatListing = true"
           @reload-chat-listing="reloadChatListing = true"
         />
       </template>

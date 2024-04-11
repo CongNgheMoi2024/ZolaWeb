@@ -27,8 +27,9 @@ const myOptionsMsg = ref()
 const optionsMsg = ref()
 const dialogForward = ref(false)
 const chatForward = ref({})
-const emit = defineEmits(['chat-send-msg', 'reload-chat-listing'])
-
+const emit = defineEmits(['chat-send-msg', 'reload-chat-listing', 'chat-withdraw-msg', 'fetch-chat-detail'])
+const nuxtApp = useNuxtApp()
+const stompClient = nuxtApp.$stompClient
 const { $api } = useNuxtApp()
 const { data } = useAuth()
 
@@ -88,7 +89,9 @@ const fetchChatDetail = async () => {
     chatDetail.value = res.data
     myOptionsMsg.value = Array(chatDetail.value.length).fill(false)
     optionsMsg.value = Array(chatDetail.value.length).fill(false)
+    emit('fetch-chat-detail')
   })
+  scrollToBottom()
 }
 
 const addChatSendMsg = (msg) => {
@@ -104,7 +107,6 @@ watch(
   () => userRecipient,
   () => {
     fetchChatDetail()
-    scrollToBottom()
     getImagesAndVideos()
     getFiles()
   },
@@ -158,8 +160,7 @@ const deleteMsg = async (id) => {
     await $api.chats.deleteMessage(id).then(() => {
       toast.success(t('chats.message.deleteSuccess'))
       fetchChatDetail()
-
-      reloadChatListing()
+      emit('reload-chat-listing')
     })
   } catch (error) {
     console.log(error.message)
@@ -193,11 +194,13 @@ const checkTypeFile = (url) => {
 
 const withdrawMsg = async (id) => {
   try {
-    await $api.chats.withdrawMessage(id).then(() => {
+    if (stompClient) {
+      stompClient.send('/app/delete', {}, JSON.stringify(id))
       toast.success(t('chats.message.withdrawSuccess'))
       fetchChatDetail()
       reloadChatListing()
-    })
+      emit('chat-withdraw-msg', id)
+    }
   } catch (error) {
     console.log(error.message)
     toast.error(t('chats.message.withdrawError'))
@@ -253,7 +256,7 @@ const reloadChatListing = () => {
               <div v-for="(chat, index) in chatDetail" :key="chat.id" class="pa-5">
                 <div class="messages-container" @mouseenter="showMenu(chat.id)" @mouseleave="closeMenu(chat.id)">
                   <div
-                    v-if="auth?.id === chat.senderId && chat.status === null"
+                    v-if="auth?.id === chat.senderId && (chat.status === null || chat.status === 'SENT')"
                     class="justify-end d-flex text-end mb-1"
                   >
                     <div>
@@ -277,6 +280,7 @@ const reloadChatListing = () => {
                                 style="margin-right: 10px"
                                 variant="text"
                                 @click="openMyOptionsMsg(chat.id)"
+                                @click.stop
                               >
                                 <DotsVerticalIcon size="24" />
                               </v-btn>
@@ -365,14 +369,14 @@ const reloadChatListing = () => {
                         <v-sheet v-else-if="chat.type === 'VIDEO'" class="mb-1">
                           <video class="tw-max-w-[500px]" controls :src="chat.content" />
                         </v-sheet>
-                        <v-sheet v-else class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-max-w-[800px]">
+                        <v-sheet v-else class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-max-w-[590px]">
                           <p class="text-body-1">{{ chat.content }}</p>
                         </v-sheet>
                       </v-row>
                     </div>
                   </div>
                   <div
-                    v-if="auth?.id === chat.senderId && chat.status === ''"
+                    v-else-if="auth?.id !== chat.senderId && (chat.status === null || chat.status === 'SENT')"
                     class="d-flex align-items-start gap-3 mb-1 tw-max-w-[700px]"
                   >
                     <!---User Avatar-->
@@ -394,11 +398,11 @@ const reloadChatListing = () => {
                           />
                         </v-avatar>
                         <div v-else class="ml-10" />
-                        <v-sheet v-if="chat.type === 'IMAGE'" class="mb-1">
+                        <v-sheet v-if="chat.type === 'IMAGE'" class="mb-1 ml-5">
                           <img v-viewer :alt="chat.content" class="tw-max-w-[500px]" :src="chat.content" />
                         </v-sheet>
 
-                        <v-sheet v-else-if="chat.type === 'FILE'" class="mb-1 tw-max-w-[630px]">
+                        <v-sheet v-else-if="chat.type === 'FILE'" class="mb-1 tw-max-w-[630px] ml-5">
                           <template v-if="checkTypeFile(chat.content) === 'pdf'">
                             <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
                               <div class="d-flex align-center gap-2">
@@ -451,10 +455,10 @@ const reloadChatListing = () => {
                             </div>
                           </template>
                         </v-sheet>
-                        <v-sheet v-else-if="chat.type === 'VIDEO'" class="mb-1">
+                        <v-sheet v-else-if="chat.type === 'VIDEO'" class="mb-1 ml-5">
                           <video class="tw-max-w-[500px]" controls :src="chat.content" />
                         </v-sheet>
-                        <v-sheet v-else class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5">
+                        <v-sheet v-else class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5 tw-max-w-[640px]">
                           <p class="text-body-1">{{ chat.content }}</p>
                         </v-sheet>
                         <div v-show="isMenuVisible(chat.id)" class="message-menu">
@@ -495,7 +499,60 @@ const reloadChatListing = () => {
                       </v-row>
                     </div>
                   </div>
-                  <div v-if="chat.status === 'DELETED'" class="justify-end d-flex text-end mb-1">
+                  <div
+                    v-else-if="auth?.id !== chat.senderId && chat.status === 'DELETED'"
+                    class="d-flex align-items-start gap-3 mb-1 tw-max-w-[700px]"
+                  >
+                    <div>
+                      <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
+                        {{
+                          formatDistanceToNowStrict(new Date(chat.timestamp), {
+                            addSuffix: false,
+                          })
+                        }}
+                        ago
+                      </small>
+                      <v-row>
+                        <v-avatar v-if="index === 0 || chat.senderId !== chatDetail[index - 1].senderId">
+                          <img
+                            alt="pro"
+                            :src="userRecipient.avatar ? userRecipient.avatar : '/images/profile/user-1.jpg'"
+                            width="40"
+                          />
+                        </v-avatar>
+                        <div v-else class="ml-10" />
+                        <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5 tw-max-w-[640px]">
+                          <p class="text-body-1" style="color: gray">{{ t('chats.messageWithdrawed') }}</p>
+                        </v-sheet>
+                        <div v-show="isMenuVisible(chat.id)">
+                          <v-menu v-model="myOptionsMsg[chat.id]" attach location="end">
+                            <template #activator="{ props }">
+                              <v-btn
+                                v-bind="props"
+                                class="text-medium-emphasis message-menu"
+                                icon
+                                size="42"
+                                style="margin-right: 10px"
+                                variant="text"
+                                @click="openMyOptionsMsg(chat.id)"
+                              >
+                                <DotsVerticalIcon size="24" />
+                              </v-btn>
+                            </template>
+                            <v-sheet style="text-align: left">
+                              <v-list>
+                                <v-list-item @click="deleteMsg(chat.id)">
+                                  <v-icon>mdi-delete</v-icon>
+                                  {{ t('chats.action.delete') }}
+                                </v-list-item>
+                              </v-list>
+                            </v-sheet>
+                          </v-menu>
+                        </div>
+                      </v-row>
+                    </div>
+                  </div>
+                  <div v-else class="justify-end d-flex text-end mb-1">
                     <div>
                       <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
                         {{
