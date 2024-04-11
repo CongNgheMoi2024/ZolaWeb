@@ -140,7 +140,10 @@ const appendEmoji = (emoji: string) => {
       <SendIcon size="20" />
     </v-btn>
 
-    <v-btn class="text-medium-emphasis" icon variant="text"><PhotoIcon size="20" /></v-btn>
+    <v-btn class="text-medium-emphasis" icon variant="text" @click="$refs.imageInput.click()">
+      <PhotoIcon size="20" />
+      <input ref="imageInput" accept="image/*" class="tw-hidden" type="file" @change="handleFileUpload" />
+    </v-btn>
     <v-btn class="text-medium-emphasis" icon variant="text" @click="$refs.fileInput.click()">
       <PaperclipIcon size="20" />
       <input ref="fileInput" class="tw-hidden" multiple type="file" @change="handleFileUpload" />

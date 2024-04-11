@@ -96,6 +96,9 @@ const fetchChatDetail = async () => {
     emit('fetch-chat-detail')
   })
   scrollToBottom()
+  setTimeout(() => {
+    scrollToBottom()
+  }, 1500)
 }
 
 const addChatSendMsg = (msg) => {
