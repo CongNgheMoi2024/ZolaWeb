@@ -241,7 +241,7 @@ watch(
         <template #append>
           <div class="d-flex flex-column text-right w-25">
             <small class="textPrimary text-subtitle-2">
-              {{ formatDistanceToNowStrict(new Date(room.lastMessage?.timestamp)) }}
+              {{ formatDistanceToNowStrict(new Date(room.lastMessage?.timestamp ?? null)) }}
             </small>
           </div>
         </template>
