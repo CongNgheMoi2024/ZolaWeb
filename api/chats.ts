@@ -24,4 +24,8 @@ export class ChatAPI extends BaseApi {
   deleteMessage(messageId: string): Promise<any> {
     return this.put(`/delete-messages/${messageId}`)
   }
+
+  withdrawMessage(messageId: string): Promise<any> {
+    return this.delete(`/recall-messages/${messageId}`)
+  }
 }

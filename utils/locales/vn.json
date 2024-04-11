@@ -30,6 +30,7 @@
     "haveNotImageSended": "Chưa có hình ảnh được gửi",
     "haveNotFileSended": "Chưa có file được gửi",
     "haveNotVideoSended": "Chưa có video được gửi",
+    "messageWithdrawed": "Tin nhắn đã được thu hồi",
     "model": {
       "phone": "Số điện thoại",
       "password": "Mật khẩu",
@@ -56,6 +57,8 @@
     "message": {
       "deleteSuccess": "Xóa thành công",
       "deleteError": "Xóa thất bại",
+      "withdrawSuccess": "Thu hồi tin nhắn thành công",
+      "withdrawError": "Thu hồi tin nhắn thất bại",
       "addFriendSuccess": "Gửi lời mời kết bạn thành công",
       "addFriendFailed": "Gửi lời mời kết bạn thất bại",
       "makeFriendSuccess": "Kết bạn thành công",

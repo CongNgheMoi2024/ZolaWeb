@@ -158,6 +158,7 @@ const deleteMsg = async (id) => {
     await $api.chats.deleteMessage(id).then(() => {
       toast.success(t('chats.message.deleteSuccess'))
       fetchChatDetail()
+
       reloadChatListing()
     })
   } catch (error) {
@@ -188,6 +189,19 @@ const checkTypeFile = (url) => {
   }
 
   return 'txt'
+}
+
+const withdrawMsg = async (id) => {
+  try {
+    await $api.chats.withdrawMessage(id).then(() => {
+      toast.success(t('chats.message.withdrawSuccess'))
+      fetchChatDetail()
+      reloadChatListing()
+    })
+  } catch (error) {
+    console.log(error.message)
+    toast.error(t('chats.message.withdrawError'))
+  }
 }
 
 const reloadChatListing = () => {
@@ -238,7 +252,10 @@ const reloadChatListing = () => {
             <perfect-scrollbar ref="chatContainer" class="rightpartHeight">
               <div v-for="(chat, index) in chatDetail" :key="chat.id" class="pa-5">
                 <div class="messages-container" @mouseenter="showMenu(chat.id)" @mouseleave="closeMenu(chat.id)">
-                  <div v-if="auth?.id === chat.senderId" class="justify-end d-flex text-end mb-1">
+                  <div
+                    v-if="auth?.id === chat.senderId && chat.status === null"
+                    class="justify-end d-flex text-end mb-1"
+                  >
                     <div>
                       <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
                         {{
@@ -267,15 +284,22 @@ const reloadChatListing = () => {
                             <v-sheet style="text-align: left">
                               <v-list>
                                 <v-list-item @click="copyMsg(chat.content)">
+                                  <v-icon>mdi-content-copy</v-icon>
                                   {{ t('chats.action.copy') }}
+                                  <v-divider class="mt-2" />
                                 </v-list-item>
                                 <v-list-item @click="forwardMsg(chat)">
+                                  <v-icon>mdi-forward</v-icon>
                                   {{ t('chats.action.forward') }}
+                                  <v-divider class="mt-2" />
                                 </v-list-item>
                                 <v-list-item @click="withdrawMsg(chat.id)">
+                                  <v-icon>mdi-restore</v-icon>
                                   {{ t('chats.action.withdraw') }}
+                                  <v-divider class="mt-2" />
                                 </v-list-item>
                                 <v-list-item @click="deleteMsg(chat.id)">
+                                  <v-icon>mdi-delete</v-icon>
                                   {{ t('chats.action.delete') }}
                                 </v-list-item>
                               </v-list>
@@ -347,7 +371,10 @@ const reloadChatListing = () => {
                       </v-row>
                     </div>
                   </div>
-                  <div v-else class="d-flex align-items-start gap-3 mb-1 tw-max-w-[700px]">
+                  <div
+                    v-if="auth?.id === chat.senderId && chat.status === ''"
+                    class="d-flex align-items-start gap-3 mb-1 tw-max-w-[700px]"
+                  >
                     <!---User Avatar-->
                     <div>
                       <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
@@ -448,18 +475,66 @@ const reloadChatListing = () => {
                             <v-sheet>
                               <v-list>
                                 <v-list-item @click="copyMsg(chat.content)">
+                                  <v-icon>mdi-content-copy</v-icon>
                                   {{ t('chats.action.copy') }}
+                                  <v-divider class="mt-2" />
                                 </v-list-item>
                                 <v-list-item @click="forwardMsg(chat)">
+                                  <v-icon>mdi-forward</v-icon>
                                   {{ t('chats.action.forward') }}
+                                  <v-divider class="mt-2" />
                                 </v-list-item>
                                 <v-list-item @click="deleteMsg(chat.id)">
+                                  <v-icon>mdi-delete</v-icon>
                                   {{ t('chats.action.delete') }}
                                 </v-list-item>
                               </v-list>
                             </v-sheet>
                           </v-menu>
                         </div>
+                      </v-row>
+                    </div>
+                  </div>
+                  <div v-if="chat.status === 'DELETED'" class="justify-end d-flex text-end mb-1">
+                    <div>
+                      <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
+                        {{
+                          formatDistanceToNowStrict(new Date(chat.timestamp), {
+                            addSuffix: false,
+                          })
+                        }}
+                        ago
+                      </small>
+                      <v-row>
+                        <div v-show="isMenuVisible(chat.id)">
+                          <v-menu v-model="myOptionsMsg[chat.id]" attach location="start">
+                            <template #activator="{ props }">
+                              <v-btn
+                                v-bind="props"
+                                class="text-medium-emphasis message-menu"
+                                icon
+                                size="42"
+                                style="margin-right: 10px"
+                                variant="text"
+                                @click="openMyOptionsMsg(chat.id)"
+                              >
+                                <DotsVerticalIcon size="24" />
+                              </v-btn>
+                            </template>
+                            <v-sheet style="text-align: left">
+                              <v-list>
+                                <v-list-item @click="deleteMsg(chat.id)">
+                                  <v-icon>mdi-delete</v-icon>
+                                  {{ t('chats.action.delete') }}
+                                </v-list-item>
+                              </v-list>
+                            </v-sheet>
+                          </v-menu>
+                        </div>
+
+                        <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-max-w-[800px]">
+                          <p class="text-body-1" style="color: gray">{{ t('chats.messageWithdrawed') }}</p>
+                        </v-sheet>
                       </v-row>
                     </div>
                   </div>
