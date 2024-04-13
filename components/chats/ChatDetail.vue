@@ -15,6 +15,10 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  groupId: {
+    type: String,
+    default: '',
+  },
   messageReceived: {
     type: [Object, String],
     default: '',
@@ -31,7 +35,14 @@ const myOptionsMsg = ref()
 const optionsMsg = ref()
 const dialogForward = ref(false)
 const chatForward = ref({})
-const emit = defineEmits(['chat-send-msg', 'reload-chat-listing', 'chat-withdraw-msg', 'fetch-chat-detail', 'reload-chat-detail'])
+const emit = defineEmits([
+  'chat-send-msg',
+  'reload-chat-listing',
+  'chat-withdraw-msg',
+  'fetch-chat-detail',
+  'reload-chat-detail',
+  'chat-send-msg-group',
+])
 const nuxtApp = useNuxtApp()
 const stompClient = nuxtApp.$stompClient
 const { $api } = useNuxtApp()
@@ -40,12 +51,14 @@ const { data } = useAuth()
 const auth = data.value
 const messageReceived = toRef(props, 'messageReceived')
 const userRecipient = toRef(props, 'userRecipient')
+const groupId = toRef(props, 'groupId')
 
 const { lgAndUp } = useDisplay()
 const listMedia = ref([])
 const listImages = ref([])
 const listVideos = ref([])
 const listFiles = ref([])
+const isGroup = ref(false)
 //
 // const store = useChatStore()
 // onMounted(() => {
@@ -101,6 +114,19 @@ const fetchChatDetail = async () => {
   }, 1500)
 }
 
+const fetchChatByGroup = async () => {
+  await $api.chats.chatGroup(groupId.value).then((res) => {
+    chatDetail.value = res.data
+    myOptionsMsg.value = Array(chatDetail.value.length).fill(false)
+    optionsMsg.value = Array(chatDetail.value.length).fill(false)
+    emit('fetch-chat-detail')
+  })
+  scrollToBottom()
+  setTimeout(() => {
+    scrollToBottom()
+  }, 1500)
+}
+
 const addChatSendMsg = (msg) => {
   chatDetail.value.push(msg)
   fetchChatDetail()
@@ -110,12 +136,21 @@ const addChatSendMsg = (msg) => {
   getFiles()
 }
 
+const addChatSendMsgGroup = (msg) => {
+  chatDetail.value.push(msg)
+  fetchChatByGroup()
+  emit('chat-send-msg-group', msg)
+  scrollToBottom()
+}
+
 watch(
   () => userRecipient,
   () => {
-    fetchChatDetail()
-    getImagesAndVideos()
-    getFiles()
+    if (userRecipient.value.id) {
+      fetchChatDetail()
+      getImagesAndVideos()
+      getFiles()
+    }
   },
   { deep: true, immediate: true }
 )
@@ -136,6 +171,19 @@ watch(
       emit('reload-chat-detail')
     }
   }
+)
+
+watch(
+  () => groupId,
+  () => {
+    if (groupId.value) {
+      fetchChatByGroup()
+      isGroup.value = true
+    } else {
+      isGroup.value = false
+    }
+  },
+  { immediate: true }
 )
 
 const formatStatusUser = (status) => {
@@ -634,7 +682,13 @@ const reloadChatListing = () => {
     </div>
     <v-divider />
     <!---Chat send-->
-    <chat-send-msg :recipient-id="userRecipient.id" @chat-send-msg="addChatSendMsg" />
+    <chat-send-msg
+      :group-id="groupId"
+      :is-group="isGroup"
+      :recipient-id="userRecipient.id"
+      @chat-send-msg="addChatSendMsg"
+      @chat-send-msg-group="addChatSendMsgGroup"
+    />
   </div>
   <v-dialog v-model="dialogForward" max-width="700px">
     <v-card>

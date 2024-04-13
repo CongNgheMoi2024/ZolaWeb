@@ -15,7 +15,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['chatDetail', 'update:reloadChatListing'])
+const emit = defineEmits(['chatDetail', 'update:reloadChatListing', 'chatDetailGroup'])
 const { $api } = useNuxtApp()
 const rooms = ref([])
 const searchValue = ref('')
@@ -25,6 +25,7 @@ const auth = data.value
 const userFriends = ref([])
 const menuOpen = ref(false)
 const loadingSearchFriend = ref(false)
+const { $event, $listen } = useNuxtApp()
 
 const fetch = async () => {
   await $api.rooms.getRoomByUser(auth.id).then((res) => {
@@ -36,9 +37,9 @@ const fetchChatByUserId = (userRecipient) => {
   emit('chatDetail', userRecipient)
 }
 
-onMounted(() => {
-  fetch()
-})
+const fetchChatByGroupId = (groupId) => {
+  emit('chatDetailGroup', groupId)
+}
 
 const addFriendModal = useModal({
   component: AddFriendModal,
@@ -118,6 +119,16 @@ watch(
     }
   }
 )
+
+$listen('group:created', (user) => {
+  fetch()
+})
+
+onMounted(async () => {
+  await fetch()
+  const groupIds = rooms.value.filter((room) => room.group === true).map((room) => room.id)
+  $event('groups:fetch', groupIds)
+})
 </script>
 <template>
   <v-sheet>
@@ -210,7 +221,7 @@ watch(
         color="primary"
         lines="two"
         :value="room.id"
-        @click="fetchChatByUserId(room.userRecipient)"
+        @click="room.userRecipient ? fetchChatByUserId(room.userRecipient) : fetchChatByGroupId(room.id)"
       >
         <!---Avatar-->
         <template #prepend>
@@ -222,14 +233,14 @@ watch(
         </template>
         <!---Name-->
         <v-list-item-title class="text-subtitle-1 textPrimary w-100 font-weight-semibold">
-          {{ room.userRecipient?.name }}
+          {{ room.group ? room.groupName : room.userRecipient?.name }}
         </v-list-item-title>
         <!---Subtitle-->
         <!--        <v-sheet v-if="chat.chatHistory.slice(-1)[0].type == 'img'">-->
         <!--          <small class="textPrimary text-subtitle-2">Sent a Photo</small>-->
         <!--        </v-sheet>-->
         <div
-          v-if="room.lastMessage?.status === null || room.lastMessage?.status === 'SENT'"
+          v-if="room.lastMessage === null || room.lastMessage?.status === 'SENT'"
           class="text-subtitle-2 textPrimary mt-1 text-truncate w-100"
         >
           {{ room.lastMessage?.content }}
@@ -240,8 +251,8 @@ watch(
         <!---Last seen--->
         <template #append>
           <div class="d-flex flex-column text-right w-25">
-            <small class="textPrimary text-subtitle-2">
-              {{ formatDistanceToNowStrict(new Date(room.lastMessage?.timestamp ?? null)) }}
+            <small v-if="room.lastMessage?.timestamp" class="textPrimary text-subtitle-2">
+              {{ formatDistanceToNowStrict(new Date(room.lastMessage?.timestamp)) }}
             </small>
           </div>
         </template>

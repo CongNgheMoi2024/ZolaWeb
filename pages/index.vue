@@ -13,6 +13,7 @@ const nuxtApp = useNuxtApp()
 const { data, signOut } = useAuth()
 const stompClient = nuxtApp.$stompClient
 const userRecipient = ref({})
+const chatGroupId = ref('')
 const messageReceived = ref('')
 const selectedItem = ref('message')
 const showSettingsMenu = ref(false)
@@ -26,6 +27,10 @@ const avatar = ref(user.value.avatar)
 const nameUser = ref(user.value.name)
 const reloadChatListing = ref(false)
 const reloadChatDetail = ref(false)
+const { $listen } = useNuxtApp()
+const groupIdsToSubscribe = ref([])
+const connectedWs = ref(false)
+const subscribeGroup = ref(false)
 
 const selectedMenuFriend = ref({
   title: 'Danh sách bạn bè',
@@ -48,7 +53,13 @@ const connect = async () => {
 }
 
 const onConnected = () => {
+  connectedWs.value = true
   stompClient.subscribe(`/user/${auth?.id}/queue/messages`, onMessageReceived)
+  if (!subscribeGroup.value) {
+    groupIdsToSubscribe.value.forEach((groupId) => {
+      stompClient.subscribe(`/user/${groupId}/queue/messages`, onMessageReceived)
+    })
+  }
 }
 
 const onError = () => {
@@ -68,6 +79,11 @@ const onMessageReceived = (payload) => {
 
 const fetchChatByUserId = (user) => {
   userRecipient.value = user
+}
+
+const fetchChatByGroupId = (groupId) => {
+  chatGroupId.value = groupId
+  console.log('groupId', chatGroupId.value)
 }
 
 const logOut = async () => {
@@ -98,6 +114,20 @@ const changeMenuFriend = (menu) => {
 const loadData = async () => {
   await fetchProfileById({})
 }
+
+$listen('group:created', (groupId) => {
+  stompClient.subscribe(`/user/${groupId}/queue/messages`, onMessageReceived)
+})
+
+$listen('groups:fetch', (groupIds) => {
+  groupIdsToSubscribe.value = groupIds
+  if (stompClient.connected) {
+    groupIds.forEach((groupId) => {
+      stompClient.subscribe(`/user/${groupId}/queue/messages`, onMessageReceived)
+    })
+    subscribeGroup.value = true
+  }
+})
 
 onMounted(() => {
   connect()
@@ -174,19 +204,22 @@ onMounted(() => {
         <chat-listing
           :reload-chat-listing="reloadChatListing"
           @chat-detail="fetchChatByUserId"
+          @chatDetailGroup="fetchChatByGroupId"
           @update:reload-chat-listing="reloadChatListing = false"
         />
       </template>
       <template #rightpart>
-        <div v-if="Object.keys(userRecipient).length === 0">
+        <div v-if="Object.keys(userRecipient).length === 0 && chatGroupId === ''">
           <welcome />
         </div>
         <chat-detail
           v-else
+          :group-id="chatGroupId"
           :message-received="messageReceived"
           :reload-chat-detail="reloadChatDetail"
           :user-recipient="userRecipient"
           @chat-send-msg="reloadChatListing = true"
+          @chat-send-msg-group="reloadChatListing = true"
           @chat-withdraw-msg="reloadChatListing = true"
           @reload-chat-detail="reloadChatDetail = false"
           @reload-chat-listing="reloadChatListing = true"

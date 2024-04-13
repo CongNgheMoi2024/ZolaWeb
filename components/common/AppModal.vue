@@ -41,6 +41,7 @@ const props = defineProps({
 <template>
   <vue-final-modal
     class="tw-flex tw-justify-center tw-items-center"
+    :click-to-close="false"
     content-transition="vfm-fade"
     overlay-transition="vfm-fade"
   >

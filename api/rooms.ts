@@ -20,4 +20,8 @@ export class RoomAPI extends BaseApi {
   getRoomByUser(userId: string): Promise<any> {
     return this.get(`/rooms/user/${userId}`)
   }
+
+  createRoomGroup(data: any): Promise<any> {
+    return this.post('/rooms/create-room-group', data)
+  }
 }

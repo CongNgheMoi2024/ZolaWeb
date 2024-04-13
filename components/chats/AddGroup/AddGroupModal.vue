@@ -18,23 +18,27 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['closed', 'submit', 'update:modelValue'])
+const emit = defineEmits(['closed', 'submit', 'update:modelValue', 'createGroup'])
 const { $api } = useNuxtApp()
 const isSubmitting = ref(false)
 const { t } = useI18n()
 const toast = useToast()
 const user = ref(null)
+const stompClient = useNuxtApp().$stompClient
+const { $event } = useNuxtApp()
 
 const schema = yup.object({
-  name: yup.string().nullable().required().label(t('chats.model.nameGroup')),
+  groupName: yup.string().nullable().required().label(t('chats.model.nameGroup')),
   phone: yup.string().nullable().label(t('chats.model.phone')),
+  members: yup.array().of(yup.string()).min(1).label(t('chats.model.members')),
 })
 
 const { defineComponentBinds, handleSubmit, setErrors, setFieldValue } = useForm({
   validationSchema: schema,
   initialValues: {
-    name: null,
+    groupName: null,
     phone: null,
+    members: [],
   },
 })
 
@@ -45,19 +49,27 @@ const vuetifyConfig = (state: any) => ({
 })
 
 const form = ref({
-  name: defineComponentBinds('name', vuetifyConfig),
+  groupName: defineComponentBinds('groupName', vuetifyConfig),
   phone: defineComponentBinds('phone', vuetifyConfig),
+  members: defineComponentBinds('members', vuetifyConfig),
 })
 
 const submit = handleSubmit(async (values) => {
   isSubmitting.value = true
-  try {
-    console.log(111)
-  } catch (error) {
-    setErrors(error.error)
-  } finally {
-    isSubmitting.value = false
-  }
+  await $api.rooms
+    .createRoomGroup(values)
+    .then((res) => {
+      toast.success(t('chats.action.successCreateGroup'))
+      emit('closed')
+      $event('group:created', res.data)
+    })
+    .catch((error) => {
+      toast.error(error.message)
+      setErrors(error.errors)
+    })
+    .finally(() => {
+      isSubmitting.value = false
+    })
 })
 
 const closed = () => {
@@ -66,13 +78,7 @@ const closed = () => {
 </script>
 
 <template>
-  <app-modal
-    :loading="isSubmitting"
-    :title="title"
-    width="800px"
-    @cancel="emit('closed')"
-    @submit="submit"
-  >
+  <app-modal :loading="isSubmitting" :title="title" width="800px" @cancel="emit('closed')" @submit="submit">
     <add-group-form :set-field-value="setFieldValue" :value="form" @closed="closed" />
   </app-modal>
 </template>

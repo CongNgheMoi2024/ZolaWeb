@@ -28,7 +28,6 @@ const { data } = useAuth()
 const auth = data.value
 const friends = ref([])
 const loadingFetchFriends = ref(false)
-const friendSelected = ref([])
 
 const form = computed({
   get: () => props.value,
@@ -58,7 +57,7 @@ onMounted(() => {
 <template>
   <v-row dense>
     <v-col cols="12">
-      <v-text-field v-bind="form.name" hide-spin-buttons="true" :label="t('chats.model.nameGroup')" type="text" />
+      <v-text-field v-bind="form.groupName" hide-spin-buttons="true" :label="t('chats.model.nameGroup')" type="text" />
     </v-col>
     <v-col cols="12">
       <v-text-field v-bind="form.phone" :label="t('chats.model.phone')" type="number" />
@@ -70,7 +69,7 @@ onMounted(() => {
       <app-loading v-if="loadingFetchFriends" />
       <v-list-item v-for="(user, index) in friends" :key="index" :value="index">
         <template #prepend>
-          <v-checkbox v-model="friendSelected" :value="user.id" :hide-details="true" />
+          <v-checkbox v-bind="form.members" :value="user.id" :hide-details="true" />
           <v-avatar>
             <img alt="pro" :src="'https://randomuser.me/api/portraits/women/8.jpg'" width="50" />
           </v-avatar>

@@ -8,11 +8,19 @@ const { data } = useAuth()
 const nuxtApp = useNuxtApp()
 const { $api } = useNuxtApp()
 const stompClient = nuxtApp.$stompClient
-const emit = defineEmits(['chat-send-msg'])
+const emit = defineEmits(['chat-send-msg', 'chat-send-msg-group'])
 const isEmojiPickerVisible = ref(false)
 
 const props = defineProps({
   recipientId: {
+    type: String,
+    default: '',
+  },
+  isGroup: {
+    type: Boolean,
+    default: false,
+  },
+  groupId: {
     type: String,
     default: '',
   },
@@ -33,6 +41,7 @@ const handleImage = (e: Event) => {
           timestamp: new Date(),
           type: 'image',
         }
+
         stompClient.send('/app/chat', {}, JSON.stringify(messageContent))
         emit('chat-send-msg', messageContent)
       }
@@ -48,15 +57,22 @@ function addItemAndClear(item: string) {
     return
   }
   if (stompClient) {
+    console.log('group id', props.groupId)
     const messageContent = {
+      chatId: props.groupId || null,
       senderId: auth?.id,
       recipientId: props.recipientId,
       content: item,
       timestamp: new Date(),
     }
 
-    stompClient.send('/app/chat', {}, JSON.stringify(messageContent))
-    emit('chat-send-msg', messageContent)
+    if (props.isGroup) {
+      stompClient.send('/app/chat/group', {}, JSON.stringify(messageContent))
+      emit('chat-send-msg-group', messageContent)
+    } else {
+      stompClient.send('/app/chat', {}, JSON.stringify(messageContent))
+      emit('chat-send-msg', messageContent)
+    }
     msg.value = ''
   }
 }

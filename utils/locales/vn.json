@@ -51,8 +51,8 @@
       "delete": "Xóa",
       "forward": "Chuyển tiếp",
       "createGroup": "Tạo nhóm",
-      "deleteChatHistory": "Xóa lịch sử chat"
-
+      "deleteChatHistory": "Xóa lịch sử chat",
+      "successCreateGroup": "Tạo nhóm thành công"
     },
     "message": {
       "deleteSuccess": "Xóa thành công",

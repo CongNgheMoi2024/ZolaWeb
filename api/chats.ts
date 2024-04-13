@@ -5,6 +5,10 @@ export class ChatAPI extends BaseApi {
     return this.get(`/messages/${senderId}/${recipientId}`)
   }
 
+  chatGroup(groupId: string): Promise<any> {
+    return this.get(`/group-messages/${groupId}`)
+  }
+
   sendFileMessage(data: any): Promise<any> {
     return this.post('/send-file-message', data)
   }

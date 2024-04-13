@@ -32,6 +32,7 @@ export default defineNuxtConfig({
     '@/plugins/sockjs-client',
     '@/plugins/directive.client',
     '@/plugins/vue3-emoji-picker.client',
+    '@/plugins/event-bus',
   ],
   auth: {
     origin: process.env.ORIGIN,
