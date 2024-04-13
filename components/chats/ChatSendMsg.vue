@@ -57,7 +57,6 @@ function addItemAndClear(item: string) {
     return
   }
   if (stompClient) {
-    console.log('group id', props.groupId)
     const messageContent = {
       chatId: props.groupId || null,
       senderId: auth?.id,

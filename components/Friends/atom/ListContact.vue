@@ -52,7 +52,6 @@ const fetchFriendRequestByToUserId = async () => {
   await $api.friendRequests
     .getFriendRequestByFromUser(auth.id)
     .then((res) => {
-      console.log(res)
       friendRequestFromUsers.value = res.data
     })
     .catch((error) => {

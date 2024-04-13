@@ -103,6 +103,7 @@ const scrollToBottom = () => {
 
 const fetchChatDetail = async () => {
   await $api.chats.chat(auth?.id, props.userRecipient.id).then((res) => {
+    chatDetail.value = []
     chatDetail.value = res.data
     myOptionsMsg.value = Array(chatDetail.value.length).fill(false)
     optionsMsg.value = Array(chatDetail.value.length).fill(false)
@@ -116,6 +117,7 @@ const fetchChatDetail = async () => {
 
 const fetchChatByGroup = async () => {
   await $api.chats.chatGroup(groupId.value).then((res) => {
+    chatDetail.value = []
     chatDetail.value = res.data
     myOptionsMsg.value = Array(chatDetail.value.length).fill(false)
     optionsMsg.value = Array(chatDetail.value.length).fill(false)
@@ -128,19 +130,23 @@ const fetchChatByGroup = async () => {
 }
 
 const addChatSendMsg = (msg) => {
-  chatDetail.value.push(msg)
-  fetchChatDetail()
-  emit('chat-send-msg', msg)
-  scrollToBottom()
-  getImagesAndVideos()
-  getFiles()
+  if (userRecipient.value.id) {
+    chatDetail.value.push(msg)
+    fetchChatDetail()
+    emit('chat-send-msg', msg)
+    scrollToBottom()
+    getImagesAndVideos()
+    getFiles()
+  }
 }
 
 const addChatSendMsgGroup = (msg) => {
-  chatDetail.value.push(msg)
-  fetchChatByGroup()
-  emit('chat-send-msg-group', msg)
-  scrollToBottom()
+  if (groupId.value) {
+    chatDetail.value.push(msg)
+    fetchChatByGroup()
+    emit('chat-send-msg-group', msg)
+    scrollToBottom()
+  }
 }
 
 watch(
@@ -176,14 +182,14 @@ watch(
 watch(
   () => groupId,
   () => {
-    if (groupId.value) {
+    if (groupId.value !== '') {
       fetchChatByGroup()
       isGroup.value = true
     } else {
       isGroup.value = false
     }
   },
-  { immediate: true }
+  { deep: true, immediate: true }
 )
 
 const formatStatusUser = (status) => {
@@ -228,7 +234,6 @@ const deleteMsg = async (id) => {
       emit('reload-chat-listing')
     })
   } catch (error) {
-    console.log(error.message)
     toast.error(t('chats.message.deleteError'))
   }
 }
@@ -267,7 +272,6 @@ const withdrawMsg = async (id) => {
       emit('chat-withdraw-msg', id)
     }
   } catch (error) {
-    console.log(error.message)
     toast.error(t('chats.message.withdrawError'))
   }
 }

@@ -18,7 +18,6 @@ const props = defineProps({
   listFiles: Array,
 })
 const auth = data.value
-console.log('file', props.listFiles)
 
 const fileExtensionImages: Record<string, string> = {
   docx: '/images/chat/docx.png',

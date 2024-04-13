@@ -79,11 +79,12 @@ const onMessageReceived = (payload) => {
 
 const fetchChatByUserId = (user) => {
   userRecipient.value = user
+  chatGroupId.value = ''
 }
 
 const fetchChatByGroupId = (groupId) => {
   chatGroupId.value = groupId
-  console.log('groupId', chatGroupId.value)
+  userRecipient.value = {}
 }
 
 const logOut = async () => {

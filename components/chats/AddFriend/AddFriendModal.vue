@@ -62,7 +62,6 @@ const submit = handleSubmit(async (values) => {
     )
 
     await $api.friendRequests.getFriendRequestByFromUser(auth.id).then((res) => {
-      console.log(res)
       if (res.status === 200) {
         friendRequests.value = res.data
       }
