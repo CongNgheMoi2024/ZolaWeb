@@ -5,8 +5,8 @@ export class ChatAPI extends BaseApi {
     return this.get(`/messages/${senderId}/${recipientId}`)
   }
 
-  chatGroup(groupId: string): Promise<any> {
-    return this.get(`/group-messages/${groupId}`)
+  chatGroup(senderId: string,groupId: string): Promise<any> {
+    return this.get(`/group-messages/${senderId}/${groupId}`)
   }
 
   sendFileMessage(data: any): Promise<any> {
@@ -15,6 +15,10 @@ export class ChatAPI extends BaseApi {
 
   forwardMessage(messageId: string, data: any): Promise<any> {
     return this.post(`/forward-messages/${messageId}`, data)
+  }
+
+  forwardMessageGroup(messageId: string, data: any): Promise<any> {
+    return this.post(`forward-messages-group/${messageId}`, data)
   }
 
   getImagesAndVideos(senderId: string, recipientId: string): Promise<any> {
@@ -27,9 +31,5 @@ export class ChatAPI extends BaseApi {
 
   deleteMessage(messageId: string): Promise<any> {
     return this.put(`/delete-messages/${messageId}`)
-  }
-
-  withdrawMessage(messageId: string): Promise<any> {
-    return this.delete(`/recall-messages/${messageId}`)
   }
 }

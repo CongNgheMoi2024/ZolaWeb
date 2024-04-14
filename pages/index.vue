@@ -222,6 +222,7 @@ onMounted(() => {
           @chat-send-msg="reloadChatListing = true"
           @chat-send-msg-group="reloadChatListing = true"
           @chat-withdraw-msg="reloadChatListing = true"
+          @chat-withdraw-group="reloadChatListing = true"
           @reload-chat-detail="reloadChatDetail = false"
           @reload-chat-listing="reloadChatListing = true"
         />
