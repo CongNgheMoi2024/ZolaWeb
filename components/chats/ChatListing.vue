@@ -233,7 +233,7 @@ onMounted(async () => {
         </template>
         <!---Name-->
         <v-list-item-title class="text-subtitle-1 textPrimary w-100 font-weight-semibold">
-          {{ room.group ? room.groupName : room.userRecipient?.name }}
+          {{ room.group ? room.groupName ?? '' : room.userRecipient?.name }}
         </v-list-item-title>
         <!---Subtitle-->
         <!--        <v-sheet v-if="chat.chatHistory.slice(-1)[0].type == 'img'">-->

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { uniq, flatten } from 'lodash'
-import { useChatStore } from '@/stores/apps/chat'
 import { useI18n } from 'vue-i18n'
+import { useModal } from 'vue-final-modal'
+import AddMemberGroupModal from '@/components/chats/AddGroup/AddMembers/AddMemberGroupModal.vue'
 
 const { t } = useI18n()
-const { $api } = useNuxtApp()
+const { $api, $listen } = useNuxtApp()
 const { data } = useAuth()
 const isOpenVideo = ref(false)
 const haveCanvas = ref()
@@ -16,6 +16,14 @@ const props = defineProps({
   listImages: Array,
   listVideos: Array,
   listFiles: Array,
+  isGroup: {
+    type: Boolean,
+    default: false,
+  },
+  roomGroup: {
+    type: Object,
+    default: () => ({}),
+  },
 })
 const auth = data.value
 
@@ -93,7 +101,27 @@ const captureAll = () => {
     capture(video.content, video.id)
   })
 }
+
 captureAll()
+
+const addMemberGroupModel = useModal({
+  component: AddMemberGroupModal,
+  attrs: {
+    title: 'Thêm thành viên',
+    submitText: 'Thêm',
+    cancelText: t('common.action.cancel'),
+    width: '500px',
+    cc: 'addMemberGroup',
+    zIndexFn: () => 1010,
+    onClosed() {
+      addMemberGroupModel.close()
+    },
+  },
+})
+
+const openDialogMember = () => {
+  addMemberGroupModel.open()
+}
 
 onMounted(() => {
   captureAll()
@@ -130,6 +158,19 @@ onMounted(() => {
     </div>
     <div class="container-media mt-1">
       <v-expansion-panels>
+        <v-expansion-panel v-if="isGroup">
+          <v-expansion-panel-title class="text-h6">Thành viên</v-expansion-panel-title>
+          <v-expansion-panel-text>
+            <v-list-item @click="openDialogMember">
+              <template #prepend>
+                <v-icon class="tw-mr-1">mdi-account-multiple-outline</v-icon>
+              </template>
+
+              <v-list-item-title>{{ roomGroup.members.length }} thành viên</v-list-item-title>
+            </v-list-item>
+          </v-expansion-panel-text>
+          <v-divider />
+        </v-expansion-panel>
         <v-expansion-panel>
           <v-expansion-panel-title class="text-h6">
             {{ t('chats.image') }} ({{ listImages.length }})
@@ -163,12 +204,12 @@ onMounted(() => {
               <div>{{ captureAll() }}</div>
               <div class="image-grid">
                 <v-avatar
+                  v-for="{ id, content } in listVideos"
+                  :key="id"
                   class="image-item"
                   rounded="sm"
                   size="57"
                   style="border: 1px solid #cecece"
-                  v-for="{ id, content } in listVideos"
-                  :key="id"
                 >
                   <div @click="openVideo(content)">
                     <canvas :id="id" height="57" width="57" />
@@ -214,7 +255,6 @@ onMounted(() => {
   flex-direction: column;
   justify-content: top;
   align-items: center;
-  max-height: 540px;
   max-width: 100%;
   padding: 5px;
 }

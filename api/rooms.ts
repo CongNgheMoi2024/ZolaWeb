@@ -13,8 +13,8 @@ export class RoomAPI extends BaseApi {
     return this.post('/rooms', data)
   }
 
-  addRoomMember(roomId: string, memberId: string): Promise<any> {
-    return this.post(`/rooms/${roomId}/add-member/${memberId}`)
+  addRoomMembers(roomId: string, data: string): Promise<any> {
+    return this.put(`/rooms/${roomId}/add-members`, data)
   }
 
   getRoomByUser(userId: string): Promise<any> {
@@ -23,5 +23,9 @@ export class RoomAPI extends BaseApi {
 
   createRoomGroup(data: any): Promise<any> {
     return this.post('/rooms/create-room-group', data)
+  }
+
+  removeUserFromRoom(roomId: string, userId: string): Promise<any> {
+    return this.put(`/rooms/${roomId}/remove-member/${userId}`)
   }
 }

@@ -8,6 +8,7 @@ import ChatSendMsg from './ChatSendMsg.vue'
 import ChatInfo from './ChatInfo.vue'
 import { useChatStore } from '@/stores/apps/chat'
 import messages from '@/utils/locales/messages'
+import { useRoom } from "@/stores/apps/room"
 
 const toast = useToast()
 const props = defineProps({
@@ -45,8 +46,9 @@ const emit = defineEmits([
 ])
 const nuxtApp = useNuxtApp()
 const stompClient = nuxtApp.$stompClient
-const { $api } = useNuxtApp()
+const { $api, $listen, $event } = useNuxtApp()
 const { data } = useAuth()
+const useRoomStore = useRoom()
 
 const auth = data.value
 const messageReceived = toRef(props, 'messageReceived')
@@ -59,6 +61,7 @@ const listImages = ref([])
 const listVideos = ref([])
 const listFiles = ref([])
 const isGroup = ref(false)
+const roomGroup = ref({})
 //
 // const store = useChatStore()
 // onMounted(() => {
@@ -122,6 +125,11 @@ const fetchChatByGroup = async () => {
     myOptionsMsg.value = Array(chatDetail.value.length).fill(false)
     optionsMsg.value = Array(chatDetail.value.length).fill(false)
     emit('fetch-chat-detail')
+  })
+
+  await $api.rooms.room(groupId.value).then((res) => {
+    roomGroup.value = res.data
+    useRoomStore.setRoom(res.data)
   })
   scrollToBottom()
   setTimeout(() => {
@@ -279,11 +287,23 @@ const withdrawMsg = async (id) => {
 const reloadChatListing = () => {
   emit('reload-chat-listing')
 }
+
+$listen('group:removeMemberInGroup', (roomId: string) => {
+  if (roomId === groupId.value) {
+    fetchChatByGroup()
+  }
+})
+
+$listen('group:addMemberInGroup', (roomId: string) => {
+  if (roomId === groupId.value) {
+    fetchChatByGroup()
+  }
+})
 </script>
 <template>
   <div v-if="chatDetail">
     <div>
-      <div v-if="Object.keys(userRecipient).length > 0" class="d-flex align-center gap-3 pa-4">
+      <div v-if="Object.keys(userRecipient).length > 0 || groupId !== ''" class="d-flex align-center gap-3 pa-4">
         <!---Topbar Row-->
         <div class="d-flex gap-2 align-center">
           <!---User Avatar-->
@@ -295,10 +315,19 @@ const reloadChatListing = () => {
             />
           </v-avatar>
 
-          <v-badge class="badg-dotDetail" :color="formatStatusUser(userRecipient.onlineStatus)" dot />
+          <v-badge
+            v-if="groupId === ''"
+            class="badg-dotDetail"
+            :color="formatStatusUser(userRecipient.onlineStatus)"
+            dot
+          />
           <!---Name & Last seen-->
           <div>
-            <h5 class="text-h5 mb-n1">{{ userRecipient.name }}</h5>
+            <h5 class="text-h5 mb-n1">{{ groupId !== '' ? roomGroup.groupName ?? '' : userRecipient.name }}</h5>
+            <h6 v-if="groupId !== ''" class="mt-2">
+              <v-icon>mdi-account-multiple-outline</v-icon>
+              {{ roomGroup.members ? roomGroup.members.length : '' }} thành viên
+            </h6>
             <small class="textPrimary">{{ userRecipient.status }}</small>
           </div>
         </div>
@@ -669,13 +698,15 @@ const reloadChatListing = () => {
             </perfect-scrollbar>
           </div>
           <div v-if="Rpart" class="right-sidebar">
-            <perfect-scrollbar>
-              <v-sheet>
+            <perfect-scrollbar class="tw-h-[75vh]">
+              <v-sheet class="tw-h-[75vh]">
                 <chat-info
                   :chat-detail="chatDetail"
+                  :is-group="isGroup"
                   :list-files="listFiles"
                   :list-images="listImages"
                   :list-videos="listVideos"
+                  :room-group="roomGroup"
                   :user-recipient="userRecipient"
                 />
               </v-sheet>
