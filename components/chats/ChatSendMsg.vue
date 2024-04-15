@@ -106,16 +106,31 @@ const handleFileUpload = (e: Event) => {
         const formData = new FormData()
         formData.append('files', file)
         formData.append('senderId', auth?.id)
-        formData.append('recipientId', props.recipientId)
+        if (props.isGroup === false) {
+          formData.append('recipientId', props.recipientId)
+        } else {
+          formData.append('chatId', props.groupId)
+        }
 
-        await $api.chats
-          .sendFileMessage(formData)
-          .then((res) => {
-            emit('chat-send-msg', res.data[0])
-          })
-          .catch((error) => {
-            console.error('Error sending file', error)
-          })
+        if (props.isGroup === false) {
+          await $api.chats
+            .sendFileMessage(formData)
+            .then((res) => {
+              emit('chat-send-msg', res.data[0])
+            })
+            .catch((error) => {
+              console.error('Error sending file', error)
+            })
+        } else {
+          await $api.chats
+            .sendFileMessageGroup(formData)
+            .then((res) => {
+              emit('chat-send-msg-group', res.data[0])
+            })
+            .catch((error) => {
+              console.error('Error sending file group', error)
+            })
+        }
       }
       reader.readAsDataURL(file)
     }
