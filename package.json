@@ -28,6 +28,7 @@
     "@vee-validate/nuxt": "^4.12.5",
     "@vee-validate/yup": "^4.11.8",
     "@vuepic/vue-datepicker": "^7.4.1",
+    "@zegocloud/zego-uikit-prebuilt": "^2.0.1",
     "aos": "^2.3.4",
     "apexcharts": "3.36.3",
     "axios": "^0.27.2",

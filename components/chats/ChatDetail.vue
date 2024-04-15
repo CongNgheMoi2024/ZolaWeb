@@ -9,6 +9,7 @@ import ChatInfo from './ChatInfo.vue'
 import { useChatStore } from '@/stores/apps/chat'
 import messages from '@/utils/locales/messages'
 import { useRoom } from '@/stores/apps/room'
+import { UserAPI } from 'api/users'
 
 const toast = useToast()
 const props = defineProps({
@@ -340,6 +341,21 @@ $listen('group:addMemberInGroup', (roomId: string) => {
     fetchChatByGroup()
   }
 })
+
+
+
+const callVideo = async (roomId : string) => {
+  var userName;
+  await $api.users.getProfile(auth.id).then((res) => {
+    userName = res.data.name
+  })
+  window.open(`/chat/videoCall?username=${userName}&roomId=${111}`, "_blank");
+    
+}
+
+
+
+
 </script>
 <template>
   <div v-if="chatDetail">
@@ -377,7 +393,7 @@ $listen('group:addMemberInGroup', (roomId: string) => {
           <v-btn class="text-medium-emphasis" icon variant="text">
             <PhoneIcon size="24" />
           </v-btn>
-          <v-btn class="text-medium-emphasis" icon variant="text">
+          <v-btn class="text-medium-emphasis" icon variant="text" @click="callVideo(groupId)">
             <VideoPlusIcon size="24" />
           </v-btn>
           <v-btn class="text-medium-emphasis" icon variant="text" @click="toggleRpart">
@@ -393,7 +409,12 @@ $listen('group:addMemberInGroup', (roomId: string) => {
           <div class="w-100">
             <perfect-scrollbar ref="chatContainer" class="rightpartHeight">
               <div v-for="(chat, index) in chatDetail" :key="chat.id" class="pa-5">
-                <div class="messages-container" @mouseenter="showMenu(chat.id)" @mouseleave="closeMenu(chat.id)">
+                <div v-if="chat.type === 'REMOVE_MEMBER' || chat.type === 'ADD_MEMBER'">
+                  <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-text-center">
+                    <p class="text-body-1" style="color: gray">{{ chat.content }}</p>
+                  </v-sheet>
+                </div>
+                <div v-else class="messages-container" @mouseenter="showMenu(chat.id)" @mouseleave="closeMenu(chat.id)">
                   <div
                     v-if="auth?.id === chat.senderId && (chat.status === null || chat.status === 'SENT')"
                     class="justify-end d-flex text-end mb-1"

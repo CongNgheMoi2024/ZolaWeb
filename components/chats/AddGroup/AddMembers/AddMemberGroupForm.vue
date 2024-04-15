@@ -38,6 +38,7 @@ const friends = ref([])
 const loadingFetchFriends = ref(false)
 const memberInGroup = ref([])
 const { $event } = useNuxtApp()
+const stompClient = useNuxtApp().$stompClient
 
 const form = computed({
   get: () => props.value,
@@ -65,15 +66,25 @@ const getAllFriends = async () => {
     })
 }
 
-const deleteMemberInGroup = (userId) => {
+const deleteMemberInGroup = (user) => {
   if (confirm('Bạn có chắc chắn muốn xóa thành viên này khỏi nhóm?')) {
     $api.rooms
-      .removeUserFromRoom(props.group.id, userId)
+      .removeUserFromRoom(props.group.id, user.id)
       .then(() => {
         toast.success('Xóa thành viên khỏi nhóm thành công')
         $event('group:removeMemberInGroup', props.group.id)
-        memberInGroup.value = memberInGroup.value.filter((id) => id !== userId)
-        form.value.members.modelValue = form.value.members.modelValue.filter((id) => id !== userId)
+        memberInGroup.value = memberInGroup.value.filter((id) => id !== user.id)
+        form.value.members.modelValue = form.value.members.modelValue.filter((id) => id !== user.id)
+
+        const messageContent = {
+          chatId: props.group.id,
+          senderId: auth?.id,
+          recipientId: props.recipientId,
+          content: auth?.user?.name + ' đã xóa ' + user.name + ' khỏi nhóm',
+          timestamp: new Date(),
+        }
+
+        stompClient.send('/app/group/remove-member', {}, JSON.stringify(messageContent))
       })
       .catch((error) => {
         toast.error(error.message)
@@ -119,7 +130,7 @@ onMounted(() => {
         </v-list-item-title>
 
         <template #append>
-          <v-btn variant="text" @click="deleteMemberInGroup(user.id)">
+          <v-btn variant="text" @click="deleteMemberInGroup(user)">
             <v-icon>mdi-delete</v-icon>
           </v-btn>
         </template>
