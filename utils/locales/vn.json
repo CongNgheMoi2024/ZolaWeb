@@ -40,6 +40,7 @@
       "message": "Tin nhắn"
     },
     "action": {
+      "reply": "Trả lời",
       "copy": "Sao chép",
       "exit": "Thoát",
       "send": "Gửi",

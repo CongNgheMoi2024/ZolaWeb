@@ -8,7 +8,7 @@ const { data } = useAuth()
 const nuxtApp = useNuxtApp()
 const { $api } = useNuxtApp()
 const stompClient = nuxtApp.$stompClient
-const emit = defineEmits(['chat-send-msg', 'chat-send-msg-group'])
+const emit = defineEmits(['chat-send-msg', 'chat-send-msg-group', 'close-reply'])
 const isEmojiPickerVisible = ref(false)
 
 const props = defineProps({
@@ -23,6 +23,10 @@ const props = defineProps({
   groupId: {
     type: String,
     default: '',
+  },
+  reply: {
+    type: Object,
+    default: null,
   },
 })
 const handleImage = (e: Event) => {
@@ -73,6 +77,7 @@ function addItemAndClear(item: string) {
       emit('chat-send-msg', messageContent)
     }
     msg.value = ''
+    emit('close-reply')
   }
 }
 
@@ -147,6 +152,23 @@ const appendEmoji = (emoji: string) => {
 </script>
 
 <template>
+  <div v-if="reply !== null" class="mt-7 ml-8">
+    <v-row class="flex items-center justify-between p-2 bg-primary-100 rounded-lg">
+      <div class="flex items-center justify-between p-2 bg-primary-100 rounded-lg">
+        <div class="flex items -center">
+          <span class="text-primary-500 text-sm">Replying to</span>
+          <span class="text-primary-500 text-sm font-semibold ml-1">{{ reply.senderId }}</span>
+        </div>
+        <div class="flex items -center">
+          <span class="text-primary-600 text-ml font-semibold ml-1">{{ reply.content }}</span>
+        </div>
+      </div>
+      <v-spacer />
+      <v-btn class="mr-10" icon variant="text" @click="emit('close-reply')">
+        <v-icon size="20">mdi-close</v-icon>
+      </v-btn>
+    </v-row>
+  </div>
   <form class="d-flex align-center pa-4" @submit.prevent="addItemAndClear(msg)">
     <div v-click-outside="toggleEmojiPicker">
       <v-btn class="text-medium-emphasis" icon variant="text" @click="isEmojiPickerVisible = true">

@@ -36,6 +36,9 @@ const myOptionsMsg = ref()
 const optionsMsg = ref()
 const dialogForward = ref(false)
 const chatForward = ref({})
+const reply = ref({})
+const heightScr = ref(500)
+const heightChatMsg = ref(10)
 const emit = defineEmits([
   'chat-send-msg',
   'reload-chat-listing',
@@ -128,6 +131,7 @@ const fetchChatDetail = async () => {
     optionsMsg.value = Array(chatDetail.value.length).fill(false)
     emit('fetch-chat-detail')
   })
+  closeReply()
   scrollToBottom()
   setTimeout(() => {
     scrollToBottom()
@@ -147,6 +151,7 @@ const fetchChatByGroup = async () => {
     roomGroup.value = res.data
     useRoomStore.setRoom(res.data)
   })
+  closeReply()
   scrollToBottom()
   setTimeout(() => {
     scrollToBottom()
@@ -311,6 +316,15 @@ const withdrawMsg = async (id) => {
   }
 }
 
+const replyMsg = (chat) => {
+  reply.value = chat
+  console.log('reply:', chat)
+}
+
+const closeReply = () => {
+  reply.value = null
+}
+
 const reloadChatListing = () => {
   emit('reload-chat-listing')
 }
@@ -415,6 +429,11 @@ $listen('group:addMemberInGroup', (roomId: string) => {
                                 <v-list-item @click="copyMsg(chat.content)">
                                   <v-icon>mdi-content-copy</v-icon>
                                   {{ t('chats.action.copy') }}
+                                  <v-divider class="mt-2" />
+                                </v-list-item>
+                                <v-list-item @click="replyMsg(chat)">
+                                  <v-icon>mdi-reply</v-icon>
+                                  {{ t('chats.action.reply') }}
                                   <v-divider class="mt-2" />
                                 </v-list-item>
                                 <v-list-item @click="forwardMsg(chat)">
@@ -608,6 +627,11 @@ $listen('group:addMemberInGroup', (roomId: string) => {
                                   {{ t('chats.action.copy') }}
                                   <v-divider class="mt-2" />
                                 </v-list-item>
+                                <v-list-item @click="replyMsg(chat)">
+                                  <v-icon>mdi-reply</v-icon>
+                                  {{ t('chats.action.reply') }}
+                                  <v-divider class="mt-2" />
+                                </v-list-item>
                                 <v-list-item @click="forwardMsg(chat)">
                                   <v-icon>mdi-forward</v-icon>
                                   {{ t('chats.action.forward') }}
@@ -743,13 +767,18 @@ $listen('group:addMemberInGroup', (roomId: string) => {
       </div>
     </div>
     <v-divider />
+    <v-spacer />
+
     <!---Chat send-->
     <chat-send-msg
+      :style="{ height: reply ? '500px' : '200px' }"
       :group-id="groupId"
       :is-group="isGroup"
       :recipient-id="userRecipient.id"
+      :reply="reply"
       @chat-send-msg="addChatSendMsg"
       @chat-send-msg-group="addChatSendMsgGroup"
+      @close-reply="closeReply"
     />
   </div>
   <v-dialog v-model="dialogForward" max-width="700px">
@@ -771,8 +800,12 @@ $listen('group:addMemberInGroup', (roomId: string) => {
 </template>
 <style lang="scss">
 .rightpartHeight {
-  height: 78vh;
+  height: heightScr + 'px';
 }
+.messageContainer {
+  height: heightChatMsg + 'px';
+}
+
 .badg-dotDetail {
   left: -9px;
   position: relative;
