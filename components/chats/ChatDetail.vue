@@ -81,8 +81,23 @@ const getImagesAndVideos = async () => {
     listVideos.value = listMedia.value.filter((item) => item.type === 'VIDEO')
   })
 }
+
+const getImagesAndVideosGroup = async () => {
+  await $api.chats.getImagesAndVideosGroup(auth.id, props.groupId).then((res) => {
+    listMedia.value = res.data
+    listImages.value = listMedia.value.filter((item) => item.type === 'IMAGE')
+    listVideos.value = listMedia.value.filter((item) => item.type === 'VIDEO')
+  })
+}
+
 const getFiles = async () => {
   await $api.chats.getFiles(auth.id, props.userRecipient.id).then((res) => {
+    listFiles.value = res.data
+  })
+}
+
+const getFilesGroup = async () => {
+  await $api.chats.getFiles(auth.id, props.chatId).then((res) => {
     listFiles.value = res.data
   })
 }
@@ -155,6 +170,8 @@ const addChatSendMsgGroup = (msg) => {
     fetchChatByGroup()
     emit('chat-send-msg-group', msg)
     scrollToBottom()
+    getImagesAndVideosGroup()
+    getFilesGroup()
   }
 }
 
@@ -183,7 +200,9 @@ watch(
   () => {
     if (props.reloadChatDetail) {
       if (groupId.value === '') fetchChatDetail()
-      else fetchChatByGroup()
+      else {
+        fetchChatByGroup()
+      }
       emit('reload-chat-detail')
     }
   }
@@ -194,6 +213,8 @@ watch(
   () => {
     if (groupId.value !== '') {
       fetchChatByGroup()
+      getImagesAndVideosGroup()
+      getFilesGroup()
       isGroup.value = true
     } else {
       isGroup.value = false

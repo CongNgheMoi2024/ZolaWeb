@@ -13,6 +13,10 @@ export class ChatAPI extends BaseApi {
     return this.post('/send-file-message', data)
   }
 
+  sendFileMessageGroup(data: any): Promise<any> {
+    return this.post('/send-file-message-group', data)
+  }
+
   forwardMessage(messageId: string, data: any): Promise<any> {
     return this.post(`/forward-messages/${messageId}`, data)
   }
@@ -25,8 +29,16 @@ export class ChatAPI extends BaseApi {
     return this.get(`/image-video-messages/${senderId}/${recipientId}`)
   }
 
+  getImagesAndVideosGroup(senderId: string, chatId: string): Promise<any> {
+    return this.get(`/image-video-messages-group/${senderId}/${chatId}`)
+  }
+
   getFiles(senderId: string, recipientId: string): Promise<any> {
     return this.get(`/file-messages/${senderId}/${recipientId}`)
+  }
+
+  getFilesGroup(senderId: string, chatId: string): Promise<any> {
+    return this.get(`/file-messages-group/${senderId}/${chatId}`)
   }
 
   deleteMessage(messageId: string): Promise<any> {
