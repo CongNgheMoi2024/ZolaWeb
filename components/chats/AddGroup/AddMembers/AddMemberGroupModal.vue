@@ -29,6 +29,8 @@ const user = ref(null)
 const stompClient = useNuxtApp().$stompClient
 const { $event, $listen } = useNuxtApp()
 const useRoomStore = useRoom()
+const { data } = useAuth()
+const auth = data.value
 
 const schema = yup.object({
   phone: yup.string().nullable().label(t('chats.model.phone')),
@@ -65,6 +67,18 @@ const submit = handleSubmit(async (values) => {
     .then((res) => {
       toast.success(t('chats.addMemberGroup.success'))
       $event('group:addMemberInGroup', useRoomStore.getRoom.id)
+
+      members.forEach((member) => {
+        const messageContent = {
+          chatId: useRoomStore.getRoom.id,
+          senderId: auth?.id,
+          recipientId: null,
+          content: member, // BE handle
+          timestamp: new Date(),
+        }
+
+        stompClient.send('/app/group/add-member', {}, JSON.stringify(messageContent))
+      })
       emit('closed')
     })
     .catch((error) => {
