@@ -9,6 +9,7 @@ import ChatInfo from './ChatInfo.vue'
 import { useChatStore } from '@/stores/apps/chat'
 import messages from '@/utils/locales/messages'
 import { useRoom } from '@/stores/apps/room'
+import { UserAPI } from 'api/users'
 
 const toast = useToast()
 const props = defineProps({
@@ -326,6 +327,21 @@ $listen('group:addMemberInGroup', (roomId: string) => {
     fetchChatByGroup()
   }
 })
+
+
+
+const callVideo = async (roomId : string) => {
+  var userName;
+  await $api.users.getProfile(auth.id).then((res) => {
+    userName = res.data.name
+  })
+  window.open(`/chat/videoCall?username=${userName}&roomId=${111}`, "_blank");
+    
+}
+
+
+
+
 </script>
 <template>
   <div v-if="chatDetail">
@@ -363,7 +379,7 @@ $listen('group:addMemberInGroup', (roomId: string) => {
           <v-btn class="text-medium-emphasis" icon variant="text">
             <PhoneIcon size="24" />
           </v-btn>
-          <v-btn class="text-medium-emphasis" icon variant="text">
+          <v-btn class="text-medium-emphasis" icon variant="text" @click="callVideo(groupId)">
             <VideoPlusIcon size="24" />
           </v-btn>
           <v-btn class="text-medium-emphasis" icon variant="text" @click="toggleRpart">
