@@ -8,7 +8,7 @@ import ChatSendMsg from './ChatSendMsg.vue'
 import ChatInfo from './ChatInfo.vue'
 import { useChatStore } from '@/stores/apps/chat'
 import messages from '@/utils/locales/messages'
-import { useRoom } from "@/stores/apps/room"
+import { useRoom } from '@/stores/apps/room'
 
 const toast = useToast()
 const props = defineProps({
@@ -43,6 +43,7 @@ const emit = defineEmits([
   'fetch-chat-detail',
   'reload-chat-detail',
   'chat-send-msg-group',
+  'chat-withdraw-group',
 ])
 const nuxtApp = useNuxtApp()
 const stompClient = nuxtApp.$stompClient
@@ -119,7 +120,7 @@ const fetchChatDetail = async () => {
 }
 
 const fetchChatByGroup = async () => {
-  await $api.chats.chatGroup(groupId.value).then((res) => {
+  await $api.chats.chatGroup(auth?.id, groupId.value).then((res) => {
     chatDetail.value = []
     chatDetail.value = res.data
     myOptionsMsg.value = Array(chatDetail.value.length).fill(false)
@@ -181,7 +182,8 @@ watch(
   () => props.reloadChatDetail,
   () => {
     if (props.reloadChatDetail) {
-      fetchChatDetail()
+      if (groupId.value === '') fetchChatDetail()
+      else fetchChatByGroup()
       emit('reload-chat-detail')
     }
   }
@@ -238,7 +240,8 @@ const deleteMsg = async (id) => {
   try {
     await $api.chats.deleteMessage(id).then(() => {
       toast.success(t('chats.message.deleteSuccess'))
-      fetchChatDetail()
+      if (groupId.value === '') fetchChatDetail()
+      else fetchChatByGroup()
       emit('reload-chat-listing')
     })
   } catch (error) {
@@ -250,8 +253,9 @@ const forwardMsg = (chat) => {
   chatForward.value = chat
 }
 
-const closeDialogForward = () => {
-  fetchChatDetail()
+const closeDialogForward = async () => {
+  if (groupId.value === '') fetchChatDetail()
+  else fetchChatByGroup()
   dialogForward.value = false
 }
 
@@ -271,16 +275,18 @@ const checkTypeFile = (url) => {
 }
 
 const withdrawMsg = async (id) => {
-  try {
-    if (stompClient) {
-      stompClient.send('/app/delete', {}, JSON.stringify(id))
-      toast.success(t('chats.message.withdrawSuccess'))
-      fetchChatDetail()
-      reloadChatListing()
+  if (stompClient) {
+    if (groupId.value !== '') {
+      await stompClient.send('/app/delete/group', {}, JSON.stringify(id))
+      emit('chat-withdraw-group', id)
+      fetchChatByGroup()
+    } else {
+      await stompClient.send('/app/delete', {}, JSON.stringify(id))
       emit('chat-withdraw-msg', id)
+      fetchChatDetail()
     }
-  } catch (error) {
-    toast.error(t('chats.message.withdrawError'))
+    reloadChatListing()
+    toast.success(t('chats.message.withdrawSuccess'))
   }
 }
 
