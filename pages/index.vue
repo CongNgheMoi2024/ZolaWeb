@@ -119,9 +119,9 @@ const loadData = async () => {
   await fetchProfileById({})
 }
 
-$listen('group:created', (groupId) => {
-  stompClient.subscribe(`/user/${groupId}/queue/messages`, onMessageReceived)
-})
+// $listen('group:created', (groupId) => {
+//   stompClient.subscribe(`/user/${groupId}/queue/messages`, onMessageReceived)
+// })
 
 $listen('groups:fetch', (groupIds) => {
   groupIdsToSubscribe.value = groupIds
