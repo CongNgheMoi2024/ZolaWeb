@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { type } from '../../.nuxt/types/imports'
 import { useChatStore } from '@/stores/apps/chat'
 import { useI18n } from 'vue-i18n'
 
@@ -67,18 +66,24 @@ function addItemAndClear(item: string) {
     return
   }
   if (stompClient) {
-    const messageContent = {
-      chatId: props.groupId || null,
-      senderId: auth?.id,
-      recipientId: props.recipientId,
-      content: item,
-      timestamp: new Date(),
-    }
-
-    if (props.isGroup) {
+    if (props.isGroup === true) {
+      const messageContent = {
+        chatId: props.groupId || null,
+        senderId: auth?.id,
+        content: item,
+        timestamp: new Date(),
+      }
       stompClient.send('/app/chat/group', {}, JSON.stringify(messageContent))
       emit('chat-send-msg-group', messageContent)
-    } else {
+    }
+    if (props.isGroup === false) {
+      const messageContent = {
+        chatId: props.groupId || null,
+        senderId: auth?.id,
+        content: item,
+        recipientId: props.recipientId,
+        timestamp: new Date(),
+      }
       stompClient.send('/app/chat', {}, JSON.stringify(messageContent))
       emit('chat-send-msg', messageContent)
     }
@@ -115,7 +120,7 @@ async function replyMsg(item: string) {
   emit('close-reply')
 }
 
-const handleFileUpload = (e: Event) => {
+const handleFileUpload = async (e: Event) => {
   const target = e.target as HTMLInputElement
   const files = target.files
   // if (file) {
@@ -145,11 +150,8 @@ const handleFileUpload = (e: Event) => {
         const formData = new FormData()
         formData.append('files', file)
         formData.append('senderId', auth?.id)
-        if (props.isGroup === false) {
-          formData.append('recipientId', props.recipientId)
-        } else {
-          formData.append('chatId', props.groupId)
-        }
+        formData.append('recipientId', props.recipientId ?? '')
+        formData.append('chatId', props.groupId ?? '')
 
         if (props.isGroup === false) {
           await $api.chats
@@ -183,11 +185,63 @@ const toggleEmojiPicker = () => {
 const appendEmoji = (emoji: string) => {
   msg.value += emoji.i
 }
+
+const capture = async (videoLink: string, canvasId: string): Promise<void> => {
+  const video = document.createElement('video')
+  video.src = videoLink
+  video.currentTime = 1
+
+  await new Promise<void>((resolve, reject) => {
+    video.onloadeddata = () => resolve()
+    video.onerror = (error) => reject(error)
+  })
+
+  const canvas = (await document.getElementById(canvasId)) as HTMLCanvasElement
+
+  if (canvas) {
+    canvas.width = 57
+    canvas.height = 57
+    canvas.getContext('2d').drawImage(video, 0, 0, 57, 57)
+  }
+  video.remove()
+}
+const checkTypeFile = (url) => {
+  const type = url.split('.').pop()
+  if (type === 'pdf') {
+    return 'pdf'
+  } else if (type === 'docx') {
+    return 'docx'
+  } else if (type === 'xlsx') {
+    return 'xlsx'
+  } else if (type === 'mp4') {
+    return 'mp4'
+  }
+
+  return 'txt'
+}
 </script>
 
 <template>
   <div v-if="reply !== null && userReply !== null" class="mt-7 ml-8">
     <v-row class="flex items-center justify-between bg-primary-100 rounded-lg reply-container">
+      <div v-if="reply.type === 'IMAGE'">
+        <img class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]" alt="reply" :src="reply.content" />
+      </div>
+      <div v-if="reply.type === 'VIDEO'">
+        <div hidden>{{ capture(reply.content, 'video-canvas') }}</div>
+        <canvas id="video-canvas" class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]" />
+      </div>
+      <div v-if="reply.type === 'FILE'">
+        <div v-if="checkTypeFile(reply.content) === 'pdf'">
+          <img alt="pdf" class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]" src="/images/chat/pdf.png" />
+        </div>
+        <div v-else-if="checkTypeFile(reply.content) === 'docx'">
+          <img alt="pdf" class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]" src="/images/chat/docx.png" />
+        </div>
+        <div v-else-if="checkTypeFile(reply.content) === 'xlsx'">
+          <img alt="pdf" class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]" src="/images/chat/xlsx.png" />
+        </div>
+      </div>
       <v-icon size="30">mdi-format-quote-close</v-icon>
       <div class="flex items-center justify-between rounded-lg">
         <div class="flex items -center">
@@ -195,7 +249,16 @@ const appendEmoji = (emoji: string) => {
           <span class="text-primary-500 text-sm font-semibold ml-1">{{ userReply.name }}</span>
         </div>
         <div class="flex items -center">
-          <span class="text-primary-600 text-ml ml-2" style="font-weight: bold">{{ reply.content }}</span>
+          <div v-if="reply.type === 'IMAGE'">[{{ t('chats.image') }}]</div>
+          <div v-else-if="reply.type === 'VIDEO'">[{{ t('chats.video') }}]</div>
+          <div v-else-if="reply.type === 'FILE'">[{{ t('chats.file') }}] {{ ' ' + reply.fileName }}</div>
+          <div
+            v-else
+            class="text-primary-600 text-ml ml-2"
+            style="max-width: 500px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
+          >
+            {{ reply.content }}
+          </div>
         </div>
       </div>
       <v-spacer />
@@ -256,7 +319,7 @@ const appendEmoji = (emoji: string) => {
   background-color: #f3f4f6;
   border-radius: 5px;
   margin-right: 20px;
-  margin-top: -10px;
-  padding: 2px;
+  margin-top: -15px;
+  padding: 1px;
 }
 </style>

@@ -256,7 +256,7 @@ onMounted(() => {
   justify-content: top;
   align-items: center;
   max-width: 100%;
-  padding: 5px;
+  padding: 1px;
 }
 .container-info {
   background-color: #ffffff;
