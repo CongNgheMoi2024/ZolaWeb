@@ -215,6 +215,7 @@ onMounted(() => {
         </div>
         <chat-detail
           v-else
+          :user="user"
           :group-id="chatGroupId"
           :message-received="messageReceived"
           :reload-chat-detail="reloadChatDetail"

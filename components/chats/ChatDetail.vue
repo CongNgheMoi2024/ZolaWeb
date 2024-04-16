@@ -29,6 +29,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  user: {
+    type: Object,
+    default: () => ({}),
+  },
 })
 
 const { t } = useI18n()
@@ -37,6 +41,9 @@ const myOptionsMsg = ref()
 const optionsMsg = ref()
 const dialogForward = ref(false)
 const chatForward = ref({})
+const reply = ref({})
+const userReply = ref({})
+const nameReply = ref([])
 const emit = defineEmits([
   'chat-send-msg',
   'reload-chat-listing',
@@ -129,6 +136,7 @@ const fetchChatDetail = async () => {
     optionsMsg.value = Array(chatDetail.value.length).fill(false)
     emit('fetch-chat-detail')
   })
+  closeReply()
   scrollToBottom()
   setTimeout(() => {
     scrollToBottom()
@@ -148,6 +156,7 @@ const fetchChatByGroup = async () => {
     roomGroup.value = res.data
     useRoomStore.setRoom(res.data)
   })
+  closeReply()
   scrollToBottom()
   setTimeout(() => {
     scrollToBottom()
@@ -312,6 +321,20 @@ const withdrawMsg = async (id) => {
   }
 }
 
+const replyMsg = async (chat, id) => {
+  console.log('id', id)
+  reply.value = chat
+  const users = await $api.users.getUsers()
+  const user = users.data.find((user) => user.id === id)
+  userReply.value = user
+
+  scrollToBottom()
+}
+
+const closeReply = () => {
+  reply.value = null
+}
+
 const reloadChatListing = () => {
   emit('reload-chat-listing')
 }
@@ -328,20 +351,19 @@ $listen('group:addMemberInGroup', (roomId: string) => {
   }
 })
 
+const getUser = async (index, id) => {
+  const users = await $api.users.getUsers()
+  const user = users.data.find((user) => user.id === id)
+  nameReply.value[index] = user?.name
+}
 
-
-const callVideo = async (roomId : string) => {
-  var userName;
+const callVideo = async (roomId: string) => {
+  var userName
   await $api.users.getProfile(auth.id).then((res) => {
     userName = res.data.name
   })
-  window.open(`/chat/videoCall?username=${userName}&roomId=${111}`, "_blank");
-    
+  window.open(`/chat/videoCall?username=${userName}&roomId=${111}`, '_blank')
 }
-
-
-
-
 </script>
 <template>
   <div v-if="chatDetail">
@@ -390,10 +412,10 @@ const callVideo = async (roomId : string) => {
       </div>
       <v-divider />
       <!---Chat History-->
-      <div class="rightpartHeight">
+      <div>
         <div class="d-flex">
           <div class="w-100">
-            <perfect-scrollbar ref="chatContainer" class="rightpartHeight">
+            <perfect-scrollbar ref="chatContainer" :style="{ height: reply === null ? 550 + 'px' : 480 + 'px' }">
               <div v-for="(chat, index) in chatDetail" :key="chat.id" class="pa-5">
                 <div v-if="chat.type === 'REMOVE_MEMBER' || chat.type === 'ADD_MEMBER'">
                   <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-text-center">
@@ -436,6 +458,11 @@ const callVideo = async (roomId : string) => {
                                 <v-list-item @click="copyMsg(chat.content)">
                                   <v-icon>mdi-content-copy</v-icon>
                                   {{ t('chats.action.copy') }}
+                                  <v-divider class="mt-2" />
+                                </v-list-item>
+                                <v-list-item @click="replyMsg(chat, auth.id)">
+                                  <v-icon>mdi-reply</v-icon>
+                                  {{ t('chats.action.reply') }}
                                   <v-divider class="mt-2" />
                                 </v-list-item>
                                 <v-list-item @click="forwardMsg(chat)">
@@ -516,6 +543,36 @@ const callVideo = async (roomId : string) => {
                           <video class="tw-max-w-[500px]" controls :src="chat.content" />
                         </v-sheet>
                         <v-sheet v-else class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-max-w-[590px]">
+                          <v-row v-if="chat.replyTo !== null" class="flex items-center justify-between reply-container">
+                            <v-icon size="12">mdi-format-quote-close</v-icon>
+                            <div>
+                              <div class="flex items -center">
+                                <div hidden>
+                                  {{
+                                    getUser(
+                                      index,
+                                      (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).senderId
+                                    )
+                                  }}
+                                </div>
+                                <p>
+                                  {{ nameReply[index] }}
+                                </p>
+                              </div>
+                              <div class="flex items -center">
+                                <p
+                                  style="
+                                    max-width: 300px;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    white-space: nowrap;
+                                  "
+                                >
+                                  {{ (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content }}
+                                </p>
+                              </div>
+                            </div>
+                          </v-row>
                           <p class="text-body-1">{{ chat.content }}</p>
                         </v-sheet>
                       </v-row>
@@ -605,6 +662,36 @@ const callVideo = async (roomId : string) => {
                           <video class="tw-max-w-[500px]" controls :src="chat.content" />
                         </v-sheet>
                         <v-sheet v-else class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5 tw-max-w-[640px]">
+                          <v-row v-if="chat.replyTo !== null" class="flex items-center justify-between reply-container">
+                            <v-icon size="12">mdi-format-quote-close</v-icon>
+                            <div>
+                              <div class="flex items -center">
+                                <div hidden>
+                                  {{
+                                    getUser(
+                                      index,
+                                      (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).senderId
+                                    )
+                                  }}
+                                </div>
+                                <p>
+                                  {{ nameReply[index] }}
+                                </p>
+                              </div>
+                              <div class="flex items -center">
+                                <p
+                                  style="
+                                    max-width: 300px;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    white-space: nowrap;
+                                  "
+                                >
+                                  {{ (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content }}
+                                </p>
+                              </div>
+                            </div>
+                          </v-row>
                           <p class="text-body-1">{{ chat.content }}</p>
                         </v-sheet>
                         <div v-show="isMenuVisible(chat.id)" class="message-menu">
@@ -627,6 +714,11 @@ const callVideo = async (roomId : string) => {
                                 <v-list-item @click="copyMsg(chat.content)">
                                   <v-icon>mdi-content-copy</v-icon>
                                   {{ t('chats.action.copy') }}
+                                  <v-divider class="mt-2" />
+                                </v-list-item>
+                                <v-list-item @click="replyMsg(chat, chat.senderId)">
+                                  <v-icon>mdi-reply</v-icon>
+                                  {{ t('chats.action.reply') }}
                                   <v-divider class="mt-2" />
                                 </v-list-item>
                                 <v-list-item @click="forwardMsg(chat)">
@@ -746,8 +838,8 @@ const callVideo = async (roomId : string) => {
             </perfect-scrollbar>
           </div>
           <div v-if="Rpart" class="right-sidebar">
-            <perfect-scrollbar class="tw-h-[75vh]">
-              <v-sheet class="tw-h-[75vh]">
+            <perfect-scrollbar :style="{ height: reply === null ? 550 + 'px' : 480 + 'px' }">
+              <v-sheet>
                 <chat-info
                   :chat-detail="chatDetail"
                   :is-group="isGroup"
@@ -762,15 +854,19 @@ const callVideo = async (roomId : string) => {
           </div>
         </div>
       </div>
+      <v-divider />
     </div>
-    <v-divider />
+
     <!---Chat send-->
     <chat-send-msg
       :group-id="groupId"
       :is-group="isGroup"
       :recipient-id="userRecipient.id"
+      :reply="reply"
+      :userReply="userReply"
       @chat-send-msg="addChatSendMsg"
       @chat-send-msg-group="addChatSendMsgGroup"
+      @close-reply="closeReply"
     />
   </div>
   <v-dialog v-model="dialogForward" max-width="700px">
@@ -791,9 +887,6 @@ const callVideo = async (roomId : string) => {
   </v-dialog>
 </template>
 <style lang="scss">
-.rightpartHeight {
-  height: 78vh;
-}
 .badg-dotDetail {
   left: -9px;
   position: relative;
@@ -833,5 +926,13 @@ const callVideo = async (roomId : string) => {
     z-index: 1;
     background: rgba(0, 0, 0, 0.2);
   }
+}
+.reply-container {
+  background-color: #ffffff;
+  margin-right: 2px;
+  margin-left: 2px;
+  margin-top: 1px;
+  margin-bottom: 1px;
+  padding: 5px;
 }
 </style>

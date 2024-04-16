@@ -44,4 +44,12 @@ export class ChatAPI extends BaseApi {
   deleteMessage(messageId: string): Promise<any> {
     return this.put(`/delete-messages/${messageId}`)
   }
+
+  replyMessage(messageId: string, data: any): Promise<any> {
+    return this.post(`/reply-message/${messageId}`, data)
+  }
+
+  replyMessageGroup(messageId: string, data: any): Promise<any> {
+    return this.post(`/reply-message-group/${messageId}`, data)
+  }
 }

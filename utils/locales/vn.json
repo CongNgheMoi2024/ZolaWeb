@@ -16,6 +16,7 @@
     }
   },
   "chats": {
+    "replyingTo": "Trả lời cho",
     "addFriend": "Thêm bạn",
     "makeFriend": "Kết bạn",
     "yourProfile": "Hồ sơ của bạn",
@@ -40,6 +41,7 @@
       "message": "Tin nhắn"
     },
     "action": {
+      "reply": "Trả lời",
       "copy": "Sao chép",
       "exit": "Thoát",
       "send": "Gửi",
