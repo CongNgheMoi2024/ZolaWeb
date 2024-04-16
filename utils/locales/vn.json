@@ -16,6 +16,7 @@
     }
   },
   "chats": {
+    "replyingTo": "Trả lời cho",
     "addFriend": "Thêm bạn",
     "makeFriend": "Kết bạn",
     "yourProfile": "Hồ sơ của bạn",
