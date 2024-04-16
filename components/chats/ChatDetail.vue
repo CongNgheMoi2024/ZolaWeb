@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { formatDistanceToNowStrict } from 'date-fns'
+import { format, formatDistanceToNowStrict } from 'date-fns'
 import { useDisplay } from 'vuetify'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
+import { UserAPI } from 'api/users'
 import ChatSendMsg from './ChatSendMsg.vue'
 import ChatInfo from './ChatInfo.vue'
 import { useChatStore } from '@/stores/apps/chat'
 import messages from '@/utils/locales/messages'
 import { useRoom } from '@/stores/apps/room'
-import { UserAPI } from 'api/users'
 
 const toast = useToast()
 const props = defineProps({
@@ -358,7 +358,7 @@ const getUser = async (index, id) => {
 }
 
 const callVideo = async (roomId: string) => {
-  var userName
+  let userName
   await $api.users.getProfile(auth.id).then((res) => {
     userName = res.data.name
   })
@@ -419,7 +419,9 @@ const callVideo = async (roomId: string) => {
               <div v-for="(chat, index) in chatDetail" :key="chat.id" class="pa-5">
                 <div v-if="chat.type === 'REMOVE_MEMBER' || chat.type === 'ADD_MEMBER'">
                   <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-text-center">
-                    <p class="text-body-1" style="color: gray">{{ chat.content }}</p>
+                    <p class="text-body-1" style="color: gray">
+                      {{ chat.content }} ({{ format(new Date(chat.timestamp), 'MM/dd/yyyy') }})
+                    </p>
                   </v-sheet>
                 </div>
                 <div v-else class="messages-container" @mouseenter="showMenu(chat.id)" @mouseleave="closeMenu(chat.id)">
@@ -758,10 +760,11 @@ const callVideo = async (roomId: string) => {
                             width="40"
                           />
                         </v-avatar>
-                        <div v-else class="ml-10" />
-                        <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5 tw-max-w-[640px]">
-                          <p class="text-body-1" style="color: gray">{{ t('chats.messageWithdrawed') }}</p>
-                        </v-sheet>
+                        <div v-else class="ml-10">
+                          <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5 tw-max-w-[640px]">
+                            <p class="text-body-1" style="color: gray">{{ t('chats.messageWithdrawed') }}</p>
+                          </v-sheet>
+                        </div>
                         <div v-show="isMenuVisible(chat.id)">
                           <v-menu v-model="myOptionsMsg[chat.id]" attach location="end">
                             <template #activator="{ props }">
@@ -863,7 +866,7 @@ const callVideo = async (roomId: string) => {
       :is-group="isGroup"
       :recipient-id="userRecipient.id"
       :reply="reply"
-      :userReply="userReply"
+      :user-reply="userReply"
       @chat-send-msg="addChatSendMsg"
       @chat-send-msg-group="addChatSendMsgGroup"
       @close-reply="closeReply"

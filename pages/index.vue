@@ -71,6 +71,9 @@ const onMessageReceived = (payload) => {
   if (message.type === 'RECALL') {
     reloadChatListing.value = true
     reloadChatDetail.value = true
+  } else if (message.type === 'CREATE_GROUP') {
+    stompClient.subscribe(`/user/${message.content}/queue/messages`, onMessageReceived)
+    reloadChatListing.value = true
   } else {
     messageReceived.value = message
     reloadChatListing.value = true
@@ -116,9 +119,9 @@ const loadData = async () => {
   await fetchProfileById({})
 }
 
-$listen('group:created', (groupId) => {
-  stompClient.subscribe(`/user/${groupId}/queue/messages`, onMessageReceived)
-})
+// $listen('group:created', (groupId) => {
+//   stompClient.subscribe(`/user/${groupId}/queue/messages`, onMessageReceived)
+// })
 
 $listen('groups:fetch', (groupIds) => {
   groupIdsToSubscribe.value = groupIds
@@ -215,15 +218,15 @@ onMounted(() => {
         </div>
         <chat-detail
           v-else
-          :user="user"
           :group-id="chatGroupId"
           :message-received="messageReceived"
           :reload-chat-detail="reloadChatDetail"
+          :user="user"
           :user-recipient="userRecipient"
           @chat-send-msg="reloadChatListing = true"
           @chat-send-msg-group="reloadChatListing = true"
-          @chat-withdraw-msg="reloadChatListing = true"
           @chat-withdraw-group="reloadChatListing = true"
+          @chat-withdraw-msg="reloadChatListing = true"
           @reload-chat-detail="reloadChatDetail = false"
           @reload-chat-listing="reloadChatListing = true"
         />
