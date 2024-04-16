@@ -9,13 +9,20 @@ const { $api, $listen } = useNuxtApp()
 const { data } = useAuth()
 const isOpenVideo = ref(false)
 const haveCanvas = ref()
+const isSettingGroup = ref(false)
+const isDialogDisbandGroup = ref(false)
+const emit = defineEmits(['reload-chat-listing', 'set-null-user-recipient'])
 
+const reloadChatListing = () => {
+  emit('reload-chat-listing')
+}
 const props = defineProps({
   chatDetail: Object,
   userRecipient: Object,
   listImages: Array,
   listVideos: Array,
   listFiles: Array,
+  groupId: String,
   isGroup: {
     type: Boolean,
     default: false,
@@ -41,6 +48,28 @@ const getFileTypeImage = (extension: string) => {
 const createGroup = () => {
   console.log('createGroup')
 }
+const settingGroup = () => {
+  isSettingGroup.value = true
+}
+const closeSettingGroup = () => {
+  isSettingGroup.value = false
+}
+
+const openDialogDisbandGroup = () => {
+  isDialogDisbandGroup.value = true
+}
+const closeDialogDisbandGroup = () => {
+  isDialogDisbandGroup.value = false
+}
+const disbandGroup = async () => {
+  console.log('groupId', props.groupId)
+  $api.rooms.deleteRoom(props.groupId)
+  console.log('disbandGroup')
+  emit('set-null-user-recipient')
+  reloadChatListing()
+  closeDialogDisbandGroup()
+}
+
 const deleteChatHistory = () => {
   console.log('deleteChatHistory')
 }
@@ -128,7 +157,7 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div v-if="chatDetail" class="container">
+  <div v-if="chatDetail && !isSettingGroup" class="container">
     <div class="container-info">
       <v-avatar color="grey-darken-1 mt-5" size="70">
         <img
@@ -142,9 +171,13 @@ onMounted(() => {
     </div>
     <div class="container-media mt-1">
       <v-list>
-        <v-list-item class="list-item" @click="createGroup">
+        <v-list-item v-if="!isGroup" class="list-item" @click="createGroup">
           <v-icon class="mr-3">mdi-account-multiple-plus</v-icon>
           {{ t('chats.action.createGroup') }}
+        </v-list-item>
+        <v-list-item v-if="isGroup" class="list-item" @click="settingGroup">
+          <v-icon class="mr-3">mdi-cog</v-icon>
+          {{ t('chats.action.manageGroup') }}
         </v-list-item>
         <v-list-item class="list-item" @click="deleteChatHistory">
           <v-icon class="mr-3">mdi-delete</v-icon>
@@ -159,14 +192,16 @@ onMounted(() => {
     <div class="container-media mt-1">
       <v-expansion-panels>
         <v-expansion-panel v-if="isGroup">
-          <v-expansion-panel-title class="text-h6">Thành viên</v-expansion-panel-title>
+          <v-expansion-panel-title class="text-h6">
+            {{ t('chats.member') }}
+          </v-expansion-panel-title>
           <v-expansion-panel-text>
             <v-list-item @click="openDialogMember">
               <template #prepend>
                 <v-icon class="tw-mr-1">mdi-account-multiple-outline</v-icon>
               </template>
 
-              <v-list-item-title>{{ roomGroup.members.length }} thành viên</v-list-item-title>
+              <v-list-item-title>{{ roomGroup.members.length }} {{ ' ' + t('chats.members') }}</v-list-item-title>
             </v-list-item>
           </v-expansion-panel-text>
           <v-divider />
@@ -245,6 +280,39 @@ onMounted(() => {
       </v-expansion-panels>
     </div>
   </div>
+  <div v-if="isSettingGroup" class="container">
+    <!-- nút back về và  dòng chữ hiện "Quản lý nhóm" -->
+    <v-row class="container-title">
+      <v-btn class="ml-2" icon @click="closeSettingGroup">
+        <v-icon>mdi-arrow-left</v-icon>
+      </v-btn>
+      <h4 class="text-h4 font-weight-bold ml-8">{{ t('chats.action.manageGroup') }}</h4>
+    </v-row>
+    <div class="container-media mt-4">
+      <v-list>
+        <v-list-item class="list-item" @click="createGroup">
+          <v-icon class="mr-3">mdi-key</v-icon>
+          {{ t('chats.action.leaderAndDeputy') }}
+        </v-list-item>
+        <v-list-item class="list-item" style="color: red" @click="openDialogDisbandGroup">
+          <v-icon class="mr-3">mdi-account-multiple-remove</v-icon>
+          {{ t('chats.action.disbandGroup') }}
+        </v-list-item>
+      </v-list>
+    </div>
+  </div>
+  <v-dialog v-model="isDialogDisbandGroup" max-width="450">
+    <v-card>
+      <v-card-title class="headline">{{ t('chats.action.disbandGroup') }}</v-card-title>
+      <v-divider />
+      <v-card-text>{{ t('chats.disbandGroupConfirm') }}</v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn color="blue darken-1" text @click="closeDialogDisbandGroup">{{ t('common.action.cancel') }}</v-btn>
+        <v-btn color="error" text @click="disbandGroup">{{ t('chats.action.disbandGroup') }}</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 <style lang="scss">
 .container {
@@ -257,6 +325,7 @@ onMounted(() => {
   align-items: center;
   max-width: 100%;
   padding: 1px;
+  height: 100%;
 }
 .container-info {
   background-color: #ffffff;
@@ -278,6 +347,13 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: top;
+}
+.container-title {
+  background-color: #ffffff;
+  width: 100%;
+  justify-content: top;
+  align-items: center;
+  height: 100px;
 }
 .image-grid {
   display: grid;

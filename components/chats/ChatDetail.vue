@@ -52,6 +52,7 @@ const emit = defineEmits([
   'reload-chat-detail',
   'chat-send-msg-group',
   'chat-withdraw-group',
+  'set-null-user-recipient',
 ])
 const nuxtApp = useNuxtApp()
 const stompClient = nuxtApp.$stompClient
@@ -836,6 +837,7 @@ const callVideo = async (roomId: string) => {
           <perfect-scrollbar style="height: 100%">
             <v-sheet>
               <chat-info
+                :group-id="groupId"
                 :chat-detail="chatDetail"
                 :is-group="isGroup"
                 :list-files="listFiles"
@@ -843,6 +845,8 @@ const callVideo = async (roomId: string) => {
                 :list-videos="listVideos"
                 :room-group="roomGroup"
                 :user-recipient="userRecipient"
+                @reload-chat-listing="reloadChatListing = true"
+                @set-null-user-recipient="emit('set-null-user-recipient')"
               />
             </v-sheet>
           </perfect-scrollbar>
