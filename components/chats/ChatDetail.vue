@@ -44,6 +44,7 @@ const chatForward = ref({})
 const reply = ref({})
 const userReply = ref({})
 const nameReply = ref([])
+const userRep = ref([])
 const emit = defineEmits([
   'chat-send-msg',
   'reload-chat-listing',
@@ -305,6 +306,25 @@ const checkTypeFile = (url) => {
 
   return 'txt'
 }
+const capture = async (videoLink: string, canvasId: string): Promise<void> => {
+  const video = document.createElement('video')
+  video.src = videoLink
+  video.currentTime = 1
+
+  await new Promise<void>((resolve, reject) => {
+    video.onloadeddata = () => resolve()
+    video.onerror = (error) => reject(error)
+  })
+
+  const canvas = (await document.getElementById(canvasId)) as HTMLCanvasElement
+
+  if (canvas) {
+    canvas.width = 57
+    canvas.height = 57
+    canvas.getContext('2d').drawImage(video, 0, 0, 57, 57)
+  }
+  video.remove()
+}
 
 const withdrawMsg = async (id) => {
   if (stompClient) {
@@ -355,6 +375,12 @@ const getUser = async (index, id) => {
   const users = await $api.users.getUsers()
   const user = users.data.find((user) => user.id === id)
   nameReply.value[index] = user?.name
+}
+
+const getUserRep = async (index, id) => {
+  const users = await $api.users.getUsers()
+  const user = users.data.find((user) => user.id === id)
+  userRep.value[index] = user.name
 }
 
 const callVideo = async (roomId: string) => {
@@ -549,9 +575,75 @@ const callVideo = async (roomId: string) => {
                       </v-sheet>
                       <v-sheet v-else class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-max-w-[590px]">
                         <v-row v-if="chat.replyTo !== null" class="flex items-center justify-between reply-container">
+                          <div
+                            v-if="(chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).type === 'IMAGE'"
+                          >
+                            <img
+                              class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
+                              alt="reply"
+                              :src="(chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content"
+                            />
+                          </div>
+                          <div
+                            v-if="(chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).type === 'VIDEO'"
+                          >
+                            <div hidden>
+                              {{
+                                capture(
+                                  (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content,
+                                  'video-canvas'
+                                )
+                              }}
+                            </div>
+                            <canvas id="video-canvas" class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]" />
+                          </div>
+                          <div
+                            v-if="(chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).type === 'FILE'"
+                          >
+                            <div
+                              v-if="
+                                checkTypeFile(
+                                  (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content
+                                ) === 'pdf'
+                              "
+                            >
+                              <img
+                                alt="pdf"
+                                class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
+                                src="/images/chat/pdf.png"
+                              />
+                            </div>
+                            <div
+                              v-else-if="
+                                checkTypeFile(
+                                  (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content
+                                ) === 'docx'
+                              "
+                            >
+                              <img
+                                alt="pdf"
+                                class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
+                                src="/images/chat/docx.png"
+                              />
+                            </div>
+                            <div
+                              v-else-if="
+                                checkTypeFile(
+                                  (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content
+                                ) === 'xlsx'
+                              "
+                            >
+                              <img
+                                alt="pdf"
+                                class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
+                                src="/images/chat/xlsx.png"
+                              />
+                            </div>
+                          </div>
                           <v-icon size="12">mdi-format-quote-close</v-icon>
+
                           <div>
-                            <div class="flex items -center">
+                            <div>
                               <div hidden>
                                 {{
                                   getUser(
@@ -565,11 +657,35 @@ const callVideo = async (roomId: string) => {
                               </p>
                             </div>
                             <div class="flex items -center">
-                              <p
-                                style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
+                              <div
+                                v-if="
+                                  (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).type === 'IMAGE'
+                                "
+                              >
+                                [{{ t('chats.image') }}]
+                              </div>
+                              <div
+                                v-else-if="
+                                  (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).type === 'VIDEO'
+                                "
+                              >
+                                [{{ t('chats.video') }}]
+                              </div>
+                              <div
+                                v-else-if="
+                                  (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).type === 'FILE'
+                                "
+                              >
+                                [{{ t('chats.file') }}]
+                                {{ ' ' + (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).fileName }}
+                              </div>
+                              <div
+                                v-else
+                                class="text-primary-600 text-ml ml-2"
+                                style="max-width: 500px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
                               >
                                 {{ (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content }}
-                              </p>
+                              </div>
                             </div>
                           </div>
                         </v-row>
@@ -601,94 +717,227 @@ const callVideo = async (roomId: string) => {
                         />
                       </v-avatar>
                       <div v-else class="ml-10" />
-                      <v-sheet v-if="chat.type === 'IMAGE'" class="mb-1 ml-5">
-                        <img v-viewer :alt="chat.content" class="tw-max-w-[500px]" :src="chat.content" />
-                      </v-sheet>
+                      <div class="flex-col">
+                        <div hidden>{{ getUserRep(index, chat.senderId) }}</div>
+                        <p
+                          v-if="
+                            index > 0 &&
+                            (index === 0 ||
+                              (chat.senderId !== chatDetail[index - 1].senderId &&
+                                isGroup &&
+                                (chat.type === 'IMAGE' || chat.type === 'FILE' || chat.type === 'VIDEO')))
+                          "
+                          class="ml-5 mb-1"
+                        >
+                          {{ userRep[index] }}
+                        </p>
+                        <v-sheet v-if="chat.type === 'IMAGE'" class="mb-1 ml-5">
+                          <img v-viewer :alt="chat.content" class="tw-max-w-[500px]" :src="chat.content" />
+                        </v-sheet>
 
-                      <v-sheet v-else-if="chat.type === 'FILE'" class="mb-1 tw-max-w-[630px] ml-5">
-                        <template v-if="checkTypeFile(chat.content) === 'pdf'">
-                          <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
-                            <div class="d-flex align-center gap-2">
-                              <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/pdf.png" />
-                              <div>
-                                <p class="text-body-1">{{ chat.fileName }}</p>
-                                <a download :href="chat.content">
-                                  <v-icon color="primary">mdi-download</v-icon>
-                                </a>
+                        <v-sheet v-else-if="chat.type === 'FILE'" class="mb-1 tw-max-w-[630px] ml-5">
+                          <template v-if="checkTypeFile(chat.content) === 'pdf'">
+                            <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
+                              <div class="d-flex align-center gap-2">
+                                <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/pdf.png" />
+                                <div>
+                                  <p class="text-body-1">{{ chat.fileName }}</p>
+                                  <a download :href="chat.content">
+                                    <v-icon color="primary">mdi-download</v-icon>
+                                  </a>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </template>
-                        <template v-else-if="checkTypeFile(chat.content) === 'docx'">
-                          <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
-                            <div class="d-flex align-center gap-2">
-                              <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/docx.png" />
-                              <div>
-                                <p class="text-body-1">{{ chat.fileName }}</p>
-                                <a download :href="chat.content">
-                                  <v-icon color="primary">mdi-download</v-icon>
-                                </a>
+                          </template>
+                          <template v-else-if="checkTypeFile(chat.content) === 'docx'">
+                            <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
+                              <div class="d-flex align-center gap-2">
+                                <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/docx.png" />
+                                <div>
+                                  <p class="text-body-1">{{ chat.fileName }}</p>
+                                  <a download :href="chat.content">
+                                    <v-icon color="primary">mdi-download</v-icon>
+                                  </a>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </template>
-                        <template v-else-if="checkTypeFile(chat.content) === 'xlsx'">
-                          <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
-                            <div class="d-flex align-center gap-2">
-                              <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/xlsx.png" />
-                              <div>
-                                <p class="text-body-1">{{ chat.fileName }}</p>
-                                <a download :href="chat.content">
-                                  <v-icon color="primary">mdi-download</v-icon>
-                                </a>
+                          </template>
+                          <template v-else-if="checkTypeFile(chat.content) === 'xlsx'">
+                            <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
+                              <div class="d-flex align-center gap-2">
+                                <img alt="pdf" class="tw-w-[100px] tw-h-[100px]" src="/images/chat/xlsx.png" />
+                                <div>
+                                  <p class="text-body-1">{{ chat.fileName }}</p>
+                                  <a download :href="chat.content">
+                                    <v-icon color="primary">mdi-download</v-icon>
+                                  </a>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </template>
-                        <template v-else>
-                          <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
-                            <div class="d-flex align-center gap-2">
-                              <div>
-                                <p class="text-body-1">{{ chat.fileName }}</p>
-                                <a download :href="chat.content">
-                                  <v-icon color="primary">mdi-download</v-icon>
-                                </a>
+                          </template>
+                          <template v-else>
+                            <div class="bg-grey100 rounded-md px-3 py-2 mb-1">
+                              <div class="d-flex align-center gap-2">
+                                <div>
+                                  <p class="text-body-1">{{ chat.fileName }}</p>
+                                  <a download :href="chat.content">
+                                    <v-icon color="primary">mdi-download</v-icon>
+                                  </a>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </template>
-                      </v-sheet>
-                      <v-sheet v-else-if="chat.type === 'VIDEO'" class="mb-1 ml-5">
-                        <video class="tw-max-w-[500px]" controls :src="chat.content" />
-                      </v-sheet>
-                      <v-sheet v-else class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5 tw-max-w-[640px]">
-                        <v-row v-if="chat.replyTo !== null" class="flex items-center justify-between reply-container">
-                          <v-icon size="12">mdi-format-quote-close</v-icon>
-                          <div>
-                            <div class="flex items -center">
-                              <div hidden>
-                                {{
-                                  getUser(
-                                    index,
-                                    (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).senderId
-                                  )
-                                }}
-                              </div>
-                              <p>
-                                {{ nameReply[index] }}
-                              </p>
-                            </div>
-                            <div class="flex items -center">
-                              <p
-                                style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
+                          </template>
+                        </v-sheet>
+                        <v-sheet v-else-if="chat.type === 'VIDEO'" class="mb-1 ml-5">
+                          <video class="tw-max-w-[500px]" controls :src="chat.content" />
+                        </v-sheet>
+                        <v-sheet v-else class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5 tw-max-w-[640px]">
+                          <div hidden>{{ getUserRep(index, chat.senderId) }}</div>
+                          <p
+                            v-if="index === 0 || (chat.senderId !== chatDetail[index - 1].senderId && isGroup)"
+                            class="mb-1"
+                          >
+                            {{ userRep[index] }}
+                          </p>
+                          <v-row v-if="chat.replyTo !== null" class="flex items-center justify-between reply-container">
+                            <v-row
+                              v-if="chat.replyTo !== null"
+                              class="flex items-center justify-between reply-container"
+                            >
+                              <div
+                                v-if="
+                                  (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).type === 'IMAGE'
+                                "
                               >
-                                {{ (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content }}
-                              </p>
-                            </div>
-                          </div>
-                        </v-row>
-                        <p class="text-body-1">{{ chat.content }}</p>
-                      </v-sheet>
+                                <img
+                                  class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
+                                  alt="reply"
+                                  :src="(chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content"
+                                />
+                              </div>
+                              <div
+                                v-if="
+                                  (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).type === 'VIDEO'
+                                "
+                              >
+                                <div hidden>
+                                  {{
+                                    capture(
+                                      (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content,
+                                      'video-canvas'
+                                    )
+                                  }}
+                                </div>
+                                <canvas id="video-canvas" class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]" />
+                              </div>
+                              <div
+                                v-if="
+                                  (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).type === 'FILE'
+                                "
+                              >
+                                <div
+                                  v-if="
+                                    checkTypeFile(
+                                      (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content
+                                    ) === 'pdf'
+                                  "
+                                >
+                                  <img
+                                    alt="pdf"
+                                    class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
+                                    src="/images/chat/pdf.png"
+                                  />
+                                </div>
+                                <div
+                                  v-else-if="
+                                    checkTypeFile(
+                                      (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content
+                                    ) === 'docx'
+                                  "
+                                >
+                                  <img
+                                    alt="pdf"
+                                    class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
+                                    src="/images/chat/docx.png"
+                                  />
+                                </div>
+                                <div
+                                  v-else-if="
+                                    checkTypeFile(
+                                      (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content
+                                    ) === 'xlsx'
+                                  "
+                                >
+                                  <img
+                                    alt="pdf"
+                                    class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
+                                    src="/images/chat/xlsx.png"
+                                  />
+                                </div>
+                              </div>
+                              <v-icon size="12">mdi-format-quote-close</v-icon>
+
+                              <div>
+                                <div>
+                                  <div hidden>
+                                    {{
+                                      getUser(
+                                        index,
+                                        (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).senderId
+                                      )
+                                    }}
+                                  </div>
+                                  <p>
+                                    {{ nameReply[index] }}
+                                  </p>
+                                </div>
+                                <div class="flex items -center">
+                                  <div
+                                    v-if="
+                                      (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).type ===
+                                      'IMAGE'
+                                    "
+                                  >
+                                    [{{ t('chats.image') }}]
+                                  </div>
+                                  <div
+                                    v-else-if="
+                                      (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).type ===
+                                      'VIDEO'
+                                    "
+                                  >
+                                    [{{ t('chats.video') }}]
+                                  </div>
+                                  <div
+                                    v-else-if="
+                                      (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).type ===
+                                      'FILE'
+                                    "
+                                  >
+                                    [{{ t('chats.file') }}]
+                                    {{
+                                      ' ' + (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).fileName
+                                    }}
+                                  </div>
+                                  <div
+                                    v-else
+                                    class="text-primary-600 text-ml ml-2"
+                                    style="
+                                      max-width: 500px;
+                                      overflow: hidden;
+                                      text-overflow: ellipsis;
+                                      white-space: nowrap;
+                                    "
+                                  >
+                                    {{ (chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content }}
+                                  </div>
+                                </div>
+                              </div>
+                            </v-row>
+                          </v-row>
+                          <p class="text-body-1">{{ chat.content }}</p>
+                        </v-sheet>
+                      </div>
                       <div v-show="isMenuVisible(chat.id)" class="message-menu">
                         <v-menu v-model="optionsMsg[chat.id]" attach location="end">
                           <template #activator="{ props }">
@@ -731,58 +980,64 @@ const callVideo = async (roomId: string) => {
                       </div>
                     </v-row>
                   </div>
-                  <div
-                    v-else-if="auth?.id !== chat.senderId && chat.status === 'DELETED'"
-                    class="d-flex align-items-start gap-3 mb-1 tw-max-w-[700px]"
-                  >
-                    <div>
-                      <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
-                        {{
-                          formatDistanceToNowStrict(new Date(chat.timestamp), {
-                            addSuffix: false,
-                          })
-                        }}
-                        ago
-                      </small>
-                      <v-row>
-                        <v-avatar v-if="index === 0 || chat.senderId !== chatDetail[index - 1].senderId">
-                          <img
-                            alt="pro"
-                            :src="userRecipient.avatar ? userRecipient.avatar : '/images/profile/user-1.jpg'"
-                            width="40"
-                          />
-                        </v-avatar>
-                        <div v-else class="ml-10" />
+                </div>
+                <div
+                  v-else-if="auth?.id !== chat.senderId && chat.status === 'DELETED'"
+                  class="d-flex align-items-start gap-3 mb-1 tw-max-w-[700px]"
+                >
+                  <div>
+                    <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
+                      {{
+                        formatDistanceToNowStrict(new Date(chat.timestamp), {
+                          addSuffix: false,
+                        })
+                      }}
+                      ago
+                    </small>
+                    <v-row>
+                      <v-avatar v-if="index === 0 || chat.senderId !== chatDetail[index - 1].senderId">
+                        <img
+                          alt="pro"
+                          :src="userRecipient.avatar ? userRecipient.avatar : '/images/profile/user-1.jpg'"
+                          width="40"
+                        />
+                      </v-avatar>
+                      <div v-if="index === 0 || chat.senderId !== chatDetail[index - 1].senderId">
                         <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5 tw-max-w-[640px]">
                           <p class="text-body-1" style="color: gray">{{ t('chats.messageWithdrawed') }}</p>
                         </v-sheet>
-                        <div v-show="isMenuVisible(chat.id)">
-                          <v-menu v-model="myOptionsMsg[chat.id]" attach location="end">
-                            <template #activator="{ props }">
-                              <v-btn
-                                v-bind="props"
-                                class="text-medium-emphasis message-menu"
-                                icon
-                                size="42"
-                                style="margin-right: 10px"
-                                variant="text"
-                                @click="openMyOptionsMsg(chat.id)"
-                              >
-                                <DotsVerticalIcon size="24" />
-                              </v-btn>
-                            </template>
-                            <v-sheet style="text-align: left">
-                              <v-list>
-                                <v-list-item @click="deleteMsg(chat.id)">
-                                  <v-icon>mdi-delete</v-icon>
-                                  {{ t('chats.action.delete') }}
-                                </v-list-item>
-                              </v-list>
-                            </v-sheet>
-                          </v-menu>
-                        </div>
-                      </v-row>
-                    </div>
+                      </div>
+                      <div v-else class="ml-10">
+                        <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5 tw-max-w-[640px]">
+                          <p class="text-body-1" style="color: gray">{{ t('chats.messageWithdrawed') }}</p>
+                        </v-sheet>
+                      </div>
+                      <div v-show="isMenuVisible(chat.id)">
+                        <v-menu v-model="myOptionsMsg[chat.id]" attach location="end">
+                          <template #activator="{ props }">
+                            <v-btn
+                              v-bind="props"
+                              class="text-medium-emphasis message-menu"
+                              icon
+                              size="42"
+                              style="margin-right: 10px"
+                              variant="text"
+                              @click="openMyOptionsMsg(chat.id)"
+                            >
+                              <DotsVerticalIcon size="24" />
+                            </v-btn>
+                          </template>
+                          <v-sheet style="text-align: left">
+                            <v-list>
+                              <v-list-item @click="deleteMsg(chat.id)">
+                                <v-icon>mdi-delete</v-icon>
+                                {{ t('chats.action.delete') }}
+                              </v-list-item>
+                            </v-list>
+                          </v-sheet>
+                        </v-menu>
+                      </div>
+                    </v-row>
                   </div>
                 </div>
                 <div v-else class="justify-end d-flex text-end mb-1">

@@ -266,7 +266,7 @@ onMounted(async () => {
   border-bottom: 1px solid rgb(var(--v-theme-inputBorder), 0.1);
 }
 .lgScroll {
-  height: 670px;
+  height: 90%;
 }
 .badg-dotDetail {
   left: -9px;
