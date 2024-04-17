@@ -60,8 +60,8 @@
       "successCreateGroup": "Tạo nhóm thành công",
       "manageGroup": "Quản lý nhóm",
       "disbandGroup": "Giải tán nhóm",
-      "leaderAndDeputy": "Trưởng & phó nhóm"
-
+      "leaderAndDeputy": "Trưởng & phó nhóm",
+      "leaveGroup": "Rời nhóm"
     },
     "message": {
       "deleteSuccess": "Xóa thành công",

@@ -74,6 +74,11 @@ const onMessageReceived = (payload) => {
   } else if (message.type === 'CREATE_GROUP') {
     stompClient.subscribe(`/user/${message.content}/queue/messages`, onMessageReceived)
     reloadChatListing.value = true
+  } else if (message.type === 'ADD_MEMBER') {
+    reloadChatListing.value = true
+  } else if (message.type === 'LEAVE_GROUP') {
+    reloadChatListing.value = true
+    reloadChatDetail.value = true
   } else {
     messageReceived.value = message
     reloadChatListing.value = true
@@ -135,6 +140,11 @@ $listen('groups:fetch', (groupIds) => {
 const setNullUserRecipient = () => {
   userRecipient.value = {}
   chatGroupId.value = ''
+}
+
+const leaveGroup = () => {
+  chatGroupId.value = ''
+  reloadChatListing.value = true
 }
 
 onMounted(() => {
@@ -231,6 +241,7 @@ onMounted(() => {
           @chat-send-msg-group="reloadChatListing = true"
           @chat-withdraw-group="reloadChatListing = true"
           @chat-withdraw-msg="reloadChatListing = true"
+          @leave-group="leaveGroup"
           @reload-chat-detail="reloadChatDetail = false"
           @reload-chat-listing="reloadChatListing = true"
           @set-null-user-recipient="setNullUserRecipient"

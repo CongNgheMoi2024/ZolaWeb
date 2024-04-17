@@ -2,7 +2,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useModal } from 'vue-final-modal'
+import { useToast } from 'vue-toastification'
 import AddMemberGroupModal from '@/components/chats/AddGroup/AddMembers/AddMemberGroupModal.vue'
+import { useRoom } from '~/stores/apps/room'
 
 const { t } = useI18n()
 const { $api, $listen } = useNuxtApp()
@@ -11,7 +13,9 @@ const isOpenVideo = ref(false)
 const haveCanvas = ref()
 const isSettingGroup = ref(false)
 const isDialogDisbandGroup = ref(false)
-const emit = defineEmits(['reload-chat-listing', 'set-null-user-recipient'])
+const emit = defineEmits(['reload-chat-listing', 'set-null-user-recipient', 'leave-group'])
+const useRoomStore = useRoom()
+const toast = useToast()
 
 const reloadChatListing = () => {
   emit('reload-chat-listing')
@@ -151,6 +155,22 @@ const openDialogMember = () => {
   addMemberGroupModel.open()
 }
 
+const leaveGroup = () => {
+  if (confirm('Bạn có chắc chắn muốn rời khỏi nhóm?')) {
+    $api.rooms
+      .leaveRoom(props.groupId)
+      .then(() => {
+        useRoomStore.setRoom(null)
+        emit('leave-group')
+        reloadChatListing()
+        toast.success('Rời khỏi nhóm thành công')
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+}
+
 onMounted(() => {
   captureAll()
 })
@@ -185,6 +205,10 @@ onMounted(() => {
         <v-list-item class="list-item" @click="deleteChatHistory">
           <v-icon class="mr-3">mdi-magnify</v-icon>
           {{ t('chats.action.search') }}
+        </v-list-item>
+        <v-list-item class="list-item" @click="leaveGroup">
+          <v-icon class="mr-3">mdi-account-remove</v-icon>
+          {{ t('chats.action.leaveGroup') }}
         </v-list-item>
       </v-list>
     </div>
