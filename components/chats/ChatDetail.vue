@@ -731,58 +731,64 @@ const callVideo = async (roomId: string) => {
                       </div>
                     </v-row>
                   </div>
-                  <div
-                    v-else-if="auth?.id !== chat.senderId && chat.status === 'DELETED'"
-                    class="d-flex align-items-start gap-3 mb-1 tw-max-w-[700px]"
-                  >
-                    <div>
-                      <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
-                        {{
-                          formatDistanceToNowStrict(new Date(chat.timestamp), {
-                            addSuffix: false,
-                          })
-                        }}
-                        ago
-                      </small>
-                      <v-row>
-                        <v-avatar v-if="index === 0 || chat.senderId !== chatDetail[index - 1].senderId">
-                          <img
-                            alt="pro"
-                            :src="userRecipient.avatar ? userRecipient.avatar : '/images/profile/user-1.jpg'"
-                            width="40"
-                          />
-                        </v-avatar>
-                        <div v-else class="ml-10" />
+                </div>
+                <div
+                  v-else-if="auth?.id !== chat.senderId && chat.status === 'DELETED'"
+                  class="d-flex align-items-start gap-3 mb-1 tw-max-w-[700px]"
+                >
+                  <div>
+                    <small v-if="chat.createdAt" class="text-medium-emphasis text-subtitle-2">
+                      {{
+                        formatDistanceToNowStrict(new Date(chat.timestamp), {
+                          addSuffix: false,
+                        })
+                      }}
+                      ago
+                    </small>
+                    <v-row>
+                      <v-avatar v-if="index === 0 || chat.senderId !== chatDetail[index - 1].senderId">
+                        <img
+                          alt="pro"
+                          :src="userRecipient.avatar ? userRecipient.avatar : '/images/profile/user-1.jpg'"
+                          width="40"
+                        />
+                      </v-avatar>
+                      <div v-if="index === 0 || chat.senderId !== chatDetail[index - 1].senderId">
                         <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5 tw-max-w-[640px]">
                           <p class="text-body-1" style="color: gray">{{ t('chats.messageWithdrawed') }}</p>
                         </v-sheet>
-                        <div v-show="isMenuVisible(chat.id)">
-                          <v-menu v-model="myOptionsMsg[chat.id]" attach location="end">
-                            <template #activator="{ props }">
-                              <v-btn
-                                v-bind="props"
-                                class="text-medium-emphasis message-menu"
-                                icon
-                                size="42"
-                                style="margin-right: 10px"
-                                variant="text"
-                                @click="openMyOptionsMsg(chat.id)"
-                              >
-                                <DotsVerticalIcon size="24" />
-                              </v-btn>
-                            </template>
-                            <v-sheet style="text-align: left">
-                              <v-list>
-                                <v-list-item @click="deleteMsg(chat.id)">
-                                  <v-icon>mdi-delete</v-icon>
-                                  {{ t('chats.action.delete') }}
-                                </v-list-item>
-                              </v-list>
-                            </v-sheet>
-                          </v-menu>
-                        </div>
-                      </v-row>
-                    </div>
+                      </div>
+                      <div v-else class="ml-10">
+                        <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 ml-5 tw-max-w-[640px]">
+                          <p class="text-body-1" style="color: gray">{{ t('chats.messageWithdrawed') }}</p>
+                        </v-sheet>
+                      </div>
+                      <div v-show="isMenuVisible(chat.id)">
+                        <v-menu v-model="myOptionsMsg[chat.id]" attach location="end">
+                          <template #activator="{ props }">
+                            <v-btn
+                              v-bind="props"
+                              class="text-medium-emphasis message-menu"
+                              icon
+                              size="42"
+                              style="margin-right: 10px"
+                              variant="text"
+                              @click="openMyOptionsMsg(chat.id)"
+                            >
+                              <DotsVerticalIcon size="24" />
+                            </v-btn>
+                          </template>
+                          <v-sheet style="text-align: left">
+                            <v-list>
+                              <v-list-item @click="deleteMsg(chat.id)">
+                                <v-icon>mdi-delete</v-icon>
+                                {{ t('chats.action.delete') }}
+                              </v-list-item>
+                            </v-list>
+                          </v-sheet>
+                        </v-menu>
+                      </div>
+                    </v-row>
                   </div>
                 </div>
                 <div v-else class="justify-end d-flex text-end mb-1">
@@ -836,8 +842,8 @@ const callVideo = async (roomId: string) => {
           <perfect-scrollbar style="height: 100%">
             <v-sheet>
               <chat-info
-                :group-id="groupId"
                 :chat-detail="chatDetail"
+                :group-id="groupId"
                 :is-group="isGroup"
                 :list-files="listFiles"
                 :list-images="listImages"
