@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useModal } from 'vue-final-modal'
 import AddMemberGroupModal from '@/components/chats/AddGroup/AddMembers/AddMemberGroupModal.vue'
+import ChatsAddSubAdminModal from '@/components/chats/AddSubAdmin/AddSubAdminModal.vue'
 
 const { t } = useI18n()
 const { $api, $listen } = useNuxtApp()
@@ -11,6 +12,8 @@ const isOpenVideo = ref(false)
 const haveCanvas = ref()
 const isSettingGroup = ref(false)
 const isDialogDisbandGroup = ref(false)
+const admin = ref({})
+const subAdmin = ref([])
 const emit = defineEmits(['reload-chat-listing', 'set-null-user-recipient'])
 
 const reloadChatListing = () => {
@@ -147,8 +150,38 @@ const addMemberGroupModel = useModal({
   },
 })
 
+const addSubAdminModal = useModal({
+  component: ChatsAddSubAdminModal,
+  attrs: {
+    title: 'Thêm phó nhóm',
+    submitText: 'Thêm',
+    cancelText: t('common.action.cancel'),
+    width: '500px',
+    cc: 'addSubAdmin',
+    zIndexFn: () => 1010,
+    onClosed() {
+      addSubAdminModal.close()
+    },
+  },
+})
+
+const openDialogAddSubAdmin = () => {
+  addSubAdminModal.open()
+}
+
 const openDialogMember = () => {
   addMemberGroupModel.open()
+}
+const getAdmin = async (id) => {
+  const users = await $api.users.getUsers()
+  const user = users.data.find((user) => user.id === id)
+  admin.value = user
+}
+
+const getSubAdmin = async (index, id) => {
+  const users = await $api.users.getUsers()
+  const user = users.data.find((user) => user.id === id)
+  subAdmin.value[index] = user
 }
 
 onMounted(() => {
@@ -280,7 +313,6 @@ onMounted(() => {
     </div>
   </div>
   <div v-if="isSettingGroup" class="container">
-    <!-- nút back về và  dòng chữ hiện "Quản lý nhóm" -->
     <v-row class="container-title">
       <v-btn class="ml-2" icon @click="closeSettingGroup">
         <v-icon>mdi-arrow-left</v-icon>
@@ -288,11 +320,73 @@ onMounted(() => {
       <h4 class="text-h4 font-weight-bold ml-8">{{ t('chats.action.manageGroup') }}</h4>
     </v-row>
     <div class="container-media mt-4">
+      <v-expansion-panels>
+        <v-expansion-panel>
+          <v-expansion-panel-title class="text-h6">
+            <v-icon class="mr-3">mdi-key</v-icon>
+            {{ t('chats.action.leaderAndDeputy') }}
+          </v-expansion-panel-title>
+          <v-expansion-panel-text>
+            <div class="file-item">
+              <v-row>
+                <v-icon class="ml-5 mr-4 mt-5">
+                  <div hidden>{{ getAdmin(roomGroup.adminId) }}</div>
+                  <img
+                    alt="pro"
+                    :src="admin.avatar ? admin.avatar : '/images/profile/user-1.jpg'"
+                    style="height: 40px; width: 40px; border-radius: 50%; border-color: lightgray; border-style: solid"
+                  />
+                </v-icon>
+                <v-col>
+                  <h5 class="text-h6 font-weight-medium">{{ admin.name }}</h5>
+                  <h6 class="text-h6 font-weight-light">{{ t('chats.leader') }}</h6>
+                </v-col>
+              </v-row>
+            </div>
+            <v-divider class="mt-2 mb-2" />
+            <div v-if="subAdmin.length > 0 && subAdmin" class="file-list">
+              <div v-for="(index, subAd) in subAdmin" :key="subAd" class="file-item">
+                <v-row>
+                  <v-icon class="ml-5 mr-4 mt-5">
+                    <div hidden>{{ getSubAdmin(index, subAd) }}</div>
+                    <img
+                      alt="pro"
+                      :src="subAdmin[index].avatar ? subAdmin[index].avatar : '/images/profile/user-1.jpg'"
+                      style="
+                        height: 50px;
+                        width: 50px;
+                        border-radius: 50%;
+                        border-color: lightgray;
+                        border-style: solid;
+                      "
+                    />
+                  </v-icon>
+                  <v-col>
+                    <h5 class="text-h6 font-weight-medium">{{ subAdmin[index].name }}</h5>
+                    <h6 class="text-h6 font-weight-light">{{ t('chats.subLeader') }}</h6>
+                  </v-col>
+                  <v-btn class="mt-4" color="error" size="30" @click="openDialogRemoveAdmin">
+                    <v-icon @click="openDialogRemoveSubAdmin(index, subAd)">
+                      <v-icon size="26">mdi-delete</v-icon>
+                    </v-icon>
+                  </v-btn>
+                </v-row>
+                <v-divider class="mt-2 mb-2" />
+              </div>
+            </div>
+            <div class="file-item" @click="openDialogAddSubAdmin">
+              <v-icon class="mr-2">mdi-account-star</v-icon>
+              {{ t('chats.action.managerSubAdmin') }}
+            </div>
+            <v-divider class="mt-2 mb-2" />
+            <div class="file-item" @click="openDialogChangeAdmin">
+              <v-icon class="mr-2">mdi-account-star-outline</v-icon>
+              {{ t('chats.action.changeAdmin') }}
+            </div>
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
       <v-list>
-        <v-list-item class="list-item" @click="createGroup">
-          <v-icon class="mr-3">mdi-key</v-icon>
-          {{ t('chats.action.leaderAndDeputy') }}
-        </v-list-item>
         <v-list-item class="list-item" style="color: red" @click="openDialogDisbandGroup">
           <v-icon class="mr-3">mdi-account-multiple-remove</v-icon>
           {{ t('chats.action.disbandGroup') }}
