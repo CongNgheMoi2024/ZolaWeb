@@ -65,7 +65,7 @@ const submit = handleSubmit(async (values) => {
   await $api.rooms
     .addRoomMembers(useRoomStore.getRoom.id, members)
     .then((res) => {
-      toast.success(t('chats.addMemberGroup.success'))
+      toast.success('Thêm thành viên vào nhóm thành công')
       $event('group:addMemberInGroup', useRoomStore.getRoom.id)
 
       members.forEach((member) => {

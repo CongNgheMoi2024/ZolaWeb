@@ -54,6 +54,7 @@ const emit = defineEmits([
   'chat-send-msg-group',
   'chat-withdraw-group',
   'set-null-user-recipient',
+  'leave-group',
 ])
 const nuxtApp = useNuxtApp()
 const stompClient = nuxtApp.$stompClient
@@ -446,7 +447,7 @@ const callVideo = async (roomId: string) => {
         <div class="w-100">
           <perfect-scrollbar ref="chatContainer" style="height: 100%">
             <div v-for="(chat, index) in chatDetail" :key="chat.id" class="pa-5">
-              <div v-if="chat.type === 'REMOVE_MEMBER' || chat.type === 'ADD_MEMBER'">
+              <div v-if="chat.type === 'REMOVE_MEMBER' || chat.type === 'ADD_MEMBER' || chat.type === 'LEAVE_GROUP'">
                 <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-text-center">
                   <p class="text-body-1" style="color: gray">
                     {{ chat.content }} ({{ format(new Date(chat.timestamp), 'MM/dd/yyyy') }})
@@ -1099,6 +1100,7 @@ const callVideo = async (roomId: string) => {
                 :list-videos="listVideos"
                 :room-group="roomGroup"
                 :user-recipient="userRecipient"
+                @leave-group="emit('leave-group')"
                 @reload-chat-listing="reloadChatListing = true"
                 @set-null-user-recipient="emit('set-null-user-recipient')"
               />

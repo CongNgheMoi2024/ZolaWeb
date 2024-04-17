@@ -32,4 +32,8 @@ export class RoomAPI extends BaseApi {
   deleteRoom(roomId: string): Promise<any> {
     return this.delete(`/delete-room/${roomId}`)
   }
+
+  leaveRoom(roomId: string): Promise<any> {
+    return this.put(`/rooms/${roomId}/leave`)
+  }
 }
