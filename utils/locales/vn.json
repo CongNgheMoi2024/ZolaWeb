@@ -16,6 +16,9 @@
     }
   },
   "chats": {
+    "disbandGroupConfirm":"Mời tất cả mọi người rời nhóm và xóa tin nhắn?\nNhóm đã giải tán sẽ KHÔNG THỂ khôi phục.",
+    "member": "Thành viên",
+    "members": "thành viên",
     "replyingTo": "Trả lời cho",
     "addFriend": "Thêm bạn",
     "makeFriend": "Kết bạn",
@@ -54,7 +57,11 @@
       "forward": "Chuyển tiếp",
       "createGroup": "Tạo nhóm",
       "deleteChatHistory": "Xóa lịch sử chat",
-      "successCreateGroup": "Tạo nhóm thành công"
+      "successCreateGroup": "Tạo nhóm thành công",
+      "manageGroup": "Quản lý nhóm",
+      "disbandGroup": "Giải tán nhóm",
+      "leaderAndDeputy": "Trưởng & phó nhóm"
+
     },
     "message": {
       "deleteSuccess": "Xóa thành công",

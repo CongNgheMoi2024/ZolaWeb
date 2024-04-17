@@ -132,6 +132,10 @@ $listen('groups:fetch', (groupIds) => {
     subscribeGroup.value = true
   }
 })
+const setNullUserRecipient = () => {
+  userRecipient.value = {}
+  chatGroupId.value = ''
+}
 
 onMounted(() => {
   connect()
@@ -229,6 +233,7 @@ onMounted(() => {
           @chat-withdraw-msg="reloadChatListing = true"
           @reload-chat-detail="reloadChatDetail = false"
           @reload-chat-listing="reloadChatListing = true"
+          @set-null-user-recipient="setNullUserRecipient"
         />
       </template>
     </app-base-card>
