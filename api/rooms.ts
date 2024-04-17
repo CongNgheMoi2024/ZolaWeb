@@ -36,4 +36,16 @@ export class RoomAPI extends BaseApi {
   leaveRoom(roomId: string): Promise<any> {
     return this.put(`/rooms/${roomId}/leave`)
   }
+
+  getSubAdmins(roomId: string): Promise<any> {
+    return this.get(`/rooms/${roomId}/sub-admins`)
+  }
+
+  removeSubAdmin(roomId: string, userId: string): Promise<any> {
+    return this.put(`/remove-sub-admin/${roomId}/${userId}`)
+  }
+
+  addSubAdmin(roomId: string, userId: string): Promise<any> {
+    return this.put(`/add-sub-admin/${roomId}/${userId}`)
+  }
 }

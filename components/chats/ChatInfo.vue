@@ -3,9 +3,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useModal } from 'vue-final-modal'
 import { useToast } from 'vue-toastification'
-import AddMemberGroupModal from '@/components/chats/AddGroup/AddMembers/AddMemberGroupModal.vue'
-import ChatsAddSubAdminModal from '@/components/chats/AddSubAdmin/AddSubAdminModal.vue'
 import { useRoom } from '~/stores/apps/room'
+import AddMemberGroupModal from '@/components/chats/AddGroup/AddMembers/AddMemberGroupModal.vue'
 
 const { t } = useI18n()
 const { $api, $listen } = useNuxtApp()
@@ -16,12 +15,22 @@ const isSettingGroup = ref(false)
 const isDialogDisbandGroup = ref(false)
 const admin = ref({})
 const subAdmin = ref([])
-const emit = defineEmits(['reload-chat-listing', 'set-null-user-recipient', 'leave-group'])
+const emit = defineEmits([
+  'reload-chat-listing',
+  'set-null-user-recipient',
+  'leave-group',
+  'get-all-friends-is-not-sub-admin',
+])
 const useRoomStore = useRoom()
 const toast = useToast()
+const removeSubAdmin = ref(false)
+const removeId = ref('')
+const addSubAdminModal = ref(false)
+const friendsIsNotSubAdmin = ref([])
 
 const reloadChatListing = () => {
   emit('reload-chat-listing')
+  getSubAdmin()
 }
 const props = defineProps({
   chatDetail: Object,
@@ -60,6 +69,7 @@ const settingGroup = () => {
 }
 const closeSettingGroup = () => {
   isSettingGroup.value = false
+  emit('close-setting-group')
 }
 
 const openDialogDisbandGroup = () => {
@@ -154,23 +164,13 @@ const addMemberGroupModel = useModal({
   },
 })
 
-const addSubAdminModal = useModal({
-  component: ChatsAddSubAdminModal,
-  attrs: {
-    title: 'Thêm phó nhóm',
-    submitText: 'Thêm',
-    cancelText: t('common.action.cancel'),
-    width: '500px',
-    cc: 'addSubAdmin',
-    zIndexFn: () => 1010,
-    onClosed() {
-      addSubAdminModal.close()
-    },
-  },
-})
-
 const openDialogAddSubAdmin = () => {
-  addSubAdminModal.open()
+  emit('get-all-friends-is-not-sub-admin')
+  addSubAdminModal.value = true
+}
+
+const closeDialogAddSubAdmin = () => {
+  addSubAdminModal.value = false
 }
 
 const openDialogMember = () => {
@@ -182,10 +182,14 @@ const getAdmin = async (id) => {
   admin.value = user
 }
 
-const getSubAdmin = async (index, id) => {
-  const users = await $api.users.getUsers()
-  const user = users.data.find((user) => user.id === id)
-  subAdmin.value[index] = user
+const getSubAdmin = async () => {
+  await $api.rooms.getSubAdmins(props.groupId).then((res) => {
+    subAdmin.value = res.data
+  })
+}
+
+const openDialogRemoveAdmin = () => {
+  console.log('openDialogRemoveAdmin')
 }
 
 const leaveGroup = () => {
@@ -197,6 +201,7 @@ const leaveGroup = () => {
         emit('leave-group')
         reloadChatListing()
         toast.success('Rời khỏi nhóm thành công')
+        isSettingGroup.value = false
       })
       .catch((error) => {
         console.log(error)
@@ -204,12 +209,47 @@ const leaveGroup = () => {
   }
 }
 
+const getAllFriendsIsNotSubAdmin = async () => {
+  try {
+    const friendsData = await $api.users.getFriends()
+    friendsIsNotSubAdmin.value = friendsData.data.filter((friend) => !props.group.subAdmins.includes(friend.id))
+  } catch (error) {
+    toast.error(error.message)
+  }
+}
+
+const openDialogRemoveSubAdmin = (id) => {
+  removeSubAdmin.value = true
+  removeId.value = id
+}
+
+const openDialogChangeAdmin = () => {
+  console.log('openDialogChangeAdmin')
+}
+
+const closeDialogChangeAdmin = () => {
+  console.log('closeDialogChangeAdmin')
+}
+
+const closeDialogRemoveSubAdmin = () => {
+  removeSubAdmin.value = false
+}
+
+const deleteSubAdmin = async () => {
+  await $api.rooms.removeSubAdmin(props.groupId, removeId.value)
+  getSubAdmin()
+  removeSubAdmin.value = false
+  removeId.value = ''
+}
+
 onMounted(() => {
+  closeSettingGroup()
   captureAll()
+  getSubAdmin()
 })
 </script>
 <template>
-  <div v-if="chatDetail && !isSettingGroup" class="container">
+  <div v-if="(chatDetail && !isSettingGroup) || (chatDetail && !isGroup)" class="container">
     <div class="container-info">
       <v-avatar color="grey-darken-1 mt-5" size="70">
         <img
@@ -336,7 +376,7 @@ onMounted(() => {
       </v-expansion-panels>
     </div>
   </div>
-  <div v-if="isSettingGroup" class="container">
+  <div v-if="isSettingGroup && isGroup" class="container">
     <v-row class="container-title">
       <v-btn class="ml-2" icon @click="closeSettingGroup">
         <v-icon>mdi-arrow-left</v-icon>
@@ -369,16 +409,15 @@ onMounted(() => {
             </div>
             <v-divider class="mt-2 mb-2" />
             <div v-if="subAdmin.length > 0 && subAdmin" class="file-list">
-              <div v-for="(index, subAd) in subAdmin" :key="subAd" class="file-item">
+              <div v-for="{ id, name, avatar } in subAdmin" :key="id" class="file-item">
                 <v-row>
-                  <v-icon class="ml-5 mr-4 mt-5">
-                    <div hidden>{{ getSubAdmin(index, subAd) }}</div>
+                  <v-icon size="30" class="ml-5 mr-4 mt-5">
                     <img
                       alt="pro"
-                      :src="subAdmin[index].avatar ? subAdmin[index].avatar : '/images/profile/user-1.jpg'"
+                      :src="avatar ? avatar : '/images/profile/user-1.jpg'"
                       style="
-                        height: 50px;
-                        width: 50px;
+                        height: 40px;
+                        width: 40px;
                         border-radius: 50%;
                         border-color: lightgray;
                         border-style: solid;
@@ -386,11 +425,11 @@ onMounted(() => {
                     />
                   </v-icon>
                   <v-col>
-                    <h5 class="text-h6 font-weight-medium">{{ subAdmin[index].name }}</h5>
+                    <h5 class="text-h6 font-weight-medium">{{ name }}</h5>
                     <h6 class="text-h6 font-weight-light">{{ t('chats.subLeader') }}</h6>
                   </v-col>
                   <v-btn class="mt-4" color="error" size="30" @click="openDialogRemoveAdmin">
-                    <v-icon @click="openDialogRemoveSubAdmin(index, subAd)">
+                    <v-icon @click="openDialogRemoveSubAdmin(id)">
                       <v-icon size="26">mdi-delete</v-icon>
                     </v-icon>
                   </v-btn>
@@ -398,15 +437,16 @@ onMounted(() => {
                 <v-divider class="mt-2 mb-2" />
               </div>
             </div>
-            <div class="file-item" @click="openDialogAddSubAdmin">
-              <v-icon class="mr-2">mdi-account-star</v-icon>
-              {{ t('chats.action.managerSubAdmin') }}
-            </div>
-            <v-divider class="mt-2 mb-2" />
-            <div class="file-item" @click="openDialogChangeAdmin">
-              <v-icon class="mr-2">mdi-account-star-outline</v-icon>
-              {{ t('chats.action.changeAdmin') }}
-            </div>
+            <v-list>
+              <v-list-item class="file-item" @click="openDialogAddSubAdmin">
+                <v-icon class="mr-2">mdi-account-star</v-icon>
+                {{ t('chats.action.addSubAdmin') }}
+              </v-list-item>
+              <v-list-item class="file-item flex-row" @click="openDialogChangeAdmin">
+                <v-icon class="mr-2">mdi-account-star-outline</v-icon>
+                {{ t('chats.action.changeAdmin') }}
+              </v-list-item>
+            </v-list>
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
@@ -427,6 +467,36 @@ onMounted(() => {
         <v-spacer />
         <v-btn color="blue darken-1" text @click="closeDialogDisbandGroup">{{ t('common.action.cancel') }}</v-btn>
         <v-btn color="error" text @click="disbandGroup">{{ t('chats.action.disbandGroup') }}</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog v-model="removeSubAdmin" max-width="450">
+    <v-card>
+      <v-card-title class="headline">{{ t('chats.action.removeSubAdmin') }}</v-card-title>
+      <v-divider />
+      <v-card-text>{{ t('chats.deleteSubAdminConfirm') }}</v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn color="blue darken-1" text @click="closeDialogRemoveSubAdmin">{{ t('common.action.cancel') }}</v-btn>
+        <v-btn color="error" text @click="deleteSubAdmin">{{ t('chats.action.removeSubAdmin') }}</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog v-model="addSubAdminModal" max-width="450">
+    <v-card>
+      <v-card-title class="headline">{{ t('chats.action.addSubAdmin') }}</v-card-title>
+      <v-divider />
+      <ChatsAddSubAdminDialog
+        :friendsIsNotSubAdmin="friendsIsNotSubAdmin"
+        @openDialogAddSubAdmin="openDialogAddSubAdmin"
+        @closeDialogAddSubAdmin="closeDialogAddSubAdmin"
+        :groupId="groupId"
+        :group="roomGroup"
+        @getSubAdmin="getSubAdmin"
+      />
+      <v-card-actions>
+        <v-spacer />
+        <v-btn color="blue darken-1" text @click="addSubAdminModal = false">{{ t('common.action.cancel') }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

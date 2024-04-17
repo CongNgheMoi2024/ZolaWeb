@@ -16,6 +16,7 @@
     }
   },
   "chats": {
+    "deleteSubAdminConfirm": "Bạn có chắc chắn muốn xóa quyền phó nhóm của thành viên này?",
     "leader": "Trưởng nhóm",
     "subLeader": "Phó nhóm",
     "disbandGroupConfirm":"Mời tất cả mọi người rời nhóm và xóa tin nhắn?\nNhóm đã giải tán sẽ KHÔNG THỂ khôi phục.",
@@ -49,7 +50,6 @@
       "changeAdmin": "Chuyển quyền trưởng nhóm",
       "addSubAdmin": "Thêm phó nhóm",
       "removeSubAdmin": "Xóa phó nhóm",
-      "managerSubAdmin": "Quản lý phó nhóm",
       "reply": "Trả lời",
       "copy": "Sao chép",
       "exit": "Thoát",
