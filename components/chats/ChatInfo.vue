@@ -203,18 +203,22 @@ const openDialogRemoveAdmin = () => {
 
 const leaveGroup = () => {
   if (confirm('Bạn có chắc chắn muốn rời khỏi nhóm?')) {
-    $api.rooms
-      .leaveRoom(props.groupId)
-      .then(() => {
-        useRoomStore.setRoom(null)
-        emit('leave-group')
-        reloadChatListing()
-        toast.success('Rời khỏi nhóm thành công')
-        isSettingGroup.value = false
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+    if (auth.id === props.roomGroup?.adminId) {
+      toast.error('Không thể rời khỏi nhóm vì bạn là trưởng nhóm')
+    } else {
+      $api.rooms
+        .leaveRoom(props.groupId)
+        .then(() => {
+          useRoomStore.setRoom(null)
+          emit('leave-group')
+          reloadChatListing()
+          toast.success('Rời khỏi nhóm thành công')
+          isSettingGroup.value = false
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    }
   }
 }
 
