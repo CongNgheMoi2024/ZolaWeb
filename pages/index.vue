@@ -90,11 +90,13 @@ const onMessageReceived = (payload) => {
     reloadChatListing.value = true
   } else if (message.type === 'ADD_MEMBER') {
     reloadChatListing.value = true
+    reloadChatDetail.value = true
   } else if (message.type === 'LEAVE_GROUP') {
     reloadChatListing.value = true
     reloadChatDetail.value = true
   } else if (message.type === 'REMOVE_MEMBER') {
     reloadChatListing.value = true
+    reloadChatDetail.value = true
     if (message.recipientId === auth.id) {
       chatGroupId.value = ''
       useRoomStore.setRoom(null)

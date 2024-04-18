@@ -10,7 +10,7 @@ import ChatInfo from './ChatInfo.vue'
 import { useChatStore } from '@/stores/apps/chat'
 import messages from '@/utils/locales/messages'
 import { useRoom } from '@/stores/apps/room'
-import { useUsers } from "~/stores/apps/users"
+import { useUsers } from '~/stores/apps/users'
 
 const toast = useToast()
 const props = defineProps({
@@ -592,8 +592,8 @@ const callVideo = async (roomId: string) => {
                             v-if="(chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).type === 'IMAGE'"
                           >
                             <img
-                              class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
                               alt="reply"
+                              class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
                               :src="(chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content"
                             />
                           </div>
@@ -823,8 +823,8 @@ const callVideo = async (roomId: string) => {
                                 "
                               >
                                 <img
-                                  class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
                                   alt="reply"
+                                  class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
                                   :src="(chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content"
                                 />
                               </div>
@@ -1090,9 +1090,9 @@ const callVideo = async (roomId: string) => {
                         </v-menu>
                       </div>
 
-                      <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-max-w-[800px]">
-                        <p class="text-body-1" style="color: gray">{{ t('chats.messageWithdrawed') }}</p>
-                      </v-sheet>
+                      <!--                      <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-max-w-[800px]">-->
+                      <!--                        <p class="text-body-1" style="color: gray">{{ t('chats.messageWithdrawed') }}</p>-->
+                      <!--                      </v-sheet>-->
                     </v-row>
                   </div>
                 </div>
@@ -1104,8 +1104,8 @@ const callVideo = async (roomId: string) => {
           <perfect-scrollbar style="height: 100%">
             <v-sheet>
               <chat-info
-                :group-id="groupId"
                 :chat-detail="chatDetail"
+                :group-id="groupId"
                 :is-group="isGroup"
                 :list-files="listFiles"
                 :list-images="listImages"
