@@ -10,6 +10,7 @@ import ChatInfo from './ChatInfo.vue'
 import { useChatStore } from '@/stores/apps/chat'
 import messages from '@/utils/locales/messages'
 import { useRoom } from '@/stores/apps/room'
+import { useUsers } from "~/stores/apps/users"
 
 const toast = useToast()
 const props = defineProps({
@@ -74,6 +75,8 @@ const listVideos = ref([])
 const listFiles = ref([])
 const isGroup = ref(false)
 const roomGroup = ref({})
+const useUserStore = useUsers()
+
 //
 // const store = useChatStore()
 // onMounted(() => {
@@ -345,8 +348,7 @@ const withdrawMsg = async (id) => {
 
 const replyMsg = async (chat, id) => {
   reply.value = chat
-  const users = await $api.users.getUsers()
-  const user = users.data.find((user) => user.id === id)
+  const user = useUserStore.getUsers.find((user) => user.id === id)
   userReply.value = user
 
   scrollToBottom()
@@ -373,14 +375,12 @@ $listen('group:addMemberInGroup', (roomId: string) => {
 })
 
 const getUser = async (index, id) => {
-  const users = await $api.users.getUsers()
-  const user = users.data.find((user) => user.id === id)
+  const user = useUserStore.getUsers.find((user) => user.id === id)
   nameReply.value[index] = user?.name
 }
 
 const getUserRep = async (index, id) => {
-  const users = await $api.users.getUsers()
-  const user = users.data.find((user) => user.id === id)
+  const user = useUserStore.getUsers.find((user) => user.id === id)
   userRep.value[index] = user.name
 }
 

@@ -7,6 +7,7 @@ import FriendMenu from '@/components/Friends/FriendMenu.vue'
 import ListFriends from '@/components/Friends/ListFriends.vue'
 import Welcome from '@/pages/auth/Welcome.vue'
 import { useRoom } from '~/stores/apps/room'
+import { useUsers } from '@/stores/apps/users'
 
 const { t } = useI18n()
 const { $api } = useNuxtApp()
@@ -33,6 +34,7 @@ const groupIdsToSubscribe = ref([])
 const connectedWs = ref(false)
 const subscribeGroup = ref(false)
 const useRoomStore = useRoom()
+const useUserStore = useUsers()
 
 const selectedMenuFriend = ref({
   title: 'Danh sách bạn bè',
@@ -69,14 +71,14 @@ const onError = () => {
 }
 
 const handleConfirmation = (message) => {
-  console.log(message.content,nameUser.value)
-  
-  if(message.content === nameUser.value) return
-  const confirmed = window.confirm(`${message.content} đang gọi`);
+  console.log(message.content, nameUser.value)
+
+  if (message.content === nameUser.value) return
+  const confirmed = window.confirm(`${message.content} đang gọi`)
   if (confirmed) {
-    window.open(`/chat/videoCall?username=${nameUser.value}&roomId=${message.chatId}`, '_blank');
+    window.open(`/chat/videoCall?username=${nameUser.value}&roomId=${message.chatId}`, '_blank')
   }
-};
+}
 
 const onMessageReceived = (payload) => {
   const message = JSON.parse(payload.body)
@@ -97,7 +99,7 @@ const onMessageReceived = (payload) => {
       chatGroupId.value = ''
       useRoomStore.setRoom(null)
     }
-  } else if(message.type === 'CALL_VIDEO'){
+  } else if (message.type === 'CALL_VIDEO') {
     reloadChatListing.value = true
     reloadChatDetail.value = true
     handleConfirmation(message)
@@ -146,9 +148,9 @@ const loadData = async () => {
   await fetchProfileById({})
 }
 
-// $listen('group:created', (groupId) => {
-//   stompClient.subscribe(`/user/${groupId}/queue/messages`, onMessageReceived)
-// })
+$listen('group:created', () => {
+  reloadChatListing.value = true
+})
 
 $listen('groups:fetch', (groupIds) => {
   groupIdsToSubscribe.value = groupIds
@@ -169,9 +171,15 @@ const leaveGroup = () => {
   reloadChatListing.value = true
 }
 
+const addUsersInStore = async () => {
+  const users = await $api.users.getUsers()
+  useUserStore.setUsers(users.data)
+}
+
 onMounted(() => {
   connect()
   loadData()
+  addUsersInStore()
 })
 </script>
 
