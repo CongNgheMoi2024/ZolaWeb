@@ -48,4 +48,8 @@ export class RoomAPI extends BaseApi {
   addSubAdmin(roomId: string, userId: string): Promise<any> {
     return this.put(`/add-sub-admin/${roomId}/${userId}`)
   }
+
+  changeAdmin(roomId: string, userId: string): Promise<any> {
+    return this.put(`/rooms/${roomId}/change-admin/${userId}`)
+  }
 }

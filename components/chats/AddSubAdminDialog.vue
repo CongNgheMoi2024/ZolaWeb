@@ -3,11 +3,20 @@ import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { ref } from 'vue'
 import { useAuth } from '@/composables/auth'
+import { el } from 'date-fns/locale'
 
 const props = defineProps({
   groupId: {
     type: String,
     default: () => '',
+  },
+  members: {
+    type: Array,
+    default: () => [],
+  },
+  admin: {
+    type: Object,
+    default: () => ({}),
   },
 })
 
@@ -16,12 +25,16 @@ const { $api } = useNuxtApp()
 const toast = useToast()
 const friends = ref([])
 const friendsIsNotSubAdmin = ref([])
+const memberList = ref([])
+const list = ref([])
+const member = ref(props.members)
+
 const room = ref({})
 const emit = defineEmits([
   'get-sub-admin',
-  'open-dialog-sdd-sub-admin',
-  'close-dialog-sdd-sub-admin',
+  'close-dialog-add-sub-admin',
   'get-all-friends-is-not-sub-admin',
+  'get-admin',
 ])
 
 const getRoomById = async () => {
@@ -37,8 +50,19 @@ const getRoomById = async () => {
 const getAllFriendsIsNotSubAdmin = async () => {
   getRoomById()
   try {
-    const friendsData = await $api.users.getFriends()
-    friendsIsNotSubAdmin.value = friendsData.data.filter((friend) => !room.value.subAdmins.includes(friend.id))
+    memberList.value = []
+    friendsIsNotSubAdmin.value = []
+    await $api.users.getUsers().then((response) => {
+      list.value = response.data
+    })
+    member.value.forEach((id) => {
+      const user = list.value.find((user) => user.id === id && user.id !== props.admin.id)
+      if (user) {
+        memberList.value.push(user)
+      }
+      member.value = member.value.filter((mem) => mem !== id)
+    })
+    friendsIsNotSubAdmin.value = memberList.value.filter((mem) => !room.value.subAdmins.includes(mem.id))
   } catch (error) {
     toast.error(error.message)
   }
@@ -51,11 +75,10 @@ const addSubAdmin = async (userId) => {
     await $api.rooms.addSubAdmin(props.groupId, userId)
     toast.success('Thêm phó nhóm thành công')
     emit('get-sub-admin')
-    getAllFriendsIsNotSubAdmin()
-    emit('open-dialog-sdd-sub-admin')
   } catch (error) {
     toast.error(error.message)
   }
+  emit('close-dialog-add-sub-admin')
 }
 
 onMounted(() => {

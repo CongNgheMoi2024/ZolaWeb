@@ -44,7 +44,8 @@
       "nameGroup": "Tên nhóm",
       "passwordNew": "Mật khẩu mới",
       "findPeopleAndGroup": "Tìm kiếm bạn bè và nhóm",
-      "message": "Tin nhắn"
+      "message": "Tin nhắn",
+      "members": "Thành viên"
     },
     "action": {
       "changeAdmin": "Chuyển quyền trưởng nhóm",
