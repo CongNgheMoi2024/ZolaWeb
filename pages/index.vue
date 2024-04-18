@@ -105,6 +105,18 @@ const onMessageReceived = (payload) => {
     reloadChatListing.value = true
     reloadChatDetail.value = true
     handleConfirmation(message)
+  } else if (message.type === 'REMOVE_SUB_ADMIN') {
+    reloadChatDetail.value = true
+  } else if (message.type === 'CHANGE_ADMIN') {
+    reloadChatDetail.value = true
+    reloadChatListing.value = true
+  } else if (message.type === 'DELETE_GROUP') {
+    reloadChatListing.value = true
+    if (useRoomStore.getRoom?.id === message.chatId) {
+      chatGroupId.value = ''
+      useRoomStore.setRoom(null)
+      reloadChatDetail.value = true
+    }
   } else {
     messageReceived.value = message
     reloadChatListing.value = true

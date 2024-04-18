@@ -85,17 +85,13 @@ const closeDialogDisbandGroup = () => {
   isDialogDisbandGroup.value = false
 }
 const disbandGroup = async () => {
-  if (auth.id === props.roomGroup.adminId) {
-    toast.error('Bạn là trưởng nhóm, không thể rời khỏi nhóm')
-  } else {
-    await $api.rooms.deleteRoom(props.groupId)
-    console.log('disbandGroup')
-    emit('set-null-user-recipient')
-    emit('fetch-chat-by-group')
-    reloadChatListing()
-    closeDialogDisbandGroup()
-    useRoomStore.setRoom(null)
-  }
+  await $api.rooms.deleteRoom(props.groupId)
+  // console.log('disbandGroup')
+  // emit('set-null-user-recipient')
+  // emit('fetch-chat-by-group')
+  // reloadChatListing()
+  // closeDialogDisbandGroup()
+  useRoomStore.setRoom(null)
 }
 
 const deleteChatHistory = () => {
