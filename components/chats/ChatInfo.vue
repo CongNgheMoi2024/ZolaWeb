@@ -87,7 +87,7 @@ const closeDialogDisbandGroup = () => {
 const disbandGroup = async () => {
   await $api.rooms.deleteRoom(props.groupId)
   // console.log('disbandGroup')
-  // emit('set-null-user-recipient')
+  emit('set-null-user-recipient')
   // emit('fetch-chat-by-group')
   // reloadChatListing()
   // closeDialogDisbandGroup()
