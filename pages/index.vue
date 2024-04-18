@@ -101,7 +101,7 @@ const onMessageReceived = (payload) => {
     reloadChatListing.value = true
     reloadChatDetail.value = true
     handleConfirmation(message)
-  }else {
+  } else {
     messageReceived.value = message
     reloadChatListing.value = true
   }
