@@ -10,6 +10,7 @@ import ChatInfo from './ChatInfo.vue'
 import { useChatStore } from '@/stores/apps/chat'
 import messages from '@/utils/locales/messages'
 import { useRoom } from '@/stores/apps/room'
+import { useUsers } from '~/stores/apps/users'
 
 const toast = useToast()
 const props = defineProps({
@@ -74,6 +75,8 @@ const listVideos = ref([])
 const listFiles = ref([])
 const isGroup = ref(false)
 const roomGroup = ref({})
+const useUserStore = useUsers()
+
 //
 // const store = useChatStore()
 // onMounted(() => {
@@ -345,8 +348,7 @@ const withdrawMsg = async (id) => {
 
 const replyMsg = async (chat, id) => {
   reply.value = chat
-  const users = await $api.users.getUsers()
-  const user = users.data.find((user) => user.id === id)
+  const user = useUserStore.getUsers.find((user) => user.id === id)
   userReply.value = user
 
   scrollToBottom()
@@ -373,14 +375,12 @@ $listen('group:addMemberInGroup', (roomId: string) => {
 })
 
 const getUser = async (index, id) => {
-  const users = await $api.users.getUsers()
-  const user = users.data.find((user) => user.id === id)
+  const user = useUserStore.getUsers.find((user) => user.id === id)
   nameReply.value[index] = user?.name
 }
 
 const getUserRep = async (index, id) => {
-  const users = await $api.users.getUsers()
-  const user = users.data.find((user) => user.id === id)
+  const user = useUserStore.getUsers.find((user) => user.id === id)
   userRep.value[index] = user.name
 }
 
@@ -393,6 +393,11 @@ const callVideo = async (roomId: string) => {
     console.log(res.data);
   })
   window.open(`/chat/videoCall?username=${userName}&roomId=${roomId}`, '_blank')
+}
+
+const findUserBySenderId = (senderId) => {
+  const user = useUserStore.getUsers.find((user) => user.id === senderId)
+  return user?.avatar
 }
 </script>
 <template>
@@ -592,8 +597,8 @@ const callVideo = async (roomId: string) => {
                             v-if="(chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).type === 'IMAGE'"
                           >
                             <img
-                              class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
                               alt="reply"
+                              class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
                               :src="(chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content"
                             />
                           </div>
@@ -725,7 +730,7 @@ const callVideo = async (roomId: string) => {
                       <v-avatar v-if="index === 0 || chat.senderId !== chatDetail[index - 1].senderId">
                         <img
                           alt="pro"
-                          :src="userRecipient.avatar ? userRecipient.avatar : '/images/profile/user-1.jpg'"
+                          :src="groupId !== '' ? findUserBySenderId(chat.senderId) : userRecipient.avatar || '/images/profile/user-1.jpg'"
                           width="40"
                         />
                       </v-avatar>
@@ -823,8 +828,8 @@ const callVideo = async (roomId: string) => {
                                 "
                               >
                                 <img
-                                  class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
                                   alt="reply"
+                                  class="mt-2 ml-3 tw-max-w-[50px] tw-max-h-[50px]"
                                   :src="(chatDetail.find((chatSend) => chatSend.id === chat.replyTo) || {}).content"
                                 />
                               </div>
@@ -1090,9 +1095,9 @@ const callVideo = async (roomId: string) => {
                         </v-menu>
                       </div>
 
-                      <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-max-w-[800px]">
-                        <p class="text-body-1" style="color: gray">{{ t('chats.messageWithdrawed') }}</p>
-                      </v-sheet>
+                      <!--                      <v-sheet class="bg-grey100 rounded-md px-3 py-2 mb-1 tw-max-w-[800px]">-->
+                      <!--                        <p class="text-body-1" style="color: gray">{{ t('chats.messageWithdrawed') }}</p>-->
+                      <!--                      </v-sheet>-->
                     </v-row>
                   </div>
                 </div>
@@ -1104,8 +1109,8 @@ const callVideo = async (roomId: string) => {
           <perfect-scrollbar style="height: 100%">
             <v-sheet>
               <chat-info
-                :group-id="groupId"
                 :chat-detail="chatDetail"
+                :group-id="groupId"
                 :is-group="isGroup"
                 :list-files="listFiles"
                 :list-images="listImages"

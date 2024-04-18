@@ -5,6 +5,7 @@ import { useModal } from 'vue-final-modal'
 import { useToast } from 'vue-toastification'
 import { useRoom } from '~/stores/apps/room'
 import AddMemberGroupModal from '@/components/chats/AddGroup/AddMembers/AddMemberGroupModal.vue'
+import { useUsers } from '~/stores/apps/users'
 
 const { t } = useI18n()
 const { $api, $listen } = useNuxtApp()
@@ -14,7 +15,6 @@ const haveCanvas = ref()
 const isSettingGroup = ref(false)
 const isDialogDisbandGroup = ref(false)
 const dialogChangeAdmin = ref(false)
-const admin = ref({})
 const subAdmin = ref([])
 const emit = defineEmits([
   'reload-chat-listing',
@@ -29,7 +29,7 @@ const removeSubAdmin = ref(false)
 const removeId = ref('')
 const addSubAdminModal = ref(false)
 const friendsIsNotSubAdmin = ref([])
-
+const useUserStore = useUsers()
 const reloadChatListing = () => {
   emit('reload-chat-listing')
   getSubAdmin()
@@ -51,6 +51,11 @@ const props = defineProps({
   },
 })
 const auth = data.value
+const admin = ref(
+  computed(() => {
+    return useUserStore.getUsers.find((user) => user.id === props.roomGroup.adminId)
+  })
+)
 
 const fileExtensionImages: Record<string, string> = {
   docx: '/images/chat/docx.png',
@@ -81,11 +86,12 @@ const closeDialogDisbandGroup = () => {
 }
 const disbandGroup = async () => {
   await $api.rooms.deleteRoom(props.groupId)
-  console.log('disbandGroup')
-  emit('set-null-user-recipient')
-  emit('fetch-chat-by-group')
-  reloadChatListing()
-  closeDialogDisbandGroup()
+  // console.log('disbandGroup')
+  // emit('set-null-user-recipient')
+  // emit('fetch-chat-by-group')
+  // reloadChatListing()
+  // closeDialogDisbandGroup()
+  useRoomStore.setRoom(null)
 }
 
 const deleteChatHistory = () => {
@@ -178,11 +184,12 @@ const closeDialogAddSubAdmin = () => {
 const openDialogMember = () => {
   addMemberGroupModel.open()
 }
-const getAdmin = async (id) => {
-  const users = await $api.users.getUsers()
-  const user = users.data.find((user) => user.id === id)
-  admin.value = user
-}
+// const getAdmin = async (id) => {
+//   console.log('111')
+//   const users = await $api.users.getUsers()
+//   const user = users.data.find((user) => user.id === id)
+//   admin.value = user
+// }
 
 const getSubAdmin = async () => {
   await $api.rooms.getSubAdmins(props.groupId).then((res) => {
@@ -196,18 +203,22 @@ const openDialogRemoveAdmin = () => {
 
 const leaveGroup = () => {
   if (confirm('Bạn có chắc chắn muốn rời khỏi nhóm?')) {
-    $api.rooms
-      .leaveRoom(props.groupId)
-      .then(() => {
-        useRoomStore.setRoom(null)
-        emit('leave-group')
-        reloadChatListing()
-        toast.success('Rời khỏi nhóm thành công')
-        isSettingGroup.value = false
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+    if (auth.id === props.roomGroup?.adminId) {
+      toast.error('Không thể rời khỏi nhóm vì bạn là trưởng nhóm')
+    } else {
+      $api.rooms
+        .leaveRoom(props.groupId)
+        .then(() => {
+          useRoomStore.setRoom(null)
+          emit('leave-group')
+          reloadChatListing()
+          toast.success('Rời khỏi nhóm thành công')
+          isSettingGroup.value = false
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    }
   }
 }
 
@@ -240,7 +251,6 @@ const reloadInfo = () => {
   emit('fetch-chat-by-group')
   isSettingGroup.value = false
   admin.value = {}
-  getAdmin(props.roomGroup.adminId)
   getSubAdmin()
 }
 
@@ -258,8 +268,6 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div hidden>{{ getAdmin(roomGroup.adminId) }}</div>
-  <div hidden>{{ auth.id !== admin.id ? (isSettingGroup = false) : (isSettingGroup = isSettingGroup) }}</div>
   <div v-if="(chatDetail && !isSettingGroup) || (chatDetail && !isGroup)" class="container">
     <div class="container-info">
       <v-avatar color="grey-darken-1 mt-5" size="70">
@@ -278,7 +286,7 @@ onMounted(() => {
           <v-icon class="mr-3">mdi-account-multiple-plus</v-icon>
           {{ t('chats.action.createGroup') }}
         </v-list-item>
-        <v-list-item v-if="isGroup && auth.id === admin.id" class="list-item" @click="settingGroup">
+        <v-list-item v-if="isGroup && auth.id === admin?.id" class="list-item" @click="settingGroup">
           <v-icon class="mr-3">mdi-cog</v-icon>
           {{ t('chats.action.manageGroup') }}
         </v-list-item>
@@ -405,7 +413,7 @@ onMounted(() => {
             <div class="file-item">
               <v-row class="align-center">
                 <v-icon class="ml-5 mr-3">
-                  <div hidden>{{ getAdmin(roomGroup.adminId) }}</div>
+                  <!--                  <div hidden>{{ getAdmin(roomGroup.adminId) }}</div>-->
                   <v-avatar>
                     <img
                       alt="pro"
@@ -503,11 +511,11 @@ onMounted(() => {
       <v-divider />
       <ChatsAddSubAdminDialog
         :admin="admin"
-        :friendsIsNotSubAdmin="friendsIsNotSubAdmin"
-        @close-dialog-add-sub-admin="closeDialogAddSubAdmin"
-        :groupId="groupId"
-        :members="roomGroup.members"
+        :friends-is-not-sub-admin="friendsIsNotSubAdmin"
         :group="roomGroup"
+        :group-id="groupId"
+        :members="roomGroup.members"
+        @close-dialog-add-sub-admin="closeDialogAddSubAdmin"
         @getSubAdmin="getSubAdmin"
       />
       <v-card-actions>
@@ -522,10 +530,10 @@ onMounted(() => {
       <v-divider />
       <ChatsChangeAdminDialog
         :admin="admin"
+        :group="roomGroup"
+        :group-id="groupId"
         :members="roomGroup.members"
         @closeDialogChangeAdmin="closeDialogChangeAdmin"
-        :groupId="groupId"
-        :group="roomGroup"
         @update:reload-info="reloadInfo"
       />
       <v-card-actions>

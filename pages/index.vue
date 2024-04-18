@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import AppBaseCard from '@/components/common/atom/AppBaseCard.vue'
 import ChatListing from '@/components/chats/ChatListing.vue'
 import ChatDetail from '@/components/chats/ChatDetail.vue'
@@ -7,6 +8,7 @@ import FriendMenu from '@/components/Friends/FriendMenu.vue'
 import ListFriends from '@/components/Friends/ListFriends.vue'
 import Welcome from '@/pages/auth/Welcome.vue'
 import { useRoom } from '~/stores/apps/room'
+import { useUsers } from '@/stores/apps/users'
 
 const { t } = useI18n()
 const { $api } = useNuxtApp()
@@ -33,6 +35,8 @@ const groupIdsToSubscribe = ref([])
 const connectedWs = ref(false)
 const subscribeGroup = ref(false)
 const useRoomStore = useRoom()
+const useUserStore = useUsers()
+const toast = useToast()
 
 const selectedMenuFriend = ref({
   title: 'Danh sách bạn bè',
@@ -69,14 +73,14 @@ const onError = () => {
 }
 
 const handleConfirmation = (message) => {
-  console.log(message.content,nameUser.value)
-  
-  if(message.content === nameUser.value) return
-  const confirmed = window.confirm(`${message.content} đang gọi`);
+  console.log(message.content, nameUser.value)
+
+  if (message.content === nameUser.value) return
+  const confirmed = window.confirm(`${message.content} đang gọi`)
   if (confirmed) {
-    window.open(`/chat/videoCall?username=${nameUser.value}&roomId=${message.chatId}`, '_blank');
+    window.open(`/chat/videoCall?username=${nameUser.value}&roomId=${message.chatId}`, '_blank')
   }
-};
+}
 
 const onMessageReceived = (payload) => {
   const message = JSON.parse(payload.body)
@@ -88,20 +92,35 @@ const onMessageReceived = (payload) => {
     reloadChatListing.value = true
   } else if (message.type === 'ADD_MEMBER') {
     reloadChatListing.value = true
+    reloadChatDetail.value = true
   } else if (message.type === 'LEAVE_GROUP') {
     reloadChatListing.value = true
     reloadChatDetail.value = true
   } else if (message.type === 'REMOVE_MEMBER') {
     reloadChatListing.value = true
+    reloadChatDetail.value = true
     if (message.recipientId === auth.id) {
       chatGroupId.value = ''
       useRoomStore.setRoom(null)
     }
-  } else if(message.type === 'CALL_VIDEO'){
+  } else if (message.type === 'CALL_VIDEO') {
     reloadChatListing.value = true
     reloadChatDetail.value = true
     handleConfirmation(message)
-  }else {
+  } else if (message.type === 'REMOVE_SUB_ADMIN') {
+    reloadChatDetail.value = true
+  } else if (message.type === 'CHANGE_ADMIN') {
+    reloadChatDetail.value = true
+    reloadChatListing.value = true
+  } else if (message.type === 'DELETE_GROUP') {
+    reloadChatListing.value = true
+    if (useRoomStore.getRoom?.id === message.chatId) {
+      chatGroupId.value = ''
+      useRoomStore.setRoom(null)
+      reloadChatDetail.value = true
+    }
+    toast.success('Nhóm ' + message.content + ' đã bị giải tán')
+  } else {
     messageReceived.value = message
     reloadChatListing.value = true
   }
@@ -146,9 +165,9 @@ const loadData = async () => {
   await fetchProfileById({})
 }
 
-// $listen('group:created', (groupId) => {
-//   stompClient.subscribe(`/user/${groupId}/queue/messages`, onMessageReceived)
-// })
+$listen('group:created', () => {
+  reloadChatListing.value = true
+})
 
 $listen('groups:fetch', (groupIds) => {
   groupIdsToSubscribe.value = groupIds
@@ -169,9 +188,15 @@ const leaveGroup = () => {
   reloadChatListing.value = true
 }
 
+const addUsersInStore = async () => {
+  const users = await $api.users.getUsers()
+  useUserStore.setUsers(users.data)
+}
+
 onMounted(() => {
   connect()
   loadData()
+  addUsersInStore()
 })
 </script>
 
