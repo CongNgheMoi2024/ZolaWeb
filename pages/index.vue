@@ -6,6 +6,7 @@ import ChatDetail from '@/components/chats/ChatDetail.vue'
 import FriendMenu from '@/components/Friends/FriendMenu.vue'
 import ListFriends from '@/components/Friends/ListFriends.vue'
 import Welcome from '@/pages/auth/Welcome.vue'
+import { useRoom } from '~/stores/apps/room'
 
 const { t } = useI18n()
 const { $api } = useNuxtApp()
@@ -31,6 +32,7 @@ const { $listen } = useNuxtApp()
 const groupIdsToSubscribe = ref([])
 const connectedWs = ref(false)
 const subscribeGroup = ref(false)
+const useRoomStore = useRoom()
 
 const selectedMenuFriend = ref({
   title: 'Danh sách bạn bè',
@@ -79,6 +81,12 @@ const onMessageReceived = (payload) => {
   } else if (message.type === 'LEAVE_GROUP') {
     reloadChatListing.value = true
     reloadChatDetail.value = true
+  } else if (message.type === 'REMOVE_MEMBER') {
+    reloadChatListing.value = true
+    if (message.recipientId === auth.id) {
+      chatGroupId.value = ''
+      useRoomStore.setRoom(null)
+    }
   } else {
     messageReceived.value = message
     reloadChatListing.value = true

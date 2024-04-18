@@ -79,7 +79,7 @@ const deleteMemberInGroup = (user) => {
         const messageContent = {
           chatId: props.group.id,
           senderId: auth?.id,
-          recipientId: props.recipientId,
+          recipientId: user.id,
           content: auth?.user?.name + ' đã xóa ' + user.name + ' khỏi nhóm',
           timestamp: new Date(),
         }
