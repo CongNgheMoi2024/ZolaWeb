@@ -389,7 +389,10 @@ const callVideo = async (roomId: string) => {
   await $api.users.getProfile(auth.id).then((res) => {
     userName = res.data.name
   })
-  window.open(`/chat/videoCall?username=${userName}&roomId=${111}`, '_blank')
+  await $api.rooms.callVideo(roomId).then((res) => {
+    console.log(res.data);
+  })
+  window.open(`/chat/videoCall?username=${userName}&roomId=${roomId}`, '_blank')
 }
 </script>
 <template>

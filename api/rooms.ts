@@ -52,4 +52,8 @@ export class RoomAPI extends BaseApi {
   changeAdmin(roomId: string, userId: string): Promise<any> {
     return this.put(`/rooms/${roomId}/change-admin/${userId}`)
   }
+
+  callVideo(roomId:string) : Promise<any> {
+    return this.get(`/rooms/${roomId}/call`)
+  }
 }

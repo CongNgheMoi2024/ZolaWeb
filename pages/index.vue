@@ -68,6 +68,16 @@ const onError = () => {
   console.log('error')
 }
 
+const handleConfirmation = (message) => {
+  console.log(message.content,nameUser.value)
+  
+  if(message.content === nameUser.value) return
+  const confirmed = window.confirm(`${message.content} đang gọi`);
+  if (confirmed) {
+    window.open(`/chat/videoCall?username=${nameUser.value}&roomId=${message.chatId}`, '_blank');
+  }
+};
+
 const onMessageReceived = (payload) => {
   const message = JSON.parse(payload.body)
   if (message.type === 'RECALL') {
@@ -87,7 +97,11 @@ const onMessageReceived = (payload) => {
       chatGroupId.value = ''
       useRoomStore.setRoom(null)
     }
-  } else {
+  } else if(message.type === 'CALL_VIDEO'){
+    reloadChatListing.value = true
+    reloadChatDetail.value = true
+    handleConfirmation(message)
+  }else {
     messageReceived.value = message
     reloadChatListing.value = true
   }
