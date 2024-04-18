@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import AppBaseCard from '@/components/common/atom/AppBaseCard.vue'
 import ChatListing from '@/components/chats/ChatListing.vue'
 import ChatDetail from '@/components/chats/ChatDetail.vue'
@@ -35,6 +36,7 @@ const connectedWs = ref(false)
 const subscribeGroup = ref(false)
 const useRoomStore = useRoom()
 const useUserStore = useUsers()
+const toast = useToast()
 
 const selectedMenuFriend = ref({
   title: 'Danh sách bạn bè',
@@ -117,6 +119,7 @@ const onMessageReceived = (payload) => {
       useRoomStore.setRoom(null)
       reloadChatDetail.value = true
     }
+    toast.success('Nhóm ' + message.content + ' đã bị giải tán')
   } else {
     messageReceived.value = message
     reloadChatListing.value = true

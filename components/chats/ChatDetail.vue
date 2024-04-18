@@ -394,6 +394,11 @@ const callVideo = async (roomId: string) => {
   })
   window.open(`/chat/videoCall?username=${userName}&roomId=${roomId}`, '_blank')
 }
+
+const findUserBySenderId = (senderId) => {
+  const user = useUserStore.getUsers.find((user) => user.id === senderId)
+  return user?.avatar
+}
 </script>
 <template>
   <v-col v-if="chatDetail" class="h-100">
@@ -725,7 +730,7 @@ const callVideo = async (roomId: string) => {
                       <v-avatar v-if="index === 0 || chat.senderId !== chatDetail[index - 1].senderId">
                         <img
                           alt="pro"
-                          :src="userRecipient.avatar ? userRecipient.avatar : '/images/profile/user-1.jpg'"
+                          :src="groupId !== '' ? findUserBySenderId(chat.senderId) : userRecipient.avatar || '/images/profile/user-1.jpg'"
                           width="40"
                         />
                       </v-avatar>
