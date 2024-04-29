@@ -48,4 +48,8 @@ export class UserAPI extends BaseApi {
   getUserByPhoneSkipMe(phone: string, id: string): Promise<any> {
     return this.get(`/users/${phone}/skip-me/${id}`)
   }
+
+  saveTokenNotification(token: any): Promise<any> {
+    return this.post('/notifications/save-token', { token })
+  }
 }

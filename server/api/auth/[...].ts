@@ -18,10 +18,11 @@ export default NuxtAuthHandler({
         username: { label: 'Email', type: 'text', placeholder: '(hint: jsmith)' },
         password: { label: 'Password', type: 'password', placeholder: '(hint: hunter2)' },
       },
-      async authorize(credentials: any) {
+      authorize: async (credentials: any) => {
         try {
           const runtimeConfig = useRuntimeConfig()
           const { data: res } = await axios.post(runtimeConfig.public.apiBase + '/auth/login', credentials)
+          console.log('res', res)
           // If no error and we have user data, return it
           if (res.data?.user) {
             return {
@@ -29,8 +30,6 @@ export default NuxtAuthHandler({
               access_token: res.data?.access_token,
             }
           }
-
-          return null
         } catch (e) {
           throw createError({
             statusCode: 403,
@@ -53,10 +52,6 @@ export default NuxtAuthHandler({
       ;(session as any).jwt = token.jwt
       ;(session as any).id = token.id
       return Promise.resolve(session)
-    },
-    redirect({ url, baseUrl }) {
-      const runtimeConfig = useRuntimeConfig()
-      return url.startsWith(baseUrl) ? url : runtimeConfig.public.nextAuthUrl + url
     },
   },
 })

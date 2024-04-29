@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
+import { getToken } from 'firebase/messaging'
 import AppBaseCard from '@/components/common/atom/AppBaseCard.vue'
 import ChatListing from '@/components/chats/ChatListing.vue'
 import ChatDetail from '@/components/chats/ChatDetail.vue'
@@ -37,6 +38,7 @@ const subscribeGroup = ref(false)
 const useRoomStore = useRoom()
 const useUserStore = useUsers()
 const toast = useToast()
+const messagingToken = ref(' ')
 
 const selectedMenuFriend = ref({
   title: 'Danh sách bạn bè',
@@ -193,10 +195,44 @@ const addUsersInStore = async () => {
   useUserStore.setUsers(users.data)
 }
 
+const setToken = async () => {
+  const { $messaging } = useNuxtApp()
+
+  await getToken($messaging, {
+    vapidKey: 'BKbMAOeCSK-A0v4gO7QkVLX6c3pcRQspYKpUmoDKcLzD3ZOEJDyoav3WHXEtqMVQGzyWYxXfWiX7oehTmG7pRos',
+  })
+    .then((token) => {
+      if (token) {
+        messagingToken.value = token
+        $api.users.saveTokenNotification(token)
+      } else {
+        console.log('Token:', 'No registration token available. Request permission to generate one.')
+      }
+    })
+    .catch((err) => {
+      console.log('An error occurred while retrieving token. ', err)
+    })
+}
+
+const permissionNotification = () => {
+  if (!window.Notification) return
+
+  if (window.Notification.permission === 'granted') {
+    setToken()
+  } else {
+    window.Notification.requestPermission((value) => {
+      if (value === 'granted') {
+        setToken()
+      }
+    })
+  }
+}
+
 onMounted(() => {
   connect()
   loadData()
   addUsersInStore()
+  permissionNotification()
 })
 </script>
 

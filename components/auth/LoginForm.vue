@@ -51,14 +51,14 @@ const login = handleSubmit(async (values) => {
   await signIn('credentials', {
     phone: values.phone,
     password: values.password,
-    redirect: true,
-    callbackUrl: '/',
+    redirect: false,
   })
     .then(({ error, ok }) => {
       if (error) {
         toast.error(t('login.message.loginFailed'))
         loading.value = false
-        setErrors(error)
+      } else {
+        router.push({ path: '/' })
       }
     })
     .finally(() => {

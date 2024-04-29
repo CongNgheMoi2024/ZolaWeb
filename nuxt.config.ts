@@ -33,16 +33,23 @@ export default defineNuxtConfig({
     '@/plugins/directive.client',
     '@/plugins/vue3-emoji-picker.client',
     '@/plugins/event-bus',
+    '@/plugins/firebase.client',
   ],
   auth: {
     origin: process.env.ORIGIN,
     enableGlobalAppMiddleware: true,
     enableSessionRefreshPeriodically: false,
-    enableSessionRefreshOnWindowFocus: true,
+    enableSessionRefreshOnWindowFocus: false,
   },
   app: {
     head: {
       title: 'Zola',
+      link: [
+        {
+          rel: 'manifest',
+          href: '/manifest.webmanifest',
+        },
+      ],
     },
   },
   nitro: {

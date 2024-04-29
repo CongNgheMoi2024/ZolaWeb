@@ -171,12 +171,12 @@ const fetchChatByGroup = async () => {
 
 const addChatSendMsg = (msg) => {
   if (userRecipient.value.id) {
-    chatDetail.value.push(msg)
     emit('chat-send-msg', msg)
     fetchChatDetail()
     scrollToBottom()
     getImagesAndVideos()
     getFiles()
+    console.log('chatDetail', chatDetail.value)
   }
 }
 

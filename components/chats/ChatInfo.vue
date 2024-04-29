@@ -264,7 +264,9 @@ const deleteSubAdmin = async () => {
 onMounted(() => {
   closeSettingGroup()
   captureAll()
-  getSubAdmin()
+  if (props.isGroup) {
+    getSubAdmin()
+  }
 })
 </script>
 <template>
